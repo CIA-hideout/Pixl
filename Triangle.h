@@ -1,0 +1,35 @@
+#ifndef _TRIANGLE_H_
+#define _TRIANGLE_H_
+
+#include "entity.h"
+#include "constants.h"
+
+namespace TriangleNS {
+
+	const float		MASS = 300.0f;
+	const float		SCALING = 0.5f;
+	const float		SPEED = 100;
+	const float		ROTATION_RATE = (float)PI / 4;
+	const int		WIDTH = 128;
+	const int		HEIGHT = 128;
+	const int		TEXTURE_COLS = 1;
+	const int		TRIANGLE_END_FRAME = 0;
+	const int		TRIANGLE_START_FRAME = 0;
+	const int		X = GAME_WIDTH / 2 - WIDTH / 2;
+	const int		Y = GAME_HEIGHT / 2 - HEIGHT / 2;
+	const LPCWSTR	fileName = L"triangle.png";
+
+}
+
+class Triangle : public Entity {
+public:
+
+	Triangle();
+
+	virtual void draw();
+	virtual bool initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
+	void update(float deltaTime);
+	void damage(WEAPON);
+};
+
+#endif
