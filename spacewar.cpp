@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <timeapi.h>
+#include <sstream>
+#include <iomanip>
 
 double calculateF(Entity* e1, Entity* e2);
 
@@ -29,11 +31,16 @@ bool			playerIsInvulnerable;
 
 DWORD			waveStartTime, nextWaveTime;
 
+DWORD			baseTime, currTime;
+
+std::stringstream ss;
+
 //=============================================================================
 // Constructor
 //=============================================================================
-Spacewar::Spacewar()
-{}
+Spacewar::Spacewar() {
+
+}
 
 //=============================================================================
 // Destructor
@@ -74,13 +81,20 @@ void Spacewar::initialize(HWND hwnd) {
 	shipTextures.initialize(graphics, PLAYER_TEXTURE);
 	triangleTextures.initialize(graphics, TRIANGLE_TEXTURE);
 	blackHoleTexture.initialize(graphics, BLACKHOLE_TEXTURE);
+	heartTexture.initialize(graphics, HEART_TEXTURE);
 	fontTexture.initialize(graphics, FONT_TEXTURE);
 
-	sysFont = new Font();
-	sysFont->initialize(this, 2048, 2048, 16, &fontTexture);
-	sysFont->loadTextData(FONT_TEXTURE_INFO);
-	sysFont->setHeight(128);
-	sysFont->setWidth(128);
+	timeFont = new Font();
+	timeFont->initialize(this, 2048, 2048, 16, &fontTexture);
+	timeFont->loadTextData(FONT_TEXTURE_INFO);
+	timeFont->setHeight(128);
+	timeFont->setWidth(128);
+
+	comboFont = new Font();
+	comboFont->initialize(this, 2048, 2048, 16, &fontTexture);
+	comboFont->loadTextData(FONT_TEXTURE_INFO);
+	comboFont->setHeight(128);
+	comboFont->setWidth(128);
 
 	player = new Ship();
 
@@ -110,6 +124,28 @@ void Spacewar::initialize(HWND hwnd) {
 	blackhole->setScale(0.5f);
 
 	addEntity(blackhole);
+
+	int dx = GAME_WIDTH - 10;
+
+	for (int i = 0; i < 10; i++) {
+
+		Entity* heart = new Entity();
+		heart->initialize(this, 128, 128, 2, &heartTexture);
+		heart->setCurrentFrame(0);
+		heart->setVelocity(0, 0);
+		heart->setMass(0);
+		heart->setScale(0.5);
+
+		heart->setX(dx - heart->getWidth() * heart->getScale());
+		heart->setY(GAME_HEIGHT - heart->getHeight() * heart->getScale() - 10);
+
+		printf("%d, %d\n", heart->getX(), heart->getY());
+
+		dx -= heart->getWidth() * heart->getScale();
+
+		hearts.push_back(heart);
+
+	}
 
 	//for (int i = 0; i < 10; i++) {
 
@@ -154,35 +190,46 @@ void Spacewar::initialize(HWND hwnd) {
 	//	addEntity(triangle);
 	//}
 
+	baseTime = timeGetTime();
+
 	return;
 }
 
-//=============================================================================
-// Update all game items
-//=============================================================================
 void Spacewar::update() {
+	// purely for debugging
 	if (input->isKeyDown(0x42))
 			blackhole->setMass(1);
 	else
 		blackhole->setMass(9999999999999.0f);
-	
+
+	for (int i = 0; i < hearts.size() - player->getHealth(); i++) {
+		hearts[i]->setCurrentFrame(1);
+	}
+
+	for (int i = player->getHealth(); i < hearts.size(); i++) {
+		hearts[i]->setCurrentFrame(0);
+	}
+
 }
 
-//=============================================================================
-// Artificial Intelligence
-//=============================================================================
 void Spacewar::ai() {
 
 }
 
-//=============================================================================
-// Render game items
-//=============================================================================
 void Spacewar::render()
 {
 	graphics->spriteBegin();                // begin drawing sprites
 
-	sysFont->Print(100, 100, "hello world");
+	ss.str("");
+	ss << std::fixed << std::setprecision(1) << (float)(timeGetTime() - baseTime) / 1000;
+	timeFont->Print(GAME_WIDTH / 2 - timeFont->getTotalWidth(ss.str()) / 2, 10, ss.str());
+	ss.str("x" + std::to_string(combo));
+	comboFont->Print(10, GAME_HEIGHT - comboFont->getHeight() * comboFont->getScale(), ss.str());
+
+	for (std::vector<Entity*>::iterator iter = hearts.begin(); iter != hearts.end(); iter++) {
+		(*iter)->draw();
+	}
+
 	DrawEntities();
 
 	graphics->spriteEnd();                  // end drawing sprites

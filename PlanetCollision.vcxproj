@@ -87,7 +87,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AsciiChar.cpp" />
     <ClCompile Include="Blackhole.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="Font.cpp" />
@@ -102,7 +101,6 @@
     <ClCompile Include="winmain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AsciiChar.h" />
     <ClInclude Include="Blackhole.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="entity.h" />

@@ -29,12 +29,15 @@ private:
 	TextureManager			triangleTextures;
 	TextureManager			blackHoleTexture;
 	TextureManager			fontTexture;
+	TextureManager			heartTexture;
 
 	std::vector<Entity*>	entities;
+	std::vector<Entity*>	hearts;
 
 	Ship*					player;
 	Blackhole*				blackhole;
-	Font*					sysFont;
+	Font*					timeFont;
+	Font*					comboFont;
 
 public:
     // Constructor

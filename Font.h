@@ -14,12 +14,12 @@ public:
 	virtual void draw();
 	virtual bool initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
 	void update(float deltaTime);
-	void damage(WEAPON);
+
+	int getTotalWidth(std::string text);
 
 private:
 
 	int				widths[256];
-	TextureManager*	texture;
 
 
 };

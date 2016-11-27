@@ -61,7 +61,6 @@ void Font::Print(int x, int y, std::string text) {
 
 		int frame = (int)text[i] - '!' + 1;
 		setCurrentFrame(frame);
-		printf("%d, %d\n", frame, getWidth());
 		setX(fx);
 		setY(fy);
 		draw();
@@ -70,6 +69,20 @@ void Font::Print(int x, int y, std::string text) {
 		fx += widths[frame] * getScale();
 
 	}
+}
+
+int Font::getTotalWidth(std::string text) {
+
+	int fx = 0;
+
+	for (int i = 0; i < text.length(); i++) {
+
+		int frame = (int)text[i] - '!' + 1;
+		fx += widths[frame] * this->getScale();
+
+	}
+
+	return fx;
 }
 
 void Font::draw() {
