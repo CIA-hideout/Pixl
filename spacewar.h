@@ -14,6 +14,7 @@
 #include "image.h"
 #include "ship.h"
 #include "Triangle.h"
+#include "Circle.h"
 #include "Blackhole.h"
 
 //=============================================================================
@@ -26,6 +27,7 @@ private:
     // game items
 	TextureManager			shipTextures;
 	TextureManager			triangleTextures;
+	TextureManager			circleTextures;
 	TextureManager			blackHoleTexture;
 	TextureManager			fontTexture;
 

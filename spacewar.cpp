@@ -73,6 +73,7 @@ void Spacewar::initialize(HWND hwnd) {
 	// main game textures
 	shipTextures.initialize(graphics, PLAYER_TEXTURE);
 	triangleTextures.initialize(graphics, TRIANGLE_TEXTURE);
+	circleTextures.initialize(graphics, CIRCLE_TEXTURE);
 	blackHoleTexture.initialize(graphics, BLACKHOLE_TEXTURE);
 
 	player = new Ship();
@@ -91,6 +92,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	addEntity(player);
 
+	/*
 	blackhole = new Blackhole();
 	blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
 	blackhole->setFrames(blackholeNS::BLACKHOLE_START_FRAME, blackholeNS::BLACKHOLE_END_FRAME);
@@ -104,61 +106,48 @@ void Spacewar::initialize(HWND hwnd) {
 
 	addEntity(blackhole);
 
-	//for (int i = 0; i < 10; i++) {
+	*/
+	
 
-	//	Triangle* triangle = new Triangle();
-	//	triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
-	//	triangle->setFrames(TriangleNS::TRIANGLE_START_FRAME, TriangleNS::TRIANGLE_END_FRAME);
-	//	triangle->setCurrentFrame(TriangleNS::TRIANGLE_START_FRAME);
-	//	triangle->setVelocity(10, 20);
-	//	triangle->setObjectType(TRIANGLES);
+	// Spawn Triangles
+	for (int i = 0; i < 0; i++) {
+	
+		Triangle* triangle = new Triangle();
+		triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
+		triangle->setFrames(TriangleNS::TRIANGLE_START_FRAME, TriangleNS::TRIANGLE_END_FRAME);
+		triangle->setCurrentFrame(TriangleNS::TRIANGLE_START_FRAME);
+		triangle->setVelocity(10, 20);
+		triangle->setObjectType(TRIANGLES);
 
-	//	// random spawn on border
-	//	side = rand() % 4;
+		triangle->spawn();		//	spawn triangle in its own method.
+		addEntity(triangle);
+	} 
 
-	//	switch (side) {
-	//		// left
-	//		case 0: {
-	//					triangle->setX(0 - rand() % GAME_WIDTH);
-	//					triangle->setY(rand() % GAME_HEIGHT);
-	//		} break;
-	//			// top
-	//		case 1: {
-	//					triangle->setX(rand() % GAME_WIDTH);
-	//					triangle->setY(-(rand() % GAME_HEIGHT));
-	//		} break;
-	//			// right
-	//		case 2: {
-	//					triangle->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
-	//					triangle->setY(rand() % GAME_HEIGHT);
-	//		} break;
-	//			// bottom
-	//		case 3: {
-	//					triangle->setX(rand() % GAME_WIDTH);
-	//					triangle->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
-	//		} break;
-	//	}
+	// Spawn Circles
+	for (int i = 0; i < 10; i++){
+		
+		Circle* circle = new Circle();
+		circle->initialize(this, CircleNS::WIDTH, CircleNS::HEIGHT, CircleNS::TEXTURE_COLS, &circleTextures);
+		circle->setFrames(CircleNS::CIRCLE_START_FRAME, CircleNS::CIRCLE_END_FRAME);
+		circle->setVelocity(10, 20);
+		circle->setObjectType(CIRCLES);
 
-	//	triangle->setX(rand() % GAME_WIDTH);
-	//	triangle->setY(rand() % GAME_HEIGHT);
-
-	//	triangle->setScale(0.5);
-
-	//	addEntity(triangle);
-	//}
-
-	return;
+		circle->spawn();
+		addEntity(circle);
+	}
+	
 }
 
 //=============================================================================
 // Update all game items
 //=============================================================================
 void Spacewar::update() {
+	/*
 	if (input->isKeyDown(0x42))
 			blackhole->setMass(1);
 	else
 		blackhole->setMass(9999999999999.0f);
-	
+	*/
 }
 
 //=============================================================================
@@ -246,7 +235,7 @@ void Spacewar::UpdateEntities() {
 										);
 
 									// calculate black hole's attraction here
-									calculateF(blackhole, player);
+									//calculateF(blackhole, player);
 
 									printf("%.2f, %d\n", player->getHealth(), playerIsInvulnerable);
 
@@ -282,7 +271,13 @@ void Spacewar::UpdateEntities() {
 								(*iter)->update(deltaTime);
 			} break;
 
-			case BLACKHOLE: {
+			case CIRCLES: {
+
+				//double dx, dy;
+
+			} break;
+
+			case BLACKHOLE_: {
 								(*iter)->setRadians(timeGetTime());
 								(*iter)->update(deltaTime);
 			} break;
@@ -304,6 +299,8 @@ void Spacewar::collisions()
 {
 	VECTOR2 collisionVector;
 	// if collision between ship and planet
+
+	/*
 	if (player->collidesWith(*blackhole, collisionVector))
 	{
 		if (!playerIsInvulnerable) {
@@ -314,6 +311,8 @@ void Spacewar::collisions()
 			playerInvulnerableTimer = 2.0f;
 		}
 	}
+
+	*/
 
 	// if collision between ships
 	//if (ship1.collidesWith(ship2, collisionVector))
