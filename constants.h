@@ -48,8 +48,8 @@ const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
 // graphic images
-const char FONT_TEXTURE[] = "resources\\font.tga";
-const char FONT_TEXTURE_INFO[] = "resources\\font.bat"; 
+const char FONT_TEXTURE[] = "resources\\font.png";
+const char FONT_TEXTURE_INFO[] = "resources\\font.dat"; 
 const char PLAYER_TEXTURE[] = "resources\\mc_sprite.png";
 const char TRIANGLE_TEXTURE[] = "resources\\triangle.png";
 const char BLACKHOLE_TEXTURE[] = "resources\\blackhole.png";

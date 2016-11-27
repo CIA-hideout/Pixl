@@ -38,6 +38,7 @@ private:
 	Blackhole*				blackhole;
 	Font*					timeFont;
 	Font*					comboFont;
+	Font*					scoreFont;
 
 public:
     // Constructor

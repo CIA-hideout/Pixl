@@ -31,6 +31,7 @@ bool Font::initialize(Game *gamePtr, int width, int height, int ncols, TextureMa
 }
 
 bool Font::loadTextData(std::string fileName) {
+
 	char buffer[512];
 
 	std::ifstream infile;
@@ -47,6 +48,7 @@ bool Font::loadTextData(std::string fileName) {
 
 	for (int i = 0; i < sizeof(this->widths) / sizeof(this->widths[0]); i++) {
 		widths[i] = (int)buffer[i * 2];
+		printf("width: %d\n", widths[i]);
 	}
 
 	return true;
@@ -78,7 +80,7 @@ int Font::getTotalWidth(std::string text) {
 	for (int i = 0; i < text.length(); i++) {
 
 		int frame = (int)text[i] - '!' + 1;
-		fx += widths[frame] * this->getScale();
+		fx += widths[frame] * getScale();
 
 	}
 

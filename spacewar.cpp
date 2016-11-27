@@ -96,8 +96,13 @@ void Spacewar::initialize(HWND hwnd) {
 	comboFont->setHeight(128);
 	comboFont->setWidth(128);
 
-	player = new Ship();
+	scoreFont = new Font();
+	scoreFont->initialize(this, 2048, 2048, 16, &fontTexture);
+	scoreFont->loadTextData(FONT_TEXTURE_INFO);
+	scoreFont->setHeight(128);
+	scoreFont->setWidth(128);
 
+	player = new Ship();
 	player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
 	player->setFrames(shipNS::player_START_FRAME, shipNS::player_END_FRAME);
 	player->setCurrentFrame(shipNS::player_START_FRAME);
@@ -108,10 +113,7 @@ void Spacewar::initialize(HWND hwnd) {
 	player->setRadians(0);
 	player->setHealth(3);
 
-	printf("%d\n", player->getHealth());
-
 	addEntity(player);
-
 	blackhole = new Blackhole();
 	blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
 	blackhole->setFrames(blackholeNS::BLACKHOLE_START_FRAME, blackholeNS::BLACKHOLE_END_FRAME);
@@ -138,8 +140,6 @@ void Spacewar::initialize(HWND hwnd) {
 
 		heart->setX(dx - heart->getWidth() * heart->getScale());
 		heart->setY(GAME_HEIGHT - heart->getHeight() * heart->getScale() - 10);
-
-		printf("%d, %d\n", heart->getX(), heart->getY());
 
 		dx -= heart->getWidth() * heart->getScale();
 
@@ -225,6 +225,9 @@ void Spacewar::render()
 	timeFont->Print(GAME_WIDTH / 2 - timeFont->getTotalWidth(ss.str()) / 2, 10, ss.str());
 	ss.str("x" + std::to_string(combo));
 	comboFont->Print(10, GAME_HEIGHT - comboFont->getHeight() * comboFont->getScale(), ss.str());
+	// ss.str(std::to_string(playerScore));
+	ss.str(std::to_string(9993));
+	scoreFont->Print(10, 10, ss.str());
 
 	for (std::vector<Entity*>::iterator iter = hearts.begin(); iter != hearts.end(); iter++) {
 		(*iter)->draw();
@@ -303,8 +306,6 @@ void Spacewar::UpdateEntities() {
 									// calculate black hole's attraction here
 									calculateF(blackhole, player);
 
-									printf("%.2f, %d\n", player->getHealth(), playerIsInvulnerable);
-
 									if (playerIsInvulnerable) {
 										playerInvulnerableTimer -= deltaTime;
 										if (playerInvulnerableTimer < 0) {
@@ -365,6 +366,7 @@ void Spacewar::collisions()
 			// bounce off planet
 			player->bounce(collisionVector, *blackhole);
 			player->damage(BLACKHOLE);
+			combo = 0;
 			playerIsInvulnerable = true;
 			playerInvulnerableTimer = 2.0f;
 		}
