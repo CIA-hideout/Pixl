@@ -48,11 +48,21 @@ const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
 // graphic images
-const char PLAYER_TEXTURE[] = "resources\\mc_sprite.png";
-const char TRIANGLE_TEXTURE[] = "resources\\triangle.png";
-const char BLACKHOLE_TEXTURE[] = "resources\\blackhole.png";
-const char FONT_TEXTURE[] = "resources\\font.tga";
-const char FONT_TEXTURE_INFO[] = "resources\\font.bat";
+const char PLAYER_TEXTURE[]			= "resources\\mc_sprite.png";
+const char PLAYER_DEATH_TEXTURE[]	= "resources\\player_death_animation.png";
+const char TRIANGLE_TEXTURE[]		= "resources\\triangle.png";
+const char BLACKHOLE_TEXTURE[]		= "resources\\blackhole.png";
+const char FONT_TEXTURE[]			= "resources\\font.tga";
+const char FONT_TEXTURE_INFO[]		= "resources\\font.bat";
+
+// PLAYER DEATH
+const int P_DEATH_WIDTH					= 256;			// player death width
+const int P_DEATH_HEIGHT				= 256;			// player death height
+const int P_DEATH_COLS					= 8;			// player death columns
+const int P_DEATH_START_FRAME			= 0;			// player death start frame number
+const int P_DEATH_END_FRAME				= 25;			// player death end frame number
+const float P_DEATH_SCALE				= 0.5f;			// player starting scale
+const float P_DEATH_ANIMATION_DELAY		= 0.42f;		// player death animation time between frames
 
 // key mappings
 // In this game simple constants are used for key mappings. If variables were used
@@ -60,13 +70,14 @@ const char FONT_TEXTURE_INFO[] = "resources\\font.bat";
 const UCHAR ESC_KEY = VK_ESCAPE;       // escape key
 const UCHAR ALT_KEY = VK_MENU;         // Alt key
 const UCHAR ENTER_KEY = VK_RETURN;       // Enter key
-
 const UCHAR SHIP_ROTATE_LEFT = VK_LEFT;
 const UCHAR SHIP_ROTATE_RIGHT = VK_RIGHT;
 const UCHAR SHIP_ADD_V = VK_UP;
 const UCHAR SHIP_SUBTRACT_V = VK_DOWN;
 
 // weapon types
-enum WEAPON { TORPEDO, SHIP, PLANET, BLACKHOLE };
+enum WEAPON { 
+	ENEMY,				// enemy = cicles, triangles
+	BLACKHOLE };		
 
 #endif

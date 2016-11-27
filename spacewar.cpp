@@ -25,7 +25,7 @@ int				waveTriangleCount, waveCircleCount, waveBossCount;
 int				currentWave;
 
 bool			controlsInverted, blackholeRunning, isStunned, isEnlarged;
-bool			playerIsInvulnerable;
+bool			playerIsInvulnerable, playerIsDead;
 
 DWORD			waveStartTime, nextWaveTime;
 
@@ -48,7 +48,7 @@ Spacewar::~Spacewar() {
 //=============================================================================
 void Spacewar::initialize(HWND hwnd) {
 
-	AllocConsole();
+	//AllocConsole();			// Brings up console
 
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
@@ -62,6 +62,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	playerInvulnerableTimer = 2000.0f;
 	playerIsInvulnerable = false;
+	playerIsDead = false;
 
 	playerHealth = 3;
 	playerMaxHealth = 10;
@@ -72,14 +73,15 @@ void Spacewar::initialize(HWND hwnd) {
 
 	// main game textures
 	shipTextures.initialize(graphics, PLAYER_TEXTURE);
+	p_deathTextures.initialize(graphics, PLAYER_DEATH_TEXTURE);
 	triangleTextures.initialize(graphics, TRIANGLE_TEXTURE);
 	blackHoleTexture.initialize(graphics, BLACKHOLE_TEXTURE);
 
 	player = new Ship();
 
 	player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
-	player->setFrames(shipNS::player_START_FRAME, shipNS::player_END_FRAME);
-	player->setCurrentFrame(shipNS::player_START_FRAME);
+	player->setFrames(shipNS::player_START_FRAME, shipNS::player_END_FRAME);		//<-
+	player->setCurrentFrame(shipNS::player_START_FRAME);							//<- supposedly not needed right
 	player->setX(GAME_WIDTH / 4);
 	player->setY(GAME_HEIGHT / 4);
 	player->setVelocity(shipNS::SPEED, -shipNS::SPEED);
@@ -220,33 +222,40 @@ void Spacewar::UpdateEntities() {
 		{
 
 			case PLAYER_SPRITE: {
+									if (!playerIsDead)
+									{
+										if (input->isKeyDown(VK_UP)) {
+											(*iter)->setVelocity(
+												(cos((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().x),
+												(sin((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().y)
+												);
+										}
 
-									if (input->isKeyDown(VK_UP)) {
+										if (input->isKeyDown(VK_LEFT)) {
+											(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
+										}
+
+										if (input->isKeyDown(VK_RIGHT)) {
+											(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
+										}
+
+										if (input->isKeyDown(0x5A)) {
+											(*iter)->setVelocity(0, 0);
+										}
 										(*iter)->setVelocity(
-											(cos((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().x),
-											(sin((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().y)
-											);
+											(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
+											(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
+										);
+										
+										// calculate black hole's attraction here
+										calculateF(blackhole, player);
 									}
-
-									if (input->isKeyDown(VK_LEFT)) {
-										(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
-									}
-
-									if (input->isKeyDown(VK_RIGHT)) {
-										(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
-									}
-
-									if (input->isKeyDown(0x5A)) {
+									else
+									{
 										(*iter)->setVelocity(0, 0);
 									}
 
-									(*iter)->setVelocity(
-										(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
-										(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
-										);
-
-									// calculate black hole's attraction here
-									calculateF(blackhole, player);
+									
 
 									printf("%.2f, %d\n", player->getHealth(), playerIsInvulnerable);
 
@@ -282,9 +291,16 @@ void Spacewar::UpdateEntities() {
 								(*iter)->update(deltaTime);
 			} break;
 
-			case BLACKHOLE: {
-								(*iter)->setRadians(timeGetTime());
-								(*iter)->update(deltaTime);
+			case BLACKHOLE_: {
+								if (!playerIsDead)
+								{
+									(*iter)->setRadians(timeGetTime());
+									(*iter)->update(deltaTime);
+								}
+								else
+								{
+									(*iter)->setRadians(0);
+								}
 			} break;
 		}
 	}
@@ -296,22 +312,42 @@ void Spacewar::DrawEntities() {
 	}
 }
 
-int genScore(int combo) {
+int Spacewar::genScore(int combo) {
 	return 2 + int(pow(combo, 1.5));
 }
 
 void Spacewar::collisions()
 {
 	VECTOR2 collisionVector;
-	// if collision between ship and planet
+	// if collision between ship and blackhole
 	if (player->collidesWith(*blackhole, collisionVector))
 	{
 		if (!playerIsInvulnerable) {
-			// bounce off planet
+			// bounce off blackhole
 			player->bounce(collisionVector, *blackhole);
 			player->damage(BLACKHOLE);
-			playerIsInvulnerable = true;
-			playerInvulnerableTimer = 2.0f;
+
+			if (player->getHealth() > 0)			// if player is alive
+			{
+				playerIsInvulnerable = true;
+				playerInvulnerableTimer = 2.0f;
+			}
+			else if (player->getHealth() <= 0)		// if player is not alive
+			{
+				if (!playerIsDead)		// start death animation
+				{
+					playerIsDead = true;
+					player->initialize(this, P_DEATH_WIDTH, P_DEATH_HEIGHT, P_DEATH_COLS, &p_deathTextures);
+					player->setFrames(P_DEATH_START_FRAME, P_DEATH_END_FRAME);
+					player->setCurrentFrame(P_DEATH_START_FRAME);
+					player->setFrameDelay(P_DEATH_ANIMATION_DELAY);
+					player->setLoop(false);
+					//player->setRadians(prevAngle);
+					player->setScale(0.5f);
+					player->setRect();
+				}
+			}
+
 		}
 	}
 
@@ -327,7 +363,7 @@ void Spacewar::collisions()
 	//}
 }
 
-double calculateF(Entity* e1, Entity* e2) {
+double Spacewar::calculateF(Entity* e1, Entity* e2) {
 	double deltaX = e1->getX() + e1->getWidth() / 2 * e1->getScale() - e2->getX() - e2->getWidth() * e2->getScale() / 2;
 	double deltaY = e1->getY() + e1->getHeight() / 2 * e1->getScale() - e2->getY() - e2->getHeight() * e2->getScale() / 2;
 	double distance = sqrt(pow(deltaX, 2) + pow(deltaY, 2));

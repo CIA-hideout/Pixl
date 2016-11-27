@@ -83,15 +83,18 @@ void Ship::damage(WEAPON weapon) {
 
 	switch (weapon)
 	{
-		case TORPEDO:
-			break;
-		case SHIP:
-			break;
-		case PLANET:
-			break;
-		case BLACKHOLE: {
-							this->setHealth(0);
+		case ENEMY: {												// if player touch normal enemies (CIRCLES and TRIANGLES)
+							this->setHealth(this->getHealth() - 1);    // reduce player health by 1
 		} break;
+
+		case BOSS: {												// if player touch boss enemy
+							this->setHealth(this->getHealth() - 2);    // reduce player health by 2
+		} break;
+
+		case BLACKHOLE: {											// if player touch blackhole entity
+							this->setHealth(0);						// kill player instantly
+		} break;
+
 		default:
 			break;
 	}

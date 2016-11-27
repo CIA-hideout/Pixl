@@ -25,6 +25,7 @@ private:
 
     // game items
 	TextureManager			shipTextures;
+	TextureManager			p_deathTextures;
 	TextureManager			triangleTextures;
 	TextureManager			blackHoleTexture;
 	TextureManager			fontTexture;
@@ -53,7 +54,8 @@ public:
 	void addEntity(Entity* entity);
 	void UpdateEntities();
 	void DrawEntities();
-	
+	int genScore(int combo);								// return Score based on combo
+	double calculateF(Entity* entity, Entity* entity2);		// return Force based 2 entities
 };
 
 #endif

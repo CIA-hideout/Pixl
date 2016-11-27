@@ -3,6 +3,7 @@
 // Charles Kelly
 // Chapter 6 graphics.cpp v1.1
 
+#include <d3d9.h>
 #include "graphics.h"
 
 //=============================================================================
