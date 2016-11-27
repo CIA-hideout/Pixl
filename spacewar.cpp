@@ -74,6 +74,13 @@ void Spacewar::initialize(HWND hwnd) {
 	shipTextures.initialize(graphics, PLAYER_TEXTURE);
 	triangleTextures.initialize(graphics, TRIANGLE_TEXTURE);
 	blackHoleTexture.initialize(graphics, BLACKHOLE_TEXTURE);
+	fontTexture.initialize(graphics, FONT_TEXTURE);
+
+	sysFont = new Font();
+	sysFont->initialize(this, 2048, 2048, 16, &fontTexture);
+	sysFont->loadTextData(FONT_TEXTURE_INFO);
+	sysFont->setHeight(128);
+	sysFont->setWidth(128);
 
 	player = new Ship();
 
@@ -175,6 +182,7 @@ void Spacewar::render()
 {
 	graphics->spriteBegin();                // begin drawing sprites
 
+	sysFont->Print(100, 100, "hello world");
 	DrawEntities();
 
 	graphics->spriteEnd();                  // end drawing sprites

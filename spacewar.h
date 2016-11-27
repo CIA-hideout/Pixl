@@ -13,6 +13,7 @@
 #include "textureManager.h"
 #include "image.h"
 #include "ship.h"
+#include "Font.h"
 #include "Triangle.h"
 #include "Blackhole.h"
 
@@ -33,6 +34,7 @@ private:
 
 	Ship*					player;
 	Blackhole*				blackhole;
+	Font*					sysFont;
 
 public:
     // Constructor

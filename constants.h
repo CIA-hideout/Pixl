@@ -52,7 +52,7 @@ const char PLAYER_TEXTURE[] = "resources\\mc_sprite.png";
 const char TRIANGLE_TEXTURE[] = "resources\\triangle.png";
 const char BLACKHOLE_TEXTURE[] = "resources\\blackhole.png";
 const char FONT_TEXTURE[] = "resources\\font.tga";
-const char FONT_TEXTURE_INFO[] = "resources\\font.bat";
+const char FONT_TEXTURE_INFO[] = "resources\\font.bat"; 
 
 // key mappings
 // In this game simple constants are used for key mappings. If variables were used
