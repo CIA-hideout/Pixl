@@ -15,6 +15,7 @@ double calculateF(Entity* e1, Entity* e2);
 float			playerAcceleratioRate;
 float			playerDeccelerationRate;
 float			playerTurnMultiplier;
+float			playerInvulnerableTimer;
 
 int				playerMaxHealth, playerHealth;
 int				playerScore, playerLevel;
@@ -24,6 +25,7 @@ int				waveTriangleCount, waveCircleCount, waveBossCount;
 int				currentWave;
 
 bool			controlsInverted, blackholeRunning, isStunned, isEnlarged;
+bool			playerIsInvulnerable;
 
 DWORD			waveStartTime, nextWaveTime;
 
@@ -36,8 +38,7 @@ Spacewar::Spacewar()
 //=============================================================================
 // Destructor
 //=============================================================================
-Spacewar::~Spacewar()
-{
+Spacewar::~Spacewar() {
 	releaseAll();           // call onLostDevice() for every graphics item
 }
 
@@ -55,9 +56,12 @@ void Spacewar::initialize(HWND hwnd) {
 
 	int side;
 
-	playerAcceleratioRate = 3.0f;
+	playerAcceleratioRate = 3.5f;
 	playerDeccelerationRate = 0.005f;
-	playerTurnMultiplier = 3.0f;
+	playerTurnMultiplier = 3.5f;
+
+	playerInvulnerableTimer = 2000.0f;
+	playerIsInvulnerable = false;
 
 	playerHealth = 3;
 	playerMaxHealth = 10;
@@ -81,6 +85,9 @@ void Spacewar::initialize(HWND hwnd) {
 	player->setVelocity(shipNS::SPEED, -shipNS::SPEED);
 	player->setObjectType(PLAYER_SPRITE);
 	player->setRadians(0);
+	player->setHealth(3);
+
+	printf("%d\n", player->getHealth());
 
 	addEntity(player);
 
@@ -91,7 +98,7 @@ void Spacewar::initialize(HWND hwnd) {
 	blackhole->setX(GAME_WIDTH / 2 - blackhole->getWidth() / 2 * blackhole->getScale());
 	blackhole->setY(GAME_HEIGHT / 2 - blackhole->getHeight() / 2 * blackhole->getScale());
 	blackhole->setVelocity(0, 0);
-	blackhole->setObjectType(BLACKHOLE);
+	blackhole->setObjectType(BLACKHOLE_);
 	blackhole->setRadians(0);
 	blackhole->setScale(0.5f);
 
@@ -151,6 +158,7 @@ void Spacewar::update() {
 			blackhole->setMass(1);
 	else
 		blackhole->setMass(9999999999999.0f);
+	
 }
 
 //=============================================================================
@@ -240,6 +248,16 @@ void Spacewar::UpdateEntities() {
 									// calculate black hole's attraction here
 									calculateF(blackhole, player);
 
+									printf("%.2f, %d\n", player->getHealth(), playerIsInvulnerable);
+
+									if (playerIsInvulnerable) {
+										playerInvulnerableTimer -= deltaTime;
+										if (playerInvulnerableTimer < 0) {
+											playerIsInvulnerable = false;
+										}
+
+									}
+
 									(*iter)->update(deltaTime);
 
 			} break;
@@ -265,7 +283,7 @@ void Spacewar::UpdateEntities() {
 			} break;
 
 			case BLACKHOLE: {
-								(*iter)->setRadians(timeGetTime() / 600.0f);
+								(*iter)->setRadians(timeGetTime());
 								(*iter)->update(deltaTime);
 			} break;
 		}
@@ -288,9 +306,13 @@ void Spacewar::collisions()
 	// if collision between ship and planet
 	if (player->collidesWith(*blackhole, collisionVector))
 	{
-		// bounce off planet
-		player->bounce(collisionVector, *blackhole);
-		player->damage(PLANET);
+		if (!playerIsInvulnerable) {
+			// bounce off planet
+			player->bounce(collisionVector, *blackhole);
+			player->damage(BLACKHOLE);
+			playerIsInvulnerable = true;
+			playerInvulnerableTimer = 2.0f;
+		}
 	}
 
 	// if collision between ships
@@ -325,8 +347,6 @@ double calculateF(Entity* e1, Entity* e2) {
 		e2->getVelocity().x + deltaX * A2,
 		e2->getVelocity().y + deltaY * A2
 		);
-
-	printf("%.10f, %.10f, %.10f\n", A1, A2, e1->getMass());
 
 	return force;
 }

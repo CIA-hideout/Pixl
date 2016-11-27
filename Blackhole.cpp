@@ -27,7 +27,7 @@ bool Blackhole::initialize(Game *gamePtr, int width, int height, int ncols, Text
 }
 
 void Blackhole::draw() {
-	Image::draw();              // draw ship
+	Image::draw();
 }
 
 void Blackhole::update(float deltaTime) {

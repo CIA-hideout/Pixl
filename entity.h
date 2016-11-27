@@ -23,7 +23,7 @@ enum ObjectType {
 	CIRCLES = 3,
 	BOSS = 4,
 	PICKUPS = 5,
-	BLACKHOLE = 6,
+	BLACKHOLE_ = 6,
 	GUI_HEART = 7
 };
 

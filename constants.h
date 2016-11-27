@@ -67,6 +67,6 @@ const UCHAR SHIP_ADD_V = VK_UP;
 const UCHAR SHIP_SUBTRACT_V = VK_DOWN;
 
 // weapon types
-enum WEAPON { TORPEDO, SHIP, PLANET };
+enum WEAPON { TORPEDO, SHIP, PLANET, BLACKHOLE };
 
 #endif

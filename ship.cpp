@@ -25,6 +25,7 @@ Ship::Ship() : Entity()
     radius = shipNS::WIDTH/2.0;
     mass = shipNS::MASS;
     collisionType = entityNS::CIRCLE;
+	health = 3;
 }
 
 //=============================================================================
@@ -79,5 +80,21 @@ void Ship::update(float deltaTime)
 // damage
 //=============================================================================
 void Ship::damage(WEAPON weapon) {
+
+	switch (weapon)
+	{
+		case TORPEDO:
+			break;
+		case SHIP:
+			break;
+		case PLANET:
+			break;
+		case BLACKHOLE: {
+							this->setHealth(0);
+		} break;
+		default:
+			break;
+	}
+
 }
 
