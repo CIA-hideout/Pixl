@@ -129,7 +129,7 @@ void Spacewar::initialize(HWND hwnd) {
 		Circle* circle = new Circle();
 		circle->initialize(this, CircleNS::WIDTH, CircleNS::HEIGHT, CircleNS::TEXTURE_COLS, &circleTextures);
 		circle->setFrames(CircleNS::CIRCLE_START_FRAME, CircleNS::CIRCLE_END_FRAME);
-		circle->setVelocity(10, 20);
+		circle->setVelocity(100, 200);
 		circle->setObjectType(CIRCLES);
 
 		circle->spawn();
