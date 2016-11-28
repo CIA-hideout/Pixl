@@ -85,13 +85,21 @@ void Ship::damage(WEAPON weapon) {
 	{
 		case TORPEDO:
 			break;
+		
 		case SHIP:
 			break;
+		
 		case PLANET:
 			break;
+		
 		case BLACKHOLE: {
 							this->setHealth(0);
 		} break;
+		
+		case CIRCLE:{
+			this->setHealth(health--);
+		}
+
 		default:
 			break;
 	}

@@ -45,10 +45,11 @@ public:
 
     // Initialize the game
     void initialize(HWND hwnd);
-    void update();      // must override pure virtual from Game
-    void ai();          // "
-    void collisions();  // "
-    void render();      // "
+    void update();						// must override pure virtual from Game
+    void ai();							// "
+    void collisions();					// "
+	void collisions(Entity* entity);	// "
+    void render();						// "
     void releaseAll();
     void resetAll();
 

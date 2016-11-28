@@ -31,6 +31,8 @@ public:
 	void update(float deltaTime);
 	void spawn();
 	void damage(WEAPON);
+
+	ObjectType returnType();
 };
 
 #endif
