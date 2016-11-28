@@ -96,6 +96,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Blackhole.cpp" />
+    <ClCompile Include="Circle.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="game.cpp" />
@@ -110,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Blackhole.h" />
+    <ClInclude Include="Circle.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="Font.h" />
