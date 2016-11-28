@@ -1,5 +1,5 @@
 // Programming 2D Games
-// Copyright (c) 2011 by: 
+// Copyright (c) 2011 by:
 // Charles Kelly
 // Chapter 6 ship.cpp v1.0
 
@@ -52,7 +52,7 @@ void Ship::update(float deltaTime)
 {
     Entity::update(deltaTime);
     spriteData.angle += deltaTime * shipNS::ROTATION_RATE;  // rotate the ship
-    spriteData.x += deltaTime * velocity.x;         // move ship along X 
+    spriteData.x += deltaTime * velocity.x;         // move ship along X
     spriteData.y += deltaTime * velocity.y;         // move ship along Y
 
     // Bounce off walls
@@ -100,4 +100,3 @@ void Ship::damage(WEAPON weapon) {
 	}
 
 }
-

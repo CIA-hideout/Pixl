@@ -48,15 +48,17 @@ const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
 // graphic images
-const char FONT_TEXTURE[] 					= "resources\\font.png";
+const char FONT_TEXTURE[] 				= "resources\\font.png";
 const char FONT_TEXTURE_INFO[] 			= "resources\\font.dat";
-const char PLAYER_TEXTURE[]					= "resources\\mc_sprite.png";
+const char PLAYER_TEXTURE[]				= "resources\\mc_sprite.png";
 const char PLAYER_DEATH_TEXTURE[]		= "resources\\player_death_animation.png";
-const char TRIANGLE_TEXTURE[]				= "resources\\triangle.png";
+const char TRIANGLE_TEXTURE[]			= "resources\\triangle.png";
 const char BLACKHOLE_TEXTURE[]			= "resources\\blackhole.png";
-const char FONT_TEXTURE[]						= "resources\\font.tga";
+const char FONT_TEXTURE[]				= "resources\\font.tga";
 const char FONT_TEXTURE_INFO[]			= "resources\\font.bat";
-const char HEART_TEXTURE[] 					= "resources\\sprite_hearts.png";
+const char HEART_TEXTURE[] 				= "resources\\sprite_hearts.png";
+const char CIRCLE_TEXTURE[] 			= "resources\\circle.png";
+
 
 // PLAYER DEATH
 const int P_DEATH_WIDTH								= 256;			// player death width
@@ -82,5 +84,4 @@ const UCHAR SHIP_SUBTRACT_V = VK_DOWN;
 enum WEAPON {
 	ENEMY,				// enemy = cicles, triangles
 	BLACKHOLE };
-
 #endif
