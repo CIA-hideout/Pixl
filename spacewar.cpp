@@ -130,25 +130,25 @@ void Spacewar::initialize(HWND hwnd) {
 
 	addEntity(blackhole);
 
-int dx = GAME_WIDTH - 10;
+	int dx = GAME_WIDTH - 10;
 
-for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 10; i++) {
 
-	Entity* heart = new Entity();
-	heart->initialize(this, 128, 128, 2, &heartTexture);
-	heart->setCurrentFrame(0);
-	heart->setVelocity(0, 0);
-	heart->setMass(0);
-	heart->setScale(0.5);
+		Entity* heart = new Entity();
+		heart->initialize(this, 128, 128, 2, &heartTexture);
+		heart->setCurrentFrame(0);
+		heart->setVelocity(0, 0);
+		heart->setMass(0);
+		heart->setScale(0.5);
 
-	heart->setX(dx - heart->getWidth() * heart->getScale());
-	heart->setY(GAME_HEIGHT - heart->getHeight() * heart->getScale() - 10);
+		heart->setX(dx - heart->getWidth() * heart->getScale());
+		heart->setY(GAME_HEIGHT - heart->getHeight() * heart->getScale() - 10);
 
-	dx -= heart->getWidth() * heart->getScale();
+		dx -= heart->getWidth() * heart->getScale();
 
-	hearts.push_back(heart);
+		hearts.push_back(heart);
 
-}
+	}
 
 	// Spawn Triangles
 	for (int i = 0; i < 0; i++) {
@@ -170,7 +170,7 @@ for (int i = 0; i < 10; i++) {
 		Circle* circle = new Circle();
 		circle->initialize(this, CircleNS::WIDTH, CircleNS::HEIGHT, CircleNS::TEXTURE_COLS, &circleTextures);
 		circle->setFrames(CircleNS::CIRCLE_START_FRAME, CircleNS::CIRCLE_END_FRAME);
-		circle->setCollisionRadius((circle->getHeight())/2);
+		circle->setCollisionRadius((circle->getHeight()) / 2);
 		circle->setVelocity(100, 200);
 		circle->setObjectType(CIRCLES);
 		circle->setScale(0.2f);
@@ -234,11 +234,11 @@ void Spacewar::update() {
 	else
 		blackhole->setMass(9999999999999.0f);
 
-
-	for (int i = 0; i < hearts.size() - player->getHealth(); i++) {
-		hearts[i]->setCurrentFrame(1);
+	if (player->getHealth() > 0) {
+		for (int i = 0; i < hearts.size() - player->getHealth(); i++) {
+			hearts[i]->setCurrentFrame(1);
+		}
 	}
-
 	for (int i = player->getHealth(); i < hearts.size(); i++) {
 		hearts[i]->setCurrentFrame(0);
 	}
@@ -310,7 +310,7 @@ void Spacewar::UpdateEntities() {
 		switch ((*iter)->getObjectType())
 		{
 
-			case PLAYER_SPRITE: {
+		case PLAYER_SPRITE: {
 								if (!playerIsDead)
 								{
 									if (input->isKeyDown(VK_UP)) {
@@ -334,7 +334,7 @@ void Spacewar::UpdateEntities() {
 									(*iter)->setVelocity(
 										(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
 										(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
-									);
+										);
 
 									// calculate black hole's attraction here
 									calculateF(blackhole, player);
@@ -355,7 +355,7 @@ void Spacewar::UpdateEntities() {
 
 								(*iter)->update(deltaTime);
 
-			} break;
+		} break;
 
 		case TRIANGLES: {
 							double dx, dy;
@@ -375,28 +375,29 @@ void Spacewar::UpdateEntities() {
 								sin((*iter)->getRadians()) * 100
 								);
 
-								calculateF(blackhole, *iter);
-								(*iter)->update(deltaTime);
-			} break;
+							calculateF(blackhole, *iter);
+							(*iter)->update(deltaTime);
+		} break;
 
-			case CIRCLES: {
-				calculateF(blackhole, *iter);
+		case CIRCLES: {
+						  calculateF(blackhole, *iter);
 
-				//(*iter)->update(deltaTime);
+						  //(*iter)->update(deltaTime);
 
-			} break;
+		} break;
 
-			case BLACKHOLE_: {
-								if (!playerIsDead)
-								{
-									(*iter)->setRadians(timeGetTime());
-									(*iter)->update(deltaTime);
-								}
-								else
-								{
-									(*iter)->setRadians(0);
-								}
-			} break;
+		case BLACKHOLE_: {
+							 if (!playerIsDead)
+							 {
+								 (*iter)->setRadians(timeGetTime());
+								 (*iter)->update(deltaTime);
+							 }
+							 else
+							 {
+								 (*iter)->setRadians(0);
+							 }
+		} break;
+		}
 	}
 }
 
@@ -420,35 +421,35 @@ void Spacewar::collisions()
 
 	if (player->collidesWith(*blackhole, collisionVector))
 	{
-		if (!playerIsInvulnerable) {
-			// bounce off blackhole
-			player->bounce(collisionVector, *blackhole);
-			player->damage(BLACKHOLE);
+	if (!playerIsInvulnerable) {
+	// bounce off blackhole
+	player->bounce(collisionVector, *blackhole);
+	player->damage(BLACKHOLE);
 
-			if (player->getHealth() > 0)			// if player is alive
-			{
-				playerIsInvulnerable = true;
-				playerInvulnerableTimer = 2.0f;
-			}
-			else if (player->getHealth() <= 0)		// if player is not alive
-			{
-				if (!playerIsDead)		// start death animation
-				{
-					playerIsDead = true;
-					player->initialize(this, P_DEATH_WIDTH, P_DEATH_HEIGHT, P_DEATH_COLS, &p_deathTextures);
-					player->setFrames(P_DEATH_START_FRAME, P_DEATH_END_FRAME);
-					player->setCurrentFrame(P_DEATH_START_FRAME);
-					player->setFrameDelay(P_DEATH_ANIMATION_DELAY);
-					player->setLoop(false);
-					//player->setRadians(prevAngle);
-					player->setScale(0.5f);
-					player->setRect();
-				}
-			}
-			combo = 0;
-			playerIsInvulnerable = true;
-			playerInvulnerableTimer = 2.0f;
-		}
+	if (player->getHealth() > 0)			// if player is alive
+	{
+	playerIsInvulnerable = true;
+	playerInvulnerableTimer = 2.0f;
+	}
+	else if (player->getHealth() <= 0)		// if player is not alive
+	{
+	if (!playerIsDead)		// start death animation
+	{
+	playerIsDead = true;
+	player->initialize(this, P_DEATH_WIDTH, P_DEATH_HEIGHT, P_DEATH_COLS, &p_deathTextures);
+	player->setFrames(P_DEATH_START_FRAME, P_DEATH_END_FRAME);
+	player->setCurrentFrame(P_DEATH_START_FRAME);
+	player->setFrameDelay(P_DEATH_ANIMATION_DELAY);
+	player->setLoop(false);
+	//player->setRadians(prevAngle);
+	player->setScale(0.5f);
+	player->setRect();
+	}
+	}
+	combo = 0;
+	playerIsInvulnerable = true;
+	playerInvulnerableTimer = 2.0f;
+	}
 	}
 	*/
 
@@ -458,38 +459,38 @@ void Spacewar::collisions()
 
 		switch (entity->getObjectType())
 		{
-			case (BLACKHOLE_) :
-			{
-				if (player->collidesWith(*entity, collisionVector))
-				{
-					player->bounce(collisionVector, *entity);
-					player->damage(BLACKHOLE);
-					playerIsInvulnerable = true;
-					playerInvulnerableTimer = 2.0f;
-				}
-			}	break;
+		case (BLACKHOLE_) :
+		{
+							  if (player->collidesWith(*entity, collisionVector))
+							  {
+								  player->bounce(collisionVector, *entity);
+								  player->damage(BLACKHOLE);
+								  playerIsInvulnerable = true;
+								  playerInvulnerableTimer = 2.0f;
+							  }
+		}	break;
 
-			case (CIRCLES) :
-			{
-				if (player->collidesWith(*entity, collisionVector))
-				{
-					player->bounce(collisionVector, *entity);
-					player->damage(ENEMY);
-					playerIsInvulnerable = true;
-					playerInvulnerableTimer = 2.0f;
-				}
-			}	break;
+		case (CIRCLES) :
+		{
+						   if (player->collidesWith(*entity, collisionVector))
+						   {
+							   player->bounce(collisionVector, *entity);
+							   player->damage(ENEMY);
+							   playerIsInvulnerable = true;
+							   playerInvulnerableTimer = 2.0f;
+						   }
+		}	break;
 
-			case (TRIANGLES) :
-			{
-				if (player->collidesWith(*entity, collisionVector))
-				{
-					player->bounce(collisionVector, *entity);
-					player->damage(ENEMY);
-					playerIsInvulnerable = true;
-					playerInvulnerableTimer = 2.0f;
-				}
-			}
+		case (TRIANGLES) :
+		{
+							 if (player->collidesWith(*entity, collisionVector))
+							 {
+								 player->bounce(collisionVector, *entity);
+								 player->damage(ENEMY);
+								 playerIsInvulnerable = true;
+								 playerInvulnerableTimer = 2.0f;
+							 }
+		}
 
 
 
