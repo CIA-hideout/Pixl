@@ -362,9 +362,9 @@ void Spacewar::collisions()
 	// if collision between ship and planet
 	if (player->collidesWith(*blackhole, collisionVector))
 	{
-		player->bounce(collisionVector, *blackhole);
 		if (!playerIsInvulnerable) {
 			// bounce off planet
+			player->bounce(collisionVector, *blackhole);
 			player->damage(BLACKHOLE);
 			combo = 0;
 			playerIsInvulnerable = true;
