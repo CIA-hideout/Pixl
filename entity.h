@@ -99,6 +99,9 @@ public:
 		return &center;
 	}
 
+	void setHeight(int height) { this->spriteData.height = height; }
+	void setWidth(int width) { this->spriteData.width = width; }
+
 	// Return radius of collision circle.
 	virtual float getRadius() const     { return radius; }
 

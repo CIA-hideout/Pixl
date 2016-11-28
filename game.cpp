@@ -208,7 +208,7 @@ void Game::run(HWND hwnd)
 	if (!paused)                    // if not paused
 	{
 		update();                   // update all game items
-		UpdateEntities();
+		UpdateEntities();			
 		ai();                       // artificial intelligence
 		collisions();               // handle collisions
 		input->vibrateControllers(deltaTime); // handle controller vibration

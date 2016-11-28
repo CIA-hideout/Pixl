@@ -13,6 +13,7 @@
 #include "textureManager.h"
 #include "image.h"
 #include "ship.h"
+#include "Font.h"
 #include "Triangle.h"
 #include "Circle.h"
 #include "Blackhole.h"
@@ -26,15 +27,21 @@ private:
 
     // game items
 	TextureManager			shipTextures;
+	TextureManager			p_deathTextures;
 	TextureManager			triangleTextures;
 	TextureManager			circleTextures;
 	TextureManager			blackHoleTexture;
 	TextureManager			fontTexture;
+	TextureManager			heartTexture;
 
 	std::vector<Entity*>	entities;
+	std::vector<Entity*>	hearts;
 
 	Ship*					player;
 	Blackhole*				blackhole;
+	Font*					timeFont;
+	Font*					comboFont;
+	Font*					scoreFont;
 
 public:
     // Constructor
@@ -56,7 +63,8 @@ public:
 	void addEntity(Entity* entity);
 	void UpdateEntities();
 	void DrawEntities();
-	
+	int genScore(int combo);								// return Score based on combo
+	double calculateF(Entity* entity, Entity* entity2);		// return Force based 2 entities
 };
 
 #endif
