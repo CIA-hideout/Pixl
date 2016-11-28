@@ -198,7 +198,7 @@ void Spacewar::initialize(HWND hwnd) {
 void Spacewar::update() {
 	// purely for debugging
 	if (input->isKeyDown(0x42))
-			blackhole->setMass(1);
+		blackhole->setMass(1);
 	else
 		blackhole->setMass(9999999999999.0f);
 
@@ -277,71 +277,71 @@ void Spacewar::UpdateEntities() {
 		switch ((*iter)->getObjectType())
 		{
 
-			case PLAYER_SPRITE: {
+		case PLAYER_SPRITE: {
 
-									if (input->isKeyDown(VK_UP)) {
-										(*iter)->setVelocity(
-											(cos((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().x),
-											(sin((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().y)
-											);
-									}
-
-									if (input->isKeyDown(VK_LEFT)) {
-										(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
-									}
-
-									if (input->isKeyDown(VK_RIGHT)) {
-										(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
-									}
-
-									if (input->isKeyDown(0x5A)) {
-										(*iter)->setVelocity(0, 0);
-									}
-
+								if (input->isKeyDown(VK_UP)) {
 									(*iter)->setVelocity(
-										(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
-										(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
+										(cos((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().x),
+										(sin((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().y)
 										);
+								}
 
-									// calculate black hole's attraction here
-									calculateF(blackhole, player);
+								if (input->isKeyDown(VK_LEFT)) {
+									(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
+								}
 
-									if (playerIsInvulnerable) {
-										playerInvulnerableTimer -= deltaTime;
-										if (playerInvulnerableTimer < 0) {
-											playerIsInvulnerable = false;
-										}
+								if (input->isKeyDown(VK_RIGHT)) {
+									(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
+								}
 
-									}
-
-									(*iter)->update(deltaTime);
-
-			} break;
-
-			case TRIANGLES: {
-								double dx, dy;
-
-								dx = player->getX() - (*iter)->getX();
-								dy = player->getY() - (*iter)->getY();
-
-								// 1, 4 quad
-								if (dx > 0)
-									(*iter)->setRadians(atan(dy / dx));
-								// 2, 3 quad
-								else if (dx < 0)
-									(*iter)->setRadians(PI + atan(dy / dx));
+								if (input->isKeyDown(0x5A)) {
+									(*iter)->setVelocity(0, 0);
+								}
 
 								(*iter)->setVelocity(
-									cos((*iter)->getRadians()) * 100,
-									sin((*iter)->getRadians()) * 100
+									(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
+									(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
 									);
-								(*iter)->update(deltaTime);
-			} break;
 
-			case BLACKHOLE: {
-								(*iter)->setRadians(timeGetTime());
+								// calculate black hole's attraction here
+								calculateF(blackhole, player);
+
+								if (playerIsInvulnerable) {
+									playerInvulnerableTimer -= deltaTime;
+									if (playerInvulnerableTimer < 0) {
+										playerIsInvulnerable = false;
+									}
+
+								}
+
 								(*iter)->update(deltaTime);
-			} break;
+
+		} break;
+
+		case TRIANGLES: {
+							double dx, dy;
+
+							dx = player->getX() - (*iter)->getX();
+							dy = player->getY() - (*iter)->getY();
+
+							// 1, 4 quad
+							if (dx > 0)
+								(*iter)->setRadians(atan(dy / dx));
+							// 2, 3 quad
+							else if (dx < 0)
+								(*iter)->setRadians(PI + atan(dy / dx));
+
+							(*iter)->setVelocity(
+								cos((*iter)->getRadians()) * 100,
+								sin((*iter)->getRadians()) * 100
+								);
+							(*iter)->update(deltaTime);
+		} break;
+
+		case BLACKHOLE: {
+							(*iter)->setRadians(timeGetTime());
+							(*iter)->update(deltaTime);
+		} break;
 		}
 	}
 }
@@ -362,14 +362,27 @@ void Spacewar::collisions()
 	// if collision between ship and planet
 	if (player->collidesWith(*blackhole, collisionVector))
 	{
+		player->bounce(collisionVector, *blackhole);
 		if (!playerIsInvulnerable) {
 			// bounce off planet
-			player->bounce(collisionVector, *blackhole);
 			player->damage(BLACKHOLE);
 			combo = 0;
 			playerIsInvulnerable = true;
 			playerInvulnerableTimer = 2.0f;
 		}
+	}
+
+	for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
+
+		switch ((*iter)->getObjectType()) {
+		case CIRCLES: {
+						  Entity* spr = *iter;
+						  if (player->collidesWith(*spr, collisionVector)) {
+
+						  }
+		} break;
+		}
+
 	}
 
 	// if collision between ships
