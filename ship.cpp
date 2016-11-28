@@ -97,7 +97,7 @@ void Ship::damage(WEAPON weapon) {
 		} break;
 		
 		case CIRCLE:{
-			this->setHealth(health--);
+			health -= 1;
 		}
 
 		default:

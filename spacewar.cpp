@@ -92,7 +92,6 @@ void Spacewar::initialize(HWND hwnd) {
 
 	addEntity(player);
 
-	/*
 	blackhole = new Blackhole();
 	blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
 	blackhole->setFrames(blackholeNS::BLACKHOLE_START_FRAME, blackholeNS::BLACKHOLE_END_FRAME);
@@ -106,7 +105,6 @@ void Spacewar::initialize(HWND hwnd) {
 
 	addEntity(blackhole);
 
-	*/
 	
 
 	// Spawn Triangles
@@ -132,6 +130,7 @@ void Spacewar::initialize(HWND hwnd) {
 		circle->setCollisionRadius((circle->getHeight())/2);
 		circle->setVelocity(100, 200);
 		circle->setObjectType(CIRCLES);
+		circle->setScale(0.2f);
 
 		circle->spawn();
 		addEntity(circle);
@@ -143,12 +142,12 @@ void Spacewar::initialize(HWND hwnd) {
 // Update all game items
 //=============================================================================
 void Spacewar::update() {
-	/*
+	
 	if (input->isKeyDown(0x42))
 			blackhole->setMass(1);
 	else
 		blackhole->setMass(9999999999999.0f);
-	*/
+
 }
 
 //=============================================================================
@@ -178,6 +177,7 @@ void Spacewar::releaseAll()
 {
 	shipTextures.onResetDevice();
 	triangleTextures.onResetDevice();
+	circleTextures.onResetDevice();
 	Game::releaseAll();
 	FreeConsole();
 	return;
@@ -235,8 +235,8 @@ void Spacewar::UpdateEntities() {
 										);
 
 									// calculate black hole's attraction here
-									//calculateF(blackhole, player);
-
+									calculateF(blackhole, player);
+									
 									printf("%.2f, %d\n", player->getHealth(), playerIsInvulnerable);
 
 									if (playerIsInvulnerable) {
@@ -268,12 +268,15 @@ void Spacewar::UpdateEntities() {
 									cos((*iter)->getRadians()) * 100,
 									sin((*iter)->getRadians()) * 100
 									);
+
+								calculateF(blackhole, *iter);
 								(*iter)->update(deltaTime);
 			} break;
 
 			case CIRCLES: {
+				calculateF(blackhole, *iter);
 
-				(*iter)->update(deltaTime);
+				//(*iter)->update(deltaTime);
 
 			} break;
 
@@ -310,35 +313,51 @@ void Spacewar::collisions()
 			playerIsInvulnerable = true;
 			playerInvulnerableTimer = 2.0f;
 		}
-	}
-
-
+	} 
 	*/
 
 	for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++)
 	{
 		Entity* entity = *iter;
-		if (!playerIsInvulnerable)
+		
+		switch (entity->getObjectType())
 		{
-			player->bounce(collisionVector, *entity);
-			
-			if (entity->getObjectType() == BLACKHOLE_)
+			case (BLACKHOLE_) :
 			{
-				player->damage(BLACKHOLE);
+				if (player->collidesWith(*entity, collisionVector))
+				{
+					player->bounce(collisionVector, *entity);
+					player->damage(BLACKHOLE);
+					playerIsInvulnerable = true;
+					playerInvulnerableTimer = 2.0f;
+				}
+			}	break;
+
+			case (CIRCLES) :
+			{
+				if (player->collidesWith(*entity, collisionVector))
+				{
+					player->bounce(collisionVector, *entity);
+					player->damage(CIRCLE);
+					playerIsInvulnerable = true;
+					playerInvulnerableTimer = 2.0f;
+				}
+			}	break;
+			
+			case (TRIANGLES) :
+			{
+				if (player->collidesWith(*entity, collisionVector))
+				{
+					player->bounce(collisionVector, *entity);
+					player->damage(TRIANGLE);
+					playerIsInvulnerable = true;
+					playerInvulnerableTimer = 2.0f;
+				}
 			}
+					
+			
 
-			else if (entity->getObjectType() == CIRCLES)
-				player->damage(CIRCLE);
-
-			else if (entity->getObjectType() == TRIANGLES)
-				player->damage(TRIANGLE);
-
-			playerIsInvulnerable = true;
-			playerInvulnerableTimer = 2.0f;
-
-	}
-
-
+		}
 	}
 	// if collision between ships
 	//if (ship1.collidesWith(ship2, collisionVector))

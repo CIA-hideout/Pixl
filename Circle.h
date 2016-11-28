@@ -7,7 +7,7 @@
 namespace CircleNS {
 
 	const float		MASS = 300.0f;
-	const float		SCALING = 0.5f;
+	const float		SCALING = 0.2f;
 	const float		SPEED = 100;
 	const float		ROTATION_RATE = (float)PI / 4;
 	const int		WIDTH = 128;
