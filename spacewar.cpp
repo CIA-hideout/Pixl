@@ -1,5 +1,5 @@
 // Programming 2D Games
-// Copyright (c) 2011 by: 
+// Copyright (c) 2011 by:
 // Charles Kelly
 // Draw animated spaceships with collision and shield
 // Chapter 6 spacewar.cpp v1.0
@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <timeapi.h>
+#include <sstream>
+#include <iomanip>
 
 double calculateF(Entity* e1, Entity* e2);
 
@@ -29,11 +31,16 @@ bool			playerIsInvulnerable, playerIsDead;
 
 DWORD			waveStartTime, nextWaveTime;
 
+DWORD			baseTime, currTime;
+
+std::stringstream ss;
+
 //=============================================================================
 // Constructor
 //=============================================================================
-Spacewar::Spacewar()
-{}
+Spacewar::Spacewar() {
+
+}
 
 //=============================================================================
 // Destructor
@@ -76,9 +83,28 @@ void Spacewar::initialize(HWND hwnd) {
 	p_deathTextures.initialize(graphics, PLAYER_DEATH_TEXTURE);
 	triangleTextures.initialize(graphics, TRIANGLE_TEXTURE);
 	blackHoleTexture.initialize(graphics, BLACKHOLE_TEXTURE);
+	heartTexture.initialize(graphics, HEART_TEXTURE);
+	fontTexture.initialize(graphics, FONT_TEXTURE);
+
+	timeFont = new Font();
+	timeFont->initialize(this, 2048, 2048, 16, &fontTexture);
+	timeFont->loadTextData(FONT_TEXTURE_INFO);
+	timeFont->setHeight(128);
+	timeFont->setWidth(128);
+
+	comboFont = new Font();
+	comboFont->initialize(this, 2048, 2048, 16, &fontTexture);
+	comboFont->loadTextData(FONT_TEXTURE_INFO);
+	comboFont->setHeight(128);
+	comboFont->setWidth(128);
+
+	scoreFont = new Font();
+	scoreFont->initialize(this, 2048, 2048, 16, &fontTexture);
+	scoreFont->loadTextData(FONT_TEXTURE_INFO);
+	scoreFont->setHeight(128);
+	scoreFont->setWidth(128);
 
 	player = new Ship();
-
 	player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
 	player->setFrames(shipNS::player_START_FRAME, shipNS::player_END_FRAME);		//<-
 	player->setCurrentFrame(shipNS::player_START_FRAME);							//<- supposedly not needed right
@@ -89,10 +115,7 @@ void Spacewar::initialize(HWND hwnd) {
 	player->setRadians(0);
 	player->setHealth(3);
 
-	printf("%d\n", player->getHealth());
-
 	addEntity(player);
-
 	blackhole = new Blackhole();
 	blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
 	blackhole->setFrames(blackholeNS::BLACKHOLE_START_FRAME, blackholeNS::BLACKHOLE_END_FRAME);
@@ -105,6 +128,26 @@ void Spacewar::initialize(HWND hwnd) {
 	blackhole->setScale(0.5f);
 
 	addEntity(blackhole);
+
+	int dx = GAME_WIDTH - 10;
+
+	for (int i = 0; i < 10; i++) {
+
+		Entity* heart = new Entity();
+		heart->initialize(this, 128, 128, 2, &heartTexture);
+		heart->setCurrentFrame(0);
+		heart->setVelocity(0, 0);
+		heart->setMass(0);
+		heart->setScale(0.5);
+
+		heart->setX(dx - heart->getWidth() * heart->getScale());
+		heart->setY(GAME_HEIGHT - heart->getHeight() * heart->getScale() - 10);
+
+		dx -= heart->getWidth() * heart->getScale();
+
+		hearts.push_back(heart);
+
+	}
 
 	//for (int i = 0; i < 10; i++) {
 
@@ -149,33 +192,48 @@ void Spacewar::initialize(HWND hwnd) {
 	//	addEntity(triangle);
 	//}
 
+	baseTime = timeGetTime();
+
 	return;
 }
 
-//=============================================================================
-// Update all game items
-//=============================================================================
 void Spacewar::update() {
+	// purely for debugging
 	if (input->isKeyDown(0x42))
-			blackhole->setMass(1);
+		blackhole->setMass(1);
 	else
 		blackhole->setMass(9999999999999.0f);
-	
+
+	for (int i = 0; i < hearts.size() - player->getHealth(); i++) {
+		hearts[i]->setCurrentFrame(1);
+	}
+
+	for (int i = player->getHealth(); i < hearts.size(); i++) {
+		hearts[i]->setCurrentFrame(0);
+	}
+
 }
 
-//=============================================================================
-// Artificial Intelligence
-//=============================================================================
 void Spacewar::ai() {
 
 }
 
-//=============================================================================
-// Render game items
-//=============================================================================
 void Spacewar::render()
 {
 	graphics->spriteBegin();                // begin drawing sprites
+
+	ss.str("");
+	ss << std::fixed << std::setprecision(1) << (float)(timeGetTime() - baseTime) / 1000;
+	timeFont->Print(GAME_WIDTH / 2 - timeFont->getTotalWidth(ss.str()) / 2, 10, ss.str());
+	ss.str("x" + std::to_string(combo));
+	comboFont->Print(10, GAME_HEIGHT - comboFont->getHeight() * comboFont->getScale(), ss.str());
+	// ss.str(std::to_string(playerScore));
+	ss.str(std::to_string(9993));
+	scoreFont->Print(10, 10, ss.str());
+
+	for (std::vector<Entity*>::iterator iter = hearts.begin(); iter != hearts.end(); iter++) {
+		(*iter)->draw();
+	}
 
 	DrawEntities();
 
@@ -222,75 +280,65 @@ void Spacewar::UpdateEntities() {
 		{
 
 			case PLAYER_SPRITE: {
-									if (!playerIsDead)
-									{
-										if (input->isKeyDown(VK_UP)) {
-											(*iter)->setVelocity(
-												(cos((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().x),
-												(sin((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().y)
-												);
-										}
-
-										if (input->isKeyDown(VK_LEFT)) {
-											(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
-										}
-
-										if (input->isKeyDown(VK_RIGHT)) {
-											(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
-										}
-
-										if (input->isKeyDown(0x5A)) {
-											(*iter)->setVelocity(0, 0);
-										}
+								if (!playerIsDead)
+								{
+									if (input->isKeyDown(VK_UP)) {
 										(*iter)->setVelocity(
-											(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
-											(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
-										);
-										
-										// calculate black hole's attraction here
-										calculateF(blackhole, player);
+											(cos((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().x),
+											(sin((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().y)
+											);
 									}
-									else
-									{
+
+									if (input->isKeyDown(VK_LEFT)) {
+										(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
+									}
+
+									if (input->isKeyDown(VK_RIGHT)) {
+										(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
+									}
+
+									if (input->isKeyDown(0x5A)) {
 										(*iter)->setVelocity(0, 0);
 									}
+									(*iter)->setVelocity(
+										(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
+										(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
+									);
 
-									
+									// calculate black hole's attraction here
+									calculateF(blackhole, player);
+								}
+								else
+								{
+									(*iter)->setVelocity(0, 0);
+								}
 
-									printf("%.2f, %d\n", player->getHealth(), playerIsInvulnerable);
-
-									if (playerIsInvulnerable) {
-										playerInvulnerableTimer -= deltaTime;
-										if (playerInvulnerableTimer < 0) {
-											playerIsInvulnerable = false;
-										}
-
+								if (playerIsInvulnerable) {
+									playerInvulnerableTimer -= deltaTime;
+									if (playerInvulnerableTimer < 0) {
+										playerIsInvulnerable = false;
 									}
 
-									(*iter)->update(deltaTime);
+								}
 
-			} break;
-
-			case TRIANGLES: {
-								double dx, dy;
-
-								dx = player->getX() - (*iter)->getX();
-								dy = player->getY() - (*iter)->getY();
-
-								// 1, 4 quad
-								if (dx > 0)
-									(*iter)->setRadians(atan(dy / dx));
-								// 2, 3 quad
-								else if (dx < 0)
-									(*iter)->setRadians(PI + atan(dy / dx));
-
-								(*iter)->setVelocity(
-									cos((*iter)->getRadians()) * 100,
-									sin((*iter)->getRadians()) * 100
-									);
 								(*iter)->update(deltaTime);
-			} break;
 
+		} break;
+
+		case TRIANGLES: {
+							double dx, dy;
+
+							dx = player->getX() - (*iter)->getX();
+							dy = player->getY() - (*iter)->getY();
+
+							// 1, 4 quad
+							if (dx > 0)
+								(*iter)->setRadians(atan(dy / dx));
+							// 2, 3 quad
+							else if (dx < 0)
+								(*iter)->setRadians(PI + atan(dy / dx));
+
+<<<<<<< HEAD
 			case BLACKHOLE_: {
 								if (!playerIsDead)
 								{
@@ -302,6 +350,19 @@ void Spacewar::UpdateEntities() {
 									(*iter)->setRadians(0);
 								}
 			} break;
+=======
+							(*iter)->setVelocity(
+								cos((*iter)->getRadians()) * 100,
+								sin((*iter)->getRadians()) * 100
+								);
+							(*iter)->update(deltaTime);
+		} break;
+
+		case BLACKHOLE: {
+							(*iter)->setRadians(timeGetTime());
+							(*iter)->update(deltaTime);
+		} break;
+>>>>>>> master
 		}
 	}
 }
@@ -326,6 +387,7 @@ void Spacewar::collisions()
 			// bounce off blackhole
 			player->bounce(collisionVector, *blackhole);
 			player->damage(BLACKHOLE);
+<<<<<<< HEAD
 
 			if (player->getHealth() > 0)			// if player is alive
 			{
@@ -348,7 +410,25 @@ void Spacewar::collisions()
 				}
 			}
 
+=======
+			combo = 0;
+			playerIsInvulnerable = true;
+			playerInvulnerableTimer = 2.0f;
+>>>>>>> master
 		}
+	}
+
+	for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
+
+		switch ((*iter)->getObjectType()) {
+		case CIRCLES: {
+						  Entity* spr = *iter;
+						  if (player->collidesWith(*spr, collisionVector)) {
+
+						  }
+		} break;
+		}
+
 	}
 
 	// if collision between ships

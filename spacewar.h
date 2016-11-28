@@ -13,6 +13,7 @@
 #include "textureManager.h"
 #include "image.h"
 #include "ship.h"
+#include "Font.h"
 #include "Triangle.h"
 #include "Blackhole.h"
 
@@ -29,11 +30,16 @@ private:
 	TextureManager			triangleTextures;
 	TextureManager			blackHoleTexture;
 	TextureManager			fontTexture;
+	TextureManager			heartTexture;
 
 	std::vector<Entity*>	entities;
+	std::vector<Entity*>	hearts;
 
 	Ship*					player;
 	Blackhole*				blackhole;
+	Font*					timeFont;
+	Font*					comboFont;
+	Font*					scoreFont;
 
 public:
     // Constructor

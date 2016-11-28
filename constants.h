@@ -1,9 +1,9 @@
 // Programming 2D Games
-// Copyright (c) 2011 by: 
+// Copyright (c) 2011 by:
 // Charles Kelly
 // Chapter 6 constants.h v1.0
 
-#ifndef _CONSTANTS_H            // Prevent multiple definitions if this 
+#ifndef _CONSTANTS_H            // Prevent multiple definitions if this
 #define _CONSTANTS_H            // file is included in more than one place
 #define WIN32_LEAN_AND_MEAN
 
@@ -48,20 +48,23 @@ const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
 // graphic images
-const char PLAYER_TEXTURE[]			= "resources\\mc_sprite.png";
-const char PLAYER_DEATH_TEXTURE[]	= "resources\\player_death_animation.png";
-const char TRIANGLE_TEXTURE[]		= "resources\\triangle.png";
-const char BLACKHOLE_TEXTURE[]		= "resources\\blackhole.png";
-const char FONT_TEXTURE[]			= "resources\\font.tga";
-const char FONT_TEXTURE_INFO[]		= "resources\\font.bat";
+const char FONT_TEXTURE[] 					= "resources\\font.png";
+const char FONT_TEXTURE_INFO[] 			= "resources\\font.dat";
+const char PLAYER_TEXTURE[]					= "resources\\mc_sprite.png";
+const char PLAYER_DEATH_TEXTURE[]		= "resources\\player_death_animation.png";
+const char TRIANGLE_TEXTURE[]				= "resources\\triangle.png";
+const char BLACKHOLE_TEXTURE[]			= "resources\\blackhole.png";
+const char FONT_TEXTURE[]						= "resources\\font.tga";
+const char FONT_TEXTURE_INFO[]			= "resources\\font.bat";
+const char HEART_TEXTURE[] 					= "resources\\sprite_hearts.png";
 
 // PLAYER DEATH
-const int P_DEATH_WIDTH					= 256;			// player death width
-const int P_DEATH_HEIGHT				= 256;			// player death height
-const int P_DEATH_COLS					= 8;			// player death columns
-const int P_DEATH_START_FRAME			= 0;			// player death start frame number
-const int P_DEATH_END_FRAME				= 25;			// player death end frame number
-const float P_DEATH_SCALE				= 0.5f;			// player starting scale
+const int P_DEATH_WIDTH								= 256;			// player death width
+const int P_DEATH_HEIGHT							= 256;			// player death height
+const int P_DEATH_COLS								= 8;			// player death columns
+const int P_DEATH_START_FRAME					= 0;			// player death start frame number
+const int P_DEATH_END_FRAME						= 25;			// player death end frame number
+const float P_DEATH_SCALE							= 0.5f;			// player starting scale
 const float P_DEATH_ANIMATION_DELAY		= 0.42f;		// player death animation time between frames
 
 // key mappings
@@ -76,8 +79,8 @@ const UCHAR SHIP_ADD_V = VK_UP;
 const UCHAR SHIP_SUBTRACT_V = VK_DOWN;
 
 // weapon types
-enum WEAPON { 
+enum WEAPON {
 	ENEMY,				// enemy = cicles, triangles
-	BLACKHOLE };		
+	BLACKHOLE };
 
 #endif
