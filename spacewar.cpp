@@ -19,11 +19,12 @@ float			playerDeccelerationRate;
 float			playerTurnMultiplier;
 float			playerInvulnerableTimer;
 float			slowedTime, slowRadians;			// Used for slowing down blackhole rotation
+float			deathAngle;							// the angle in radians at the point in time of the player's death
 
+//int				deathX, deathY;						// x and y value at the point in time of the player's death
 int				playerMaxHealth, playerHealth;
 int				playerScore, playerLevel;
 int				combo;
-
 int				waveTriangleCount, waveCircleCount, waveBossCount;
 int				currentWave;
 
@@ -112,12 +113,14 @@ void Spacewar::initialize(HWND hwnd) {
 	player->setCurrentFrame(shipNS::player_START_FRAME);							//<- supposedly not needed right
 	player->setX(GAME_WIDTH / 4);
 	player->setY(GAME_HEIGHT / 4);
+	player->setScale(0.5f);
 	player->setVelocity(shipNS::SPEED, -shipNS::SPEED);
 	player->setObjectType(PLAYER_SPRITE);
 	player->setRadians(0);
 	player->setHealth(3);
 
 	addEntity(player);
+
 	blackhole = new Blackhole();
 	blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
 	blackhole->setFrames(blackholeNS::BLACKHOLE_START_FRAME, blackholeNS::BLACKHOLE_END_FRAME);
@@ -129,7 +132,7 @@ void Spacewar::initialize(HWND hwnd) {
 	blackhole->setRadians(0);
 	blackhole->setScale(0.5f);
 
-	addEntity(blackhole);
+	//addEntity(blackhole);
 
 	int dx = GAME_WIDTH - 10;
 
@@ -336,18 +339,15 @@ void Spacewar::UpdateEntities() {
 										(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
 										(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
 										);
-
-									// calculate black hole's attraction here
-									calculateF(blackhole, player);
-
-									printf("%.2f, %d\n", player->getHealth(), playerIsInvulnerable);
-
-									if (playerIsInvulnerable) {
+									
+									if (playerIsInvulnerable) {				// if player is not dead, set player sprite to no damage and blink animation.
 										playerInvulnerableTimer -= deltaTime;
 										if (playerInvulnerableTimer < 0) {
 											playerIsInvulnerable = false;
 										}
 									}
+
+									calculateF(blackhole, player);						// calculate black hole's attraction here
 								}
 								else
 								{
@@ -360,7 +360,7 @@ void Spacewar::UpdateEntities() {
 
 		case TRIANGLES: {
 							double dx, dy;
-
+							
 							dx = player->getX() - (*iter)->getX();
 							dy = player->getY() - (*iter)->getY();
 
@@ -448,48 +448,54 @@ void Spacewar::collisions()
 	{
 		Entity* entity = *iter;
 
-		switch (entity->getObjectType())
+		if (!playerIsInvulnerable)
 		{
-			case (BLACKHOLE_) :
+			switch (entity->getObjectType())
 			{
-								  if (player->collidesWith(*entity, collisionVector))
-								  {
-									  player->bounce(collisionVector, *entity);
-									  player->damage(BLACKHOLE);
-								  }
+				case (BLACKHOLE_) :
+				{
+										if (player->collidesWith(*entity, collisionVector))
+										{
+											player->bounce(collisionVector, *entity);
+											player->damage(BLACKHOLE);
+										}
 
-			}	break;
+				}	break;
 
-			case (CIRCLES) :
-			{
-							   if (player->collidesWith(*entity, collisionVector))
-							   {
-								   player->bounce(collisionVector, *entity);
-								   player->damage(ENEMY);
-							   }
-			}	break;
+				case (CIRCLES) :
+				{
+									if (player->collidesWith(*entity, collisionVector))
+									{
+										player->bounce(collisionVector, *entity);
+										player->damage(ENEMY);
+										playerIsInvulnerable = true;
+										playerInvulnerableTimer = 2.0f;
+									}
+				}	break;
 
-			case (TRIANGLES) :
-			{
-								 if (player->collidesWith(*entity, collisionVector))
-								 {
-									 player->bounce(collisionVector, *entity);
-									 player->damage(ENEMY);
-								 }
-			}	break;
+				case (TRIANGLES) :
+				{
+										if (player->collidesWith(*entity, collisionVector))
+										{
+											player->bounce(collisionVector, *entity);
+											player->damage(ENEMY);
+											playerIsInvulnerable = true;
+											playerInvulnerableTimer = 2.0f;
+										}
+				}	break;
+			}
 		}
+				
+		//deathX = player->getX();							// set value of x at point of death
+		//deathY = player->getY();							// set value of y at point of death
+		deathAngle = player->getRadians();		// set angle at point of death
+		// (test sprite requires additional 90 degrees)
 
 		//=============================================================================
 		// Check if player is dead.
-		// If player is alive, start invulnerability.
-		// If player is not alive, start death animation.
+		// If player is dead, start death animation.
 		//=============================================================================
-		if (isEntityAlive(player))				// if player is alive
-		{
-			playerIsInvulnerable = true;
-			playerInvulnerableTimer = 2.0f;
-		}
-		else if (!isEntityAlive(player))		// if player is not alive
+		if (!isEntityAlive(player))		// if player is not alive
 		{
 			if (!playerIsDead)					// start death animation
 			{
@@ -499,9 +505,12 @@ void Spacewar::collisions()
 				player->setCurrentFrame(P_DEATH_START_FRAME);
 				player->setFrameDelay(P_DEATH_ANIMATION_DELAY);
 				player->setLoop(false);
-				//player->setRadians(prevAngle);
+				//player->setX(deathX);
+				//player->setY(deathY);
+				player->setRadians(deathAngle);
 				player->setScale(0.5f);
 				player->setRect();
+				printf("%f\n", deathAngle);
 			}
 		}
 	}
