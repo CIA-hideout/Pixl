@@ -26,6 +26,7 @@ Ship::Ship() : Entity()
     mass = shipNS::MASS;
     collisionType = entityNS::CIRCLE;
 	health = 3;
+	combo = 0;
 }
 
 //=============================================================================
@@ -83,16 +84,19 @@ void Ship::damage(WEAPON weapon) {
 
 	switch (weapon)
 	{
-		case ENEMY: {												// if player touch normal enemies (CIRCLES and TRIANGLES)
-							this->setHealth(this->getHealth() - 1);    // reduce player health by 1
+		case ENEMY: {													// if player touch normal enemies (CIRCLES and TRIANGLES)
+							this->setHealth(this->getHealth() - 1);		// reduce player health by 1
+							this->combo = 0;							// reset combo	
 		} break;
 
-		case BOSS: {												// if player touch boss enemy
-							this->setHealth(this->getHealth() - 2);    // reduce player health by 2
+		case BOSS: {													// if player touch boss enemy
+							this->setHealth(this->getHealth() - 2);		// reduce player health by 2
+							this->combo = 0;							// reset combo
 		} break;
 
-		case BLACKHOLE: {											// if player touch blackhole entity
-							this->setHealth(0);						// kill player instantly
+		case BLACKHOLE: {												// if player touch blackhole entity
+							this->setHealth(0);							// kill player instantly
+							this->combo = 0;							// reset combo
 		} break;
 
 		default:

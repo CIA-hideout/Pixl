@@ -24,6 +24,10 @@ namespace shipNS {
 
 // inherits from Entity class
 class Ship : public Entity {
+
+protected:
+	int combo;				// combo of player based on no. of kills per life
+
 public:
 	// constructor
 	Ship();

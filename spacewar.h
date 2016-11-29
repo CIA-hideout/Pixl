@@ -50,8 +50,7 @@ public:
     // Destructor
     virtual ~Spacewar();
 
-    // Initialize the game
-    void initialize(HWND hwnd);
+    void initialize(HWND hwnd);			// Initialize the game
     void update();						// must override pure virtual from Game
     void ai();							// "
     void collisions();					// "
@@ -65,6 +64,8 @@ public:
 	void DrawEntities();
 	int genScore(int combo);								// return Score based on combo
 	double calculateF(Entity* entity, Entity* entity2);		// return Force based 2 entities
+
+	bool isEntityAlive(Entity* entity);						// check if an entity has any health left and returns a boolean
 };
 
 #endif
