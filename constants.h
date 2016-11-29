@@ -57,6 +57,10 @@ const char FONT_TEXTURE_INFO[]			= "resources\\font.dat";
 const char HEART_TEXTURE[] 				= "resources\\sprite_hearts.png";
 const char CIRCLE_TEXTURE[] 			= "resources\\circle.png";
 
+//graphics image [Powerups]
+const char DESTRUCTOR_TEXTURE[]			= "resources\\destructor.png";
+const char OBSTRUCTOR_TEXTURE[]			= "resources\\obstructor.png";
+
 
 // PLAYER DEATH
 const int P_DEATH_WIDTH								= 256;			// player death width
@@ -81,5 +85,6 @@ const UCHAR SHIP_SUBTRACT_V = VK_DOWN;
 // weapon types
 enum WEAPON {
 	ENEMY,				// enemy = cicles, triangles
-	BLACKHOLE };
+	BLACKHOLE,
+	PLAYER};
 #endif
