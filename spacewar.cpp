@@ -14,7 +14,7 @@
 
 double calculateF(Entity* e1, Entity* e2);
 
-float			playerAcceleratioRate;
+float			playerAccelerationRate;
 float			playerDeccelerationRate;
 float			playerTurnMultiplier;
 float			playerInvulnerableTimer;
@@ -65,7 +65,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	int side;
 
-	playerAcceleratioRate = 3.5f;
+	playerAccelerationRate = 3.5f;
 	playerDeccelerationRate = 0.005f;
 	playerTurnMultiplier = 3.5f;
 
@@ -319,8 +319,8 @@ void Spacewar::UpdateEntities() {
 								{
 									if (input->isKeyDown(VK_UP)) {
 										(*iter)->setVelocity(
-											(cos((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().x),
-											(sin((*iter)->getRadians()) * playerAcceleratioRate + (*iter)->getVelocity().y)
+											(sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
+											(cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y)
 											);
 									}
 
