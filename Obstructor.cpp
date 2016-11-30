@@ -81,5 +81,25 @@ void Obstructor::damage(WEAPON weapon){
 //	Calcualte the type of Obstrutor 
 
 void Obstructor::calculateObstructorType(){
-	
+	srand(timeGetTime());
+	int randNumber = rand() % 9;	//Get a number from 0 - 9
+
+	// Array containing type of obstructor
+	ObstructorType obstructorArray[] = {
+		SLOW_PLAYER,
+		SLOW_PLAYER,
+
+		STUN_PLAYER,
+		STUN_PLAYER,
+
+		INVERT_CONTROLS,
+		INVERT_CONTROLS,
+
+		ENLARGE_PLAYER,
+		ENLARGE_PLAYER,
+
+		O_BLACKHOLE,
+	};
+
+	o_type =  obstructorArray[randNumber];
 }
