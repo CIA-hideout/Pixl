@@ -32,6 +32,13 @@ void Obstructor::update(float deltaTime){
 }
 
 void Obstructor::spawn(){
+	
+	setFrames(startFrame, endFrame);
+	setCollisionRadius(getHeight() / 2);
+	setVelocity(0, 0);						// powerups don't move;
+	setObjectType(CIRCLES);
+	setScale(0.2f);
+
 	//spawn randomly in window
 	int side = rand() % 4;
 
