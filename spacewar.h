@@ -17,6 +17,7 @@
 #include "Triangle.h"
 #include "Circle.h"
 #include "Blackhole.h"
+#include "Obstructor.h"
 
 //=============================================================================
 // This class is the core of the game
@@ -33,6 +34,7 @@ private:
 	TextureManager			blackHoleTexture;
 	TextureManager			fontTexture;
 	TextureManager			heartTexture;
+	//TextureManager			obstructorTexture;
 
 	std::vector<Entity*>	entities;
 	std::vector<Entity*>	hearts;

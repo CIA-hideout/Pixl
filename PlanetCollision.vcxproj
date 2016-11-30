@@ -103,6 +103,7 @@
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="input.cpp" />
+    <ClCompile Include="Obstructor.cpp" />
     <ClCompile Include="ship.cpp" />
     <ClCompile Include="spacewar.cpp" />
     <ClCompile Include="textureManager.cpp" />
@@ -120,6 +121,7 @@
     <ClInclude Include="graphics.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="Obstructor.h" />
     <ClInclude Include="ship.h" />
     <ClInclude Include="spacewar.h" />
     <ClInclude Include="textureManager.h" />

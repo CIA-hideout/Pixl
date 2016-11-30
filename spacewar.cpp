@@ -57,7 +57,7 @@ Spacewar::~Spacewar() {
 //=============================================================================
 void Spacewar::initialize(HWND hwnd) {
 
-	//AllocConsole();			// Brings up console
+	AllocConsole();			// Brings up console
 
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
@@ -88,6 +88,7 @@ void Spacewar::initialize(HWND hwnd) {
 	blackHoleTexture.initialize(graphics, BLACKHOLE_TEXTURE);
 	heartTexture.initialize(graphics, HEART_TEXTURE);
 	fontTexture.initialize(graphics, FONT_TEXTURE);
+	//obstructorTexture.initialize(graphics, OBSTRUCTOR_TEXTURE);
 
 	timeFont = new Font();
 	timeFont->initialize(this, 2048, 2048, 16, &fontTexture);
