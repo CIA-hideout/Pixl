@@ -17,16 +17,23 @@ namespace ObstructorNS{
 	const int		X = GAME_WIDTH / 2 - WIDTH / 2;
 	const int		Y = GAME_HEIGHT / 2 - HEIGHT / 2;
 	
-	enum			ObstructorType{
-		INVERT_CONTROLS,
-		STUN_PLAYER,
-		SLOW_PLAYER,
-		ENLARGE_PLAYER,
-		BLACKHOLE
-	};
-	ObstructorType	type;
+	//spawn rates for obstructors
+	//const double	INVERT_SPAWNRATE = 3.0;
+	//const double	STUN_SPAWNRATE = 3.0;
+	//const double	SLOW_SPAWNRAETE = 3.0;
+	//const double	ENLARGE_SPAWNRATE = 3.0;
+	//const double	BLACKHOLE_SPAWNRATE = 0.5;
+
 	//const LPCWSTR	fileName = L"obstructor.png";
 }
+
+enum			ObstructorType{
+	INVERT_CONTROLS,
+	STUN_PLAYER,
+	SLOW_PLAYER,
+	ENLARGE_PLAYER,
+	O_BLACKHOLE
+};
 
 class Obstructor : public Entity{
 public:
@@ -37,9 +44,13 @@ public:
 	void update(float deltaTime);
 	void spawn();
 	void damage(WEAPON);
-	ObstructorNS::ObstructorType returnObstructorType();
+	ObstructorType getObstructorType()
+	{
+		return o_type;
+	}
 
 private:
+	ObstructorType o_type;
 	void calculateObstructorType();
 };
 

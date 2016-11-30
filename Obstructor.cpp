@@ -16,6 +16,7 @@ Obstructor::Obstructor() : Entity(){
 	radius = ObstructorNS::WIDTH / 2.0f;
 	mass = ObstructorNS::MASS;
 	collisionType = entityNS::CIRCLE;
+	o_type = SLOW_PLAYER;
 }
 
 bool Obstructor::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM){
@@ -73,16 +74,12 @@ void Obstructor::damage(WEAPON weapon){
 }
 
 //returns the type of Obstructor [Blackhole, slow, stun, enlarge, invert]
-ObstructorNS::ObstructorType returnObstructorType(){
-	return ObstructorNS::type;
-}
-
 
 /* ========================================	*/
 /*			Private Methods					*/
 /* ========================================	*/
 //	Calcualte the type of Obstrutor 
-void Obstructor::calculateObstructorType()
-{
+
+void Obstructor::calculateObstructorType(){
 	
 }
