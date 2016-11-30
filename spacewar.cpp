@@ -156,14 +156,10 @@ void Spacewar::initialize(HWND hwnd) {
 	}
 
 	// Spawn Triangles
-	for (int i = 0; i < 0; i++) {
+	for (int i = 0; i < 10; i++) {
 
 		Triangle* triangle = new Triangle();
 		triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
-		triangle->setFrames(TriangleNS::TRIANGLE_START_FRAME, TriangleNS::TRIANGLE_END_FRAME);
-		triangle->setCurrentFrame(TriangleNS::TRIANGLE_START_FRAME);
-		triangle->setVelocity(10, 20);
-		triangle->setObjectType(TRIANGLES);
 
 		triangle->spawn();		//	spawn triangle in its own method.
 		addEntity(triangle);
@@ -174,15 +170,14 @@ void Spacewar::initialize(HWND hwnd) {
 
 		Circle* circle = new Circle();
 		circle->initialize(this, CircleNS::WIDTH, CircleNS::HEIGHT, CircleNS::TEXTURE_COLS, &circleTextures);
-		circle->setFrames(CircleNS::CIRCLE_START_FRAME, CircleNS::CIRCLE_END_FRAME);
-		circle->setCollisionRadius((circle->getHeight()) / 2);
-		circle->setVelocity(100, 200);
-		circle->setObjectType(CIRCLES);
-		circle->setScale(0.2f);
 
 		circle->spawn();
 		addEntity(circle);
 	}
+
+	// Spawn Obstructors
+	//Obstructor* obstructor = new Obstructor;
+
 
 	//for (int i = 0; i < 10; i++) {
 

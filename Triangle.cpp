@@ -61,6 +61,13 @@ void Triangle::update(float deltaTime) {
 // To spawn a triangle outside the border
 void Triangle::spawn()
 {
+	// Set Triangles Details
+	setFrames(TriangleNS::TRIANGLE_START_FRAME, TriangleNS::TRIANGLE_END_FRAME);
+	setCurrentFrame(TriangleNS::TRIANGLE_START_FRAME);
+	setVelocity(10, 20);
+	setObjectType(TRIANGLES);
+
+
 	// random spawn on border
 	int side = rand() % 4;
 

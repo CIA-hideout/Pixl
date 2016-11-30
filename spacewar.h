@@ -17,7 +17,7 @@
 #include "Triangle.h"
 #include "Circle.h"
 #include "Blackhole.h"
-#include "Obstructor.h"
+#include "Pickup.h"
 
 //=============================================================================
 // This class is the core of the game

@@ -55,6 +55,14 @@ void Circle::update(float deltaTime){
 	}
 }
 void Circle::spawn(){
+
+	// Set CIRCLES settings
+	setFrames(startFrame, endFrame);
+	setCollisionRadius(getHeight() / 2);
+	setVelocity(100, 200);						
+	setObjectType(CIRCLES);
+	setScale(0.2f);
+
 	// random spawn on border
 	int side = rand() % 4;
 
