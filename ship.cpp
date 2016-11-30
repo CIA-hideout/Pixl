@@ -10,17 +10,17 @@
 //=============================================================================
 Ship::Ship() : Entity()
 {
-	spriteData.width = shipNS::WIDTH;           // size of player
+	spriteData.width = shipNS::WIDTH;
 	spriteData.height = shipNS::HEIGHT;
 	spriteData.scale = shipNS::SCALING;
-	spriteData.x = shipNS::X;                   // location on screen
+	spriteData.x = shipNS::X;
 	spriteData.y = shipNS::Y;
-	spriteData.rect.bottom = shipNS::HEIGHT;    // rectangle to select parts of an image
+	spriteData.rect.bottom = shipNS::HEIGHT;
 	spriteData.rect.right = shipNS::WIDTH;
-	velocity.x = 0;                             // velocity X
-	velocity.y = 0;                             // velocity Y
-	startFrame = shipNS::player_START_FRAME;     // first frame of ship animation
-	endFrame = shipNS::player_END_FRAME;     // last frame of ship animation
+	velocity.x = 0;
+	velocity.y = 0;
+	startFrame = shipNS::player_START_FRAME;
+	endFrame = shipNS::player_END_FRAME;
 	currentFrame = startFrame;
 	radius = shipNS::WIDTH / 2.0;
 	mass = shipNS::MASS;
@@ -28,17 +28,10 @@ Ship::Ship() : Entity()
 	health = 5;
 }
 
-//=============================================================================
-// Initialize the Ship.
-// Post: returns true if successful, false if failed
-//=============================================================================
 bool Ship::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM) {
 	return(Entity::initialize(gamePtr, width, height, ncols, textureM));
 }
 
-//=============================================================================
-// draw the ship
-//=============================================================================
 void Ship::draw() {
 	Image::draw();              // draw ship
 }
@@ -59,26 +52,20 @@ void Ship::update(float deltaTime)
 		spriteData.x = GAME_WIDTH - shipNS::WIDTH * this->getScale();
 		velocity.x = -velocity.x;
 	}
-	else if (spriteData.x < 0)
-	{
+	else if (spriteData.x < 0) {
 		spriteData.x = 0;
 		velocity.x = -velocity.x;
 	}
-	if (spriteData.y > GAME_HEIGHT - shipNS::HEIGHT  * this->getScale())
-	{
+	if (spriteData.y > GAME_HEIGHT - shipNS::HEIGHT  * this->getScale()) {
 		spriteData.y = GAME_HEIGHT - shipNS::HEIGHT  * this->getScale();
 		velocity.y = -velocity.y;
 	}
-	else if (spriteData.y < 0)
-	{
+	else if (spriteData.y < 0) {
 		spriteData.y = 0;
 		velocity.y = -velocity.y;
 	}
 }
 
-//=============================================================================
-// damage
-//=============================================================================
 void Ship::damage(WEAPON weapon) {
 
 	switch (weapon)

@@ -48,18 +48,16 @@ const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
 // graphic images
-const char PLAYER_TEXTURE[]			= "resources\\player.png";
-const char PLAYER_DEATH_TEXTURE[]	= "resources\\player_death_animation.png";
-const char TRIANGLE_TEXTURE[]		= "resources\\triangle.png";
-const char BLACKHOLE_TEXTURE[]		= "resources\\blackhole.png";
-const char FONT_TEXTURE[]			= "resources\\font.png";
-const char FONT_TEXTURE_INFO[]		= "resources\\font.dat";
-const char HEART_TEXTURE[] 			= "resources\\sprite_hearts.png";
-const char CIRCLE_TEXTURE[] 		= "resources\\circle.png";
-
-//graphics image [Powerups]
-const char DESTRUCTOR_TEXTURE[]		= "resources\\destructor.png";
-const char OBSTRUCTOR_TEXTURE[]		= "resources\\obstructor.png";
+const char PLAYER_TEXTURE[]			= "resources\\images\\player.png";
+const char PLAYER_DEATH_TEXTURE[]	= "resources\\images\\player_death_animation.png";
+const char TRIANGLE_TEXTURE[]		= "resources\\images\\triangle.png";
+const char BLACKHOLE_TEXTURE[]		= "resources\\images\\blackhole.png";
+const char FONT_TEXTURE[]			= "resources\\images\\font.png";
+const char FONT_TEXTURE_INFO[]		= "resources\\images\\font.dat";
+const char HEART_TEXTURE[] 			= "resources\\images\\sprite_hearts.png";
+const char CIRCLE_TEXTURE[] 		= "resources\\images\\circle.png";
+const char DESTRUCTOR_TEXTURE[]		= "resources\\images\\destructor.png";
+const char OBSTRUCTOR_TEXTURE[]		= "resources\\images\\obstructor.png";
 
 
 // PLAYER DEATH

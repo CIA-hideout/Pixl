@@ -494,8 +494,6 @@ void Spacewar::collisions() {
 											  player->setCurrentFrame(P_DEATH_START_FRAME);
 											  player->setFrameDelay(P_DEATH_ANIMATION_DELAY);
 											  player->setLoop(false);
-											  //player->setX(deathX);
-											  //player->setY(deathY);
 											  player->setRadians(deathAngle);
 											  player->setScale(0.5f);
 											  player->setRect();
@@ -537,9 +535,8 @@ double Spacewar::calculateF(Entity* e1, Entity* e2) {
 
 bool Spacewar::isEntityAlive(Entity *e)
 {
-	if (e->getHealth() > 0)			// if player is alive
+	if (e->getHealth() > 0)
 		return true;
-	else
-		return false;
+	return false;
 }
 
