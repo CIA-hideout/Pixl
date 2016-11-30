@@ -28,7 +28,7 @@ namespace ObstructorNS{
 }
 
 enum			ObstructorType{
-	INVERT_CONTROLS,
+	INVERT_CONTROLS, 
 	STUN_PLAYER,
 	SLOW_PLAYER,
 	ENLARGE_PLAYER,
