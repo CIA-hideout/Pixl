@@ -51,30 +51,28 @@ void Ship::draw() {
 void Ship::update(float deltaTime)
 {
 	Entity::update(deltaTime);
-	spriteData.angle += deltaTime * shipNS::ROTATION_RATE;  // rotate the ship
-	spriteData.x += deltaTime * velocity.x;         // move ship along X
-	spriteData.y += deltaTime * velocity.y;         // move ship along Y
+	spriteData.angle += deltaTime * shipNS::ROTATION_RATE;
+	spriteData.x += deltaTime * velocity.x;
+	spriteData.y += deltaTime * velocity.y;
 
-	// Bounce off walls
-	if (spriteData.x > GAME_WIDTH - shipNS::WIDTH)    // if hit right screen edge
-	{
-		spriteData.x = GAME_WIDTH - shipNS::WIDTH;    // position at right screen edge
-		velocity.x = -velocity.x;                   // reverse X direction
+	if (spriteData.x > GAME_WIDTH - shipNS::WIDTH * this->getScale()) {
+		spriteData.x = GAME_WIDTH - shipNS::WIDTH * this->getScale();
+		velocity.x = -velocity.x;
 	}
-	else if (spriteData.x < 0)                    // else if hit left screen edge
+	else if (spriteData.x < 0)
 	{
-		spriteData.x = 0;                           // position at left screen edge
-		velocity.x = -velocity.x;                   // reverse X direction
+		spriteData.x = 0;
+		velocity.x = -velocity.x;
 	}
-	if (spriteData.y > GAME_HEIGHT - shipNS::HEIGHT)  // if hit bottom screen edge
+	if (spriteData.y > GAME_HEIGHT - shipNS::HEIGHT  * this->getScale())
 	{
-		spriteData.y = GAME_HEIGHT - shipNS::HEIGHT;  // position at bottom screen edge
-		velocity.y = -velocity.y;                   // reverse Y direction
+		spriteData.y = GAME_HEIGHT - shipNS::HEIGHT  * this->getScale();
+		velocity.y = -velocity.y;
 	}
-	else if (spriteData.y < 0)                    // else if hit top screen edge
+	else if (spriteData.y < 0)
 	{
-		spriteData.y = 0;                           // position at top screen edge
-		velocity.y = -velocity.y;                   // reverse Y direction
+		spriteData.y = 0;
+		velocity.y = -velocity.y;
 	}
 }
 
