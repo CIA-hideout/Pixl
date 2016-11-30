@@ -19,6 +19,12 @@
 #include "Blackhole.h"
 #include "Pickup.h"
 
+enum GameState {
+	GAME_STATE_MENU,
+	GAME_STATE_GAME,
+	GAME_STATE_SETTING
+};
+
 //=============================================================================
 // This class is the core of the game
 //=============================================================================
@@ -26,7 +32,7 @@ class Spacewar : public Game
 {
 private:
 
-    // game items
+	// game items
 	TextureManager			shipTextures;
 	TextureManager			p_deathTextures;
 	TextureManager			triangleTextures;
@@ -34,7 +40,8 @@ private:
 	TextureManager			blackHoleTexture;
 	TextureManager			fontTexture;
 	TextureManager			heartTexture;
-	//TextureManager			obstructorTexture;
+	TextureManager			destructorTexture;
+	TextureManager			obstructorTexture;
 
 	std::vector<Entity*>	entities;
 	std::vector<Entity*>	hearts;
@@ -44,22 +51,29 @@ private:
 	Font*					timeFont;
 	Font*					comboFont;
 	Font*					scoreFont;
+	Font*					menuFont;
+
+	Pickup*					generalPickup;
+	Pickup*					healthPickup;
+
+	GameState				gameState;
+	bool					isRunning;
 
 public:
-    // Constructor
-    Spacewar();
+	// Constructor
+	Spacewar();
 
-    // Destructor
-    virtual ~Spacewar();
+	// Destructor
+	virtual ~Spacewar();
 
-    void initialize(HWND hwnd);			// Initialize the game
-    void update();						// must override pure virtual from Game
-    void ai();							// "
-    void collisions();					// "
-	void collisions(Entity* entity);	// "
-    void render();						// "
-    void releaseAll();
-    void resetAll();
+	void initialize(HWND hwnd);
+	void update();
+	void ai();
+	void collisions();
+	void collisions(Entity* entity);
+	void render();
+	void releaseAll();
+	void resetAll();
 
 	void addEntity(Entity* entity);
 	void UpdateEntities();
@@ -68,6 +82,12 @@ public:
 	double calculateF(Entity* entity, Entity* entity2);		// return Force based 2 entities
 
 	bool isEntityAlive(Entity* entity);						// check if an entity has any health left and returns a boolean
+
+	GameState getGameState() { return this->gameState; }
+	void setGameState(GameState gameState) { this->gameState = gameState; }
+
+	bool getIsRunning() { return this->isRunning; }
+	void setIsRunning(bool isRunning) { this->isRunning; }
 };
 
 #endif

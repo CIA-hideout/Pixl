@@ -7,7 +7,7 @@
 namespace TriangleNS {
 
 	const float			MASS = 300.0f;
-	const float			SCALING = 0.5f;
+	const float			SCALING = 0.2f;
 	const float			SPEED = 100;
 	const float			ROTATION_RATE = (float)PI / 4;
 	const int			WIDTH = 128;
@@ -17,7 +17,6 @@ namespace TriangleNS {
 	const int			TRIANGLE_START_FRAME = 0;
 	const int			X = GAME_WIDTH / 2 - WIDTH / 2;
 	const int			Y = GAME_HEIGHT / 2 - HEIGHT / 2;
-	const LPCWSTR		fileName = L"triangle.png";
 }
 
 class Triangle : public Entity {

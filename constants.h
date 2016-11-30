@@ -48,18 +48,18 @@ const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
 // graphic images
-const char PLAYER_TEXTURE[]				= "resources\\player.png";
-const char PLAYER_DEATH_TEXTURE[]		= "resources\\player_death_animation.png";
-const char TRIANGLE_TEXTURE[]			= "resources\\triangle.png";
-const char BLACKHOLE_TEXTURE[]			= "resources\\blackhole.png";
-const char FONT_TEXTURE[]				= "resources\\font.png";
-const char FONT_TEXTURE_INFO[]			= "resources\\font.dat";
-const char HEART_TEXTURE[] 				= "resources\\sprite_hearts.png";
-const char CIRCLE_TEXTURE[] 			= "resources\\circle.png";
+const char PLAYER_TEXTURE[]			= "resources\\player.png";
+const char PLAYER_DEATH_TEXTURE[]	= "resources\\player_death_animation.png";
+const char TRIANGLE_TEXTURE[]		= "resources\\triangle.png";
+const char BLACKHOLE_TEXTURE[]		= "resources\\blackhole.png";
+const char FONT_TEXTURE[]			= "resources\\font.png";
+const char FONT_TEXTURE_INFO[]		= "resources\\font.dat";
+const char HEART_TEXTURE[] 			= "resources\\sprite_hearts.png";
+const char CIRCLE_TEXTURE[] 		= "resources\\circle.png";
 
 //graphics image [Powerups]
-const char DESTRUCTOR_TEXTURE[]			= "resources\\destructor.png";
-const char OBSTRUCTOR_TEXTURE[]			= "resources\\obstructor.png";
+const char DESTRUCTOR_TEXTURE[]		= "resources\\destructor.png";
+const char OBSTRUCTOR_TEXTURE[]		= "resources\\obstructor.png";
 
 
 // PLAYER DEATH
@@ -84,7 +84,10 @@ const UCHAR SHIP_SUBTRACT_V = VK_DOWN;
 
 // weapon types
 enum WEAPON {
-	ENEMY,				// enemy = cicles, triangles
-	BLACKHOLE,
-	PLAYER};
+	WEAPON_TRIANGLE,
+	WEAPON_CIRCLE,
+	WEAPON_BLACKHOLE,
+	WEAPON_PLAYER,
+	WEAPON_BOSS
+};
 #endif

@@ -16,10 +16,8 @@ Pickup::Pickup() : Entity(){
 	radius = PickupNS::WIDTH / 2.0f;
 	mass = PickupNS::MASS;
 	collisionType = entityNS::CIRCLE;
-	PickupTypes type = OBSTRUCTOR_SLOW_PLAYER;
+	PickupType type = PICKUP_OBSTRUCTOR_SLOW_PLAYER;
 	boolean isDestructor = true;
-
-	
 }
 
 bool Pickup::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM){
@@ -31,15 +29,15 @@ void Pickup::draw(){
 }
 
 void Pickup::update(float deltaTime){
-	
+
 }
 
 void Pickup::spawn(){
-	
+
 	setFrames(startFrame, endFrame);
 	setCollisionRadius(getHeight() / 2);
 	setVelocity(0, 0);						// powerups don't move;
-	setObjectType(CIRCLES);
+	setObjectType(OBJECT_TYPE_CIRCLES);
 	setScale(0.2f);
 
 	//spawn randomly in window
@@ -47,25 +45,25 @@ void Pickup::spawn(){
 
 	switch (side) {
 		// left
-	case 0: {
-		this->setX(0 - rand() % GAME_WIDTH);
-		this->setY(rand() % GAME_HEIGHT);
-	} break;
-		// top
-	case 1: {
-		this->setX(rand() % GAME_WIDTH);
-		this->setY(-(rand() % GAME_HEIGHT));
-	} break;
-		// right
-	case 2: {
-		this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
-		this->setY(rand() % GAME_HEIGHT);
-	} break;
-		// bottom
-	case 3: {
-		this->setX(rand() % GAME_WIDTH);
-		this->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
-	} break;
+		case 0: {
+					this->setX(0 - rand() % GAME_WIDTH);
+					this->setY(rand() % GAME_HEIGHT);
+		} break;
+			// top
+		case 1: {
+					this->setX(rand() % GAME_WIDTH);
+					this->setY(-(rand() % GAME_HEIGHT));
+		} break;
+			// right
+		case 2: {
+					this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
+					this->setY(rand() % GAME_HEIGHT);
+		} break;
+			// bottom
+		case 3: {
+					this->setX(rand() % GAME_WIDTH);
+					this->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
+		} break;
 	}
 
 	this->setX(rand() % GAME_WIDTH);
@@ -77,8 +75,8 @@ void Pickup::spawn(){
 void Pickup::damage(WEAPON weapon){
 	switch (weapon)
 	{
-		case PLAYER:{
-			this->setHealth(0);
+		case OBJECT_TYPE_PLAYER: {
+									 this->setHealth(0);
 		}	break;
 	}
 }
@@ -102,43 +100,43 @@ void Pickup::setPickUpType(){
 
 //	Calculate the type of Obstrutor or Destructor the pickup is 
 void Pickup::calculateObstructorDestructorType(){
-	
+
 	setPickUpType();
 	srand(timeGetTime());
 	int randNumber;
 
 	// Array containing types of obstructor
-	PickupTypes obstructorArray[] = {
-		OBSTRUCTOR_SLOW_PLAYER,
-		OBSTRUCTOR_SLOW_PLAYER,
+	PickupType obstructorArray[] = {
+		PICKUP_OBSTRUCTOR_SLOW_PLAYER,
+		PICKUP_OBSTRUCTOR_SLOW_PLAYER,
 
-		OBSTRUCTOR_STUN_PLAYER,
-		OBSTRUCTOR_STUN_PLAYER,
+		PICKUP_OBSTRUCTOR_STUN_PLAYER,
+		PICKUP_OBSTRUCTOR_STUN_PLAYER,
 
-		OBSTRUCTOR_INVERT_CONTROLS,
-		OBSTRUCTOR_INVERT_CONTROLS,
+		PICKUP_OBSTRUCTOR_INVERT_CONTROLS,
+		PICKUP_OBSTRUCTOR_INVERT_CONTROLS,
 
-		OBSTRUCTOR_ENLARGE_PLAYER,
-		OBSTRUCTOR_ENLARGE_PLAYER,
+		PICKUP_OBSTRUCTOR_ENLARGE_PLAYER,
+		PICKUP_OBSTRUCTOR_ENLARGE_PLAYER,
 
-		OBSTRUCTOR_BLACKHOLE
+		PICKUP_OBSTRUCTOR_BLACKHOLE
 	};
 
 	//	Array containing types of Destructor
-	PickupTypes destructorArray[] = {
-		DESTRUCTOR_EXPLOSION,
-		DESTRUCTOR_EXPLOSION,
-		DESTRUCTOR_EXPLOSION,
+	PickupType destructorArray[] = {
+		PICKUP_DESTRUCTOR_EXPLOSION,
+		PICKUP_DESTRUCTOR_EXPLOSION,
+		PICKUP_DESTRUCTOR_EXPLOSION,
 
-		DESTRUCTOR_HOMING_MISSLES,
-		DESTRUCTOR_HOMING_MISSLES,
-		DESTRUCTOR_HOMING_MISSLES,
+		PICKUP_DESTRUCTOR_MISSLES,
+		PICKUP_DESTRUCTOR_MISSLES,
+		PICKUP_DESTRUCTOR_MISSLES,
 
-		DESTRUCTOR_FREEZE,
-		DESTRUCTOR_FREEZE,
+		PICKUP_DESTRUCTOR_FREEZE,
+		PICKUP_DESTRUCTOR_FREEZE,
 
-		DESTRUCTOR_INVULNERABILITY,
-		DESTRUCTOR_INVULNERABILITY
+		PICKUP_DESTRUCTOR_INVULNERABILITY,
+		PICKUP_DESTRUCTOR_INVULNERABILITY
 	};
 
 	if (isDestructor)

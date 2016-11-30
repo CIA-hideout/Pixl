@@ -4,34 +4,34 @@
 #include "entity.h"
 #include "constants.h"
 
-namespace PickupNS{
+namespace PickupNS {
 	const float		MASS = 0.0f;
 	const float		SCALING = 0.2f;
 	const float		SPEED = 0;
 	const float		ROTATION_RATE = (float)PI / 4;
 	const int		WIDTH = 128;
 	const int		HEIGHT = 128;
-	const int		TEXTURE_COLS = 1;
+	const int		TEXTURE_COLS = 2;
 	const int		PICKUP_END_FRAME = 0;
 	const int		PICKUP_START_FRAME = 0;
 	const int		X = GAME_WIDTH / 2 - WIDTH / 2;
 	const int		Y = GAME_HEIGHT / 2 - HEIGHT / 2;
-	//const LPCWSTR	fileName = L"obstructor.png";
 }
 
-enum	PickupTypes{
+enum	PickupType{
 	//Declare Obstructors
-	OBSTRUCTOR_INVERT_CONTROLS, 
-	OBSTRUCTOR_STUN_PLAYER,
-	OBSTRUCTOR_SLOW_PLAYER,
-	OBSTRUCTOR_ENLARGE_PLAYER,
-	OBSTRUCTOR_BLACKHOLE,
-
+	PICKUP_OBSTRUCTOR_INVERT_CONTROLS,
+	PICKUP_OBSTRUCTOR_STUN_PLAYER,
+	PICKUP_OBSTRUCTOR_SLOW_PLAYER,
+	PICKUP_OBSTRUCTOR_ENLARGE_PLAYER,
+	PICKUP_OBSTRUCTOR_BLACKHOLE,
 	//Declare Destructors
-	DESTRUCTOR_EXPLOSION,
-	DESTRUCTOR_HOMING_MISSLES,
-	DESTRUCTOR_FREEZE,
-	DESTRUCTOR_INVULNERABILITY
+	PICKUP_DESTRUCTOR_EXPLOSION,
+	PICKUP_DESTRUCTOR_MISSLES,
+	PICKUP_DESTRUCTOR_FREEZE,
+	PICKUP_DESTRUCTOR_INVULNERABILITY,
+
+	PICKUP_HEALTH
 };
 
 class Pickup : public Entity{
@@ -46,20 +46,13 @@ public:
 
 
 	// GET and SET Methods
+	void setPickUpType(PickupType pickupType) { this->type = pickupType; };
 	void setPickUpType();
 
-	boolean getPickupType(){
-		return isDestructor;
-	}
-
-	PickupTypes returnEffect(){
-		return type;
-	}
-
-
+	PickupType getPickupType() { return this->type; }
 
 private:
-	PickupTypes type;
+	PickupType type;
 	boolean		isDestructor;
 
 	void calculateObstructorDestructorType();

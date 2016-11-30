@@ -17,7 +17,7 @@ Triangle::Triangle() : Entity() {
 	radius = TriangleNS::WIDTH / 2.0f;
 	mass = TriangleNS::MASS;
 	collisionType = entityNS::CIRCLE;
-
+	this->setScale(TriangleNS::SCALING);
 }
 
 bool Triangle::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM) {
@@ -65,7 +65,7 @@ void Triangle::spawn()
 	setFrames(TriangleNS::TRIANGLE_START_FRAME, TriangleNS::TRIANGLE_END_FRAME);
 	setCurrentFrame(TriangleNS::TRIANGLE_START_FRAME);
 	setVelocity(10, 20);
-	setObjectType(TRIANGLES);
+	setObjectType(OBJECT_TYPE_TRIANGLES);
 
 
 	// random spawn on border
@@ -96,8 +96,6 @@ void Triangle::spawn()
 
 	this->setX(rand() % GAME_WIDTH);
 	this->setY(rand() % GAME_HEIGHT);
-
-	this->setScale(0.5);
 }
 
 
