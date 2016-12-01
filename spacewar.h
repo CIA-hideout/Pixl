@@ -29,12 +29,16 @@ private:
     // game items
 	TextureManager			shipTextures;
 	TextureManager			p_deathTextures;
+	
 	TextureManager			triangleTextures;
 	TextureManager			circleTextures;
+	
 	TextureManager			blackHoleTexture;
+	TextureManager			obstructorTexture;
+	TextureManager			destructorTexture;
+
 	TextureManager			fontTexture;
 	TextureManager			heartTexture;
-	//TextureManager			obstructorTexture;
 
 	std::vector<Entity*>	entities;
 	std::vector<Entity*>	hearts;

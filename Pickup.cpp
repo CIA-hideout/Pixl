@@ -83,46 +83,29 @@ void Pickup::damage(WEAPON weapon){
 	}
 }
 
-void Pickup::setPickUpType(){
+bool Pickup::isDestructor(){	//	Calculate whether is an Obstructor or Destructor
 	srand(timeGetTime());
 	int number = rand() % 100;
 
-	if (number >= 80)
-		isDestructor = false;	// 80% chance of a Obstructor, 20% a Destructor
+	if (number >= 80)			// 20% chance of a Obstructor
+		destructor = false;	
+	else						// 80% chance of a Destructor
+		destructor = true;  
+
+	calculatePickupType();
+
+	return destructor;
 }
-
-//	Calculate whether is an Obstructor or Destructor
-
-
-//returns the type of Obstructor [Blackhole, slow, stun, enlarge, invert]
 
 /* ========================================	*/
 /*			Private Methods					*/
 /* ========================================	*/
 
 //	Calculate the type of Obstrutor or Destructor the pickup is 
-void Pickup::calculateObstructorDestructorType(){
+void Pickup::calculatePickupType(){
 	
-	setPickUpType();
 	srand(timeGetTime());
 	int randNumber;
-
-	// Array containing types of obstructor
-	PickupTypes obstructorArray[] = {
-		OBSTRUCTOR_SLOW_PLAYER,
-		OBSTRUCTOR_SLOW_PLAYER,
-
-		OBSTRUCTOR_STUN_PLAYER,
-		OBSTRUCTOR_STUN_PLAYER,
-
-		OBSTRUCTOR_INVERT_CONTROLS,
-		OBSTRUCTOR_INVERT_CONTROLS,
-
-		OBSTRUCTOR_ENLARGE_PLAYER,
-		OBSTRUCTOR_ENLARGE_PLAYER,
-
-		OBSTRUCTOR_BLACKHOLE
-	};
 
 	//	Array containing types of Destructor
 	PickupTypes destructorArray[] = {
@@ -141,9 +124,26 @@ void Pickup::calculateObstructorDestructorType(){
 		DESTRUCTOR_INVULNERABILITY
 	};
 
-	if (isDestructor)
+	// Array containing types of Obstructor
+	PickupTypes obstructorArray[] = {
+		OBSTRUCTOR_SLOW_PLAYER,
+		OBSTRUCTOR_SLOW_PLAYER,
+
+		OBSTRUCTOR_STUN_PLAYER,
+		OBSTRUCTOR_STUN_PLAYER,
+
+		OBSTRUCTOR_INVERT_CONTROLS,
+		OBSTRUCTOR_INVERT_CONTROLS,
+
+		OBSTRUCTOR_ENLARGE_PLAYER,
+		OBSTRUCTOR_ENLARGE_PLAYER,
+
+		OBSTRUCTOR_BLACKHOLE
+	};
+
+	if (this->getDestructor())
 	{
-		randNumber = rand() % 10; //Get a number from 0 - 9
+		randNumber = rand() % 10;	//Get a number from 0 - 9
 		type = destructorArray[randNumber];
 	}
 	else // is an obstructor
