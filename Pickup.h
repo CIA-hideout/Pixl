@@ -45,11 +45,12 @@ public:
 	void damage(WEAPON);
 
 
-	// GET and SET Methods
-	void setPickUpType();
+	// SET Methods
+	bool isDestructor();
 
-	boolean getPickupType(){
-		return isDestructor;
+	// GET Methods
+	bool getDestructor(){
+		return destructor;
 	}
 
 	PickupTypes returnEffect(){
@@ -60,9 +61,9 @@ public:
 
 private:
 	PickupTypes type;
-	boolean		isDestructor;
+	bool		destructor;
 
-	void calculateObstructorDestructorType();
+	void		calculatePickupType();
 };
 
 #endif

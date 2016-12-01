@@ -68,7 +68,7 @@ const int P_DEATH_HEIGHT							= 256;			// player death height
 const int P_DEATH_COLS								= 8;			// player death columns
 const int P_DEATH_START_FRAME						= 0;			// player death start frame number
 const int P_DEATH_END_FRAME							= 25;			// player death end frame number
-const float P_DEATH_SCALE							= 0.5f;			// player starting scale
+const float P_DEATH_SCALE							= 0.5f;			// player death starting scale
 const float P_DEATH_ANIMATION_DELAY					= 0.42f;		// player death animation time between frames
 
 // key mappings
