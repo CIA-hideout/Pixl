@@ -57,7 +57,7 @@ Spacewar::~Spacewar() {
 //=============================================================================
 void Spacewar::initialize(HWND hwnd) {
 
-	AllocConsole();			// Brings up console
+	//AllocConsole();			// Brings up console
 
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
@@ -80,15 +80,27 @@ void Spacewar::initialize(HWND hwnd) {
 
 	Game::initialize(hwnd); // throws GameError
 
-	// main game textures
+	//=============================================================================
+	// Main game textures
+	//=============================================================================
+	
+	// Player
 	shipTextures.initialize(graphics, PLAYER_TEXTURE);
 	p_deathTextures.initialize(graphics, PLAYER_DEATH_TEXTURE);
+	
+	// Enemy
 	triangleTextures.initialize(graphics, TRIANGLE_TEXTURE);
 	circleTextures.initialize(graphics, CIRCLE_TEXTURE);
+
+	// Pickups
+	obstructorTexture.initialize(graphics, OBSTRUCTOR_TEXTURE);
+	destructorTexture.initialize(graphics, DESTRUCTOR_TEXTURE);
 	blackHoleTexture.initialize(graphics, BLACKHOLE_TEXTURE);
+	
+	// GUI/HUD
 	heartTexture.initialize(graphics, HEART_TEXTURE);
 	fontTexture.initialize(graphics, FONT_TEXTURE);
-	//obstructorTexture.initialize(graphics, OBSTRUCTOR_TEXTURE);
+	
 
 	timeFont = new Font();
 	timeFont->initialize(this, 2048, 2048, 16, &fontTexture);
@@ -122,16 +134,16 @@ void Spacewar::initialize(HWND hwnd) {
 
 	addEntity(player);
 
-	blackhole = new Blackhole();
-	blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
-	blackhole->setFrames(blackholeNS::BLACKHOLE_START_FRAME, blackholeNS::BLACKHOLE_END_FRAME);
-	blackhole->setCurrentFrame(blackholeNS::BLACKHOLE_START_FRAME);
-	blackhole->setX(GAME_WIDTH / 2 - blackhole->getWidth() / 2 * blackhole->getScale());
-	blackhole->setY(GAME_HEIGHT / 2 - blackhole->getHeight() / 2 * blackhole->getScale());
-	blackhole->setVelocity(0, 0);
-	blackhole->setObjectType(BLACKHOLE_);
-	blackhole->setRadians(0);
-	blackhole->setScale(0.5f);
+	//blackhole = new Blackhole();
+	//blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
+	//blackhole->setFrames(blackholeNS::BLACKHOLE_START_FRAME, blackholeNS::BLACKHOLE_END_FRAME);
+	//blackhole->setCurrentFrame(blackholeNS::BLACKHOLE_START_FRAME);
+	//blackhole->setX(GAME_WIDTH / 2 - blackhole->getWidth() / 2 * blackhole->getScale());
+	//blackhole->setY(GAME_HEIGHT / 2 - blackhole->getHeight() / 2 * blackhole->getScale());
+	//blackhole->setVelocity(0, 0);
+	//blackhole->setObjectType(BLACKHOLE_);
+	//blackhole->setRadians(0);
+	//blackhole->setScale(0.5f);
 
 	//addEntity(blackhole);
 
@@ -155,18 +167,33 @@ void Spacewar::initialize(HWND hwnd) {
 
 	}
 
+	// Spawn Pickups
+	for (int i = 0; i < 4; i++) {
+
+		Pickup* pickup = new Pickup();
+
+		if (pickup->isDestructor())
+			pickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &destructorTexture);
+		else
+			pickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &obstructorTexture);
+		
+		pickup->spawn();		//	spawn pickup in its own method.
+		addEntity(pickup);
+	}
+
 	// Spawn Triangles
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 5; i++) {
 
 		Triangle* triangle = new Triangle();
 		triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
+		triangle->setScale(0.5f);
 
 		triangle->spawn();		//	spawn triangle in its own method.
 		addEntity(triangle);
 	}
 
 	// Spawn Circles
-	for (int i = 0; i < 10; i++){
+	for (int i = 0; i < 5; i++){
 
 		Circle* circle = new Circle();
 		circle->initialize(this, CircleNS::WIDTH, CircleNS::HEIGHT, CircleNS::TEXTURE_COLS, &circleTextures);
@@ -191,10 +218,10 @@ void Spacewar::initialize(HWND hwnd) {
 
 void Spacewar::update() {
 
-	if (input->isKeyDown(0x42))
-		blackhole->setMass(1);
-	else
-		blackhole->setMass(9999999999999.0f);
+	//if (input->isKeyDown(0x42))
+	//	blackhole->setMass(1);
+	//else
+	//	blackhole->setMass(9999999999999.0f);
 
 	if (player->getHealth() > 0) {
 		for (int i = 0; i < hearts.size() - player->getHealth(); i++) {
@@ -277,8 +304,8 @@ void Spacewar::UpdateEntities() {
 								{
 									if (input->isKeyDown(VK_UP)) {
 										(*iter)->setVelocity(
-											(sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
-											(cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y)
+											(cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
+											(sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y)
 											);
 									}
 
@@ -304,16 +331,11 @@ void Spacewar::UpdateEntities() {
 											playerIsInvulnerable = false;
 										}
 									}
-
-									calculateF(blackhole, player);						// calculate black hole's attraction here
 								}
 								else
 								{
 									(*iter)->setVelocity(0, 0);
 								}
-
-								(*iter)->update(deltaTime);
-
 		} break;
 
 		case TRIANGLES: {
@@ -332,17 +354,14 @@ void Spacewar::UpdateEntities() {
 							if (!playerIsDead)
 							{
 								(*iter)->setVelocity(
-									cos((*iter)->getRadians()) * 100,
-									sin((*iter)->getRadians()) * 100
+									cos((*iter)->getRadians()) * 50,
+									sin((*iter)->getRadians()) * 50
 									);
 							}
 							else
 							{
 								(*iter)->setVelocity(0, 0);
 							}
-
-							calculateF(blackhole, *iter);
-							(*iter)->update(deltaTime);
 
 		} break;
 
@@ -351,10 +370,6 @@ void Spacewar::UpdateEntities() {
 						  {
 							  (*iter)->setVelocity(0, 0);
 						  }
-							  
-
-						  calculateF(blackhole, *iter);
-						  (*iter)->update(deltaTime);
 		} break;
 
 		case BLACKHOLE_: {
@@ -376,11 +391,15 @@ void Spacewar::UpdateEntities() {
 									 slowRadians += 10.0f;					// increase radians by 10 (5x slower)
 									 slowedTime = timeGetTime();			// reset slowed time so it is caught up with the current time
 									 (*iter)->setRadians(slowRadians);		// rotate circle based on the slowed version of the radians
-									 (*iter)->update(deltaTime);
 								 }
 							 }
 		} break;
 		}
+
+		//if (((*iter)->getObjectType()) != BLACKHOLE_)
+		//	calculateF(blackhole, (*iter));						// calculate black hole's attraction here
+
+		(*iter)->update(deltaTime);		
 	}
 }
 
@@ -463,10 +482,10 @@ void Spacewar::collisions()
 				player->setCurrentFrame(P_DEATH_START_FRAME);
 				player->setFrameDelay(P_DEATH_ANIMATION_DELAY);
 				player->setLoop(false);
+				player->setScale(P_DEATH_SCALE);
 				//player->setX(deathX);
 				//player->setY(deathY);
 				player->setRadians(deathAngle);
-				player->setScale(0.5f);
 				player->setRect();
 				printf("%f\n", deathAngle);
 			}
