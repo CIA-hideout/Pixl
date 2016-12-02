@@ -29,6 +29,7 @@ private:
     // game items
 	TextureManager			shipTextures;
 	TextureManager			p_deathTextures;
+	TextureManager			p_damagedTextures;
 	
 	TextureManager			triangleTextures;
 	TextureManager			circleTextures;
@@ -71,7 +72,8 @@ public:
 	int genScore(int combo);								// return Score based on combo
 	double calculateF(Entity* entity, Entity* entity2);		// return Force based 2 entities
 
-	bool isEntityAlive(Entity* entity);						// check if an entity has any health left and returns a boolean
+	bool isEntityAlive(Entity* entity);										// check if an entity has any health left and returns a boolean
+	void setPlayerInvulnerable(Entity* entity, float invulTime);			// set invulnerable boolean as true and animate player sprite
 };
 
 #endif

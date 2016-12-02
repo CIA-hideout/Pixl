@@ -87,6 +87,7 @@ void Spacewar::initialize(HWND hwnd) {
 	// Player
 	shipTextures.initialize(graphics, PLAYER_TEXTURE);
 	p_deathTextures.initialize(graphics, PLAYER_DEATH_TEXTURE);
+	p_damagedTextures.initialize(graphics, PLAYER_DAMAGED_TEXTURE);
 	
 	// Enemy
 	triangleTextures.initialize(graphics, TRIANGLE_TEXTURE);
@@ -122,8 +123,8 @@ void Spacewar::initialize(HWND hwnd) {
 
 	player = new Ship();
 	player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
-	player->setFrames(shipNS::player_START_FRAME, shipNS::player_END_FRAME);		//<-
-	player->setCurrentFrame(shipNS::player_START_FRAME);							//<- supposedly not needed right
+	player->setFrames(shipNS::player_START_FRAME, shipNS::player_END_FRAME);
+	player->setCurrentFrame(shipNS::player_START_FRAME);
 	player->setX(GAME_WIDTH / 4);
 	player->setY(GAME_HEIGHT / 4);
 	player->setScale(0.5f);
@@ -183,7 +184,7 @@ void Spacewar::initialize(HWND hwnd) {
 	}
 
 	// Spawn Triangles
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 1; i++) {
 
 		Triangle* triangle = new Triangle();
 		triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
@@ -194,7 +195,7 @@ void Spacewar::initialize(HWND hwnd) {
 	}
 
 	// Spawn Circles
-	for (int i = 0; i < 5; i++){
+	for (int i = 0; i < 1; i++){
 
 		Circle* circle = new Circle();
 		circle->initialize(this, CircleNS::WIDTH, CircleNS::HEIGHT, CircleNS::TEXTURE_COLS, &circleTextures);
@@ -320,6 +321,9 @@ void Spacewar::UpdateEntities() {
 									if (playerIsInvulnerable) {				// if player is not dead, set player sprite to no damage and blink animation.
 										playerInvulnerableTimer -= deltaTime;
 										if (playerInvulnerableTimer < 0) {
+											player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
+											player->setFrames(shipNS::player_START_FRAME, shipNS::player_END_FRAME);
+											player->setCurrentFrame(shipNS::player_START_FRAME);
 											playerIsInvulnerable = false;
 										}
 									}
@@ -488,8 +492,7 @@ void Spacewar::collisions()
 									{
 										player->bounce(collisionVector, *entity);
 										player->damage(ENEMY);
-										playerIsInvulnerable = true;
-										playerInvulnerableTimer = 2.0f;
+										setPlayerInvulnerable(player, 1.0f);
 									}
 				}	break;
 
@@ -499,8 +502,7 @@ void Spacewar::collisions()
 										{
 											player->bounce(collisionVector, *entity);
 											player->damage(ENEMY);
-											playerIsInvulnerable = true;
-											playerInvulnerableTimer = 2.0f;
+											setPlayerInvulnerable(player, 1.0f);
 										}
 				}	break;
 			}
@@ -528,7 +530,7 @@ void Spacewar::collisions()
 				player->setScale(P_DEATH_SCALE);
 				//player->setX(deathX);
 				//player->setY(deathY);
-				player->setRadians(deathAngle);
+				player->setRadians(deathAngle + 1.5708f);
 				player->setRect();
 				printf("%f\n", deathAngle);
 			}
@@ -579,3 +581,15 @@ bool Spacewar::isEntityAlive(Entity *e)
 		return false;
 }
 
+void Spacewar::setPlayerInvulnerable(Entity *player, float t)
+{
+	playerIsInvulnerable = true;
+	playerInvulnerableTimer = t;
+
+	player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, P_DAMAGED_COLS, &p_damagedTextures);
+	player->setFrames(P_DAMAGED_START_FRAME, P_DAMAGED_END_FRAME);
+	player->setCurrentFrame(P_DAMAGED_START_FRAME);
+	player->setFrameDelay(P_DAMAGED_ANIMATION_DELAY);
+	player->setLoop(false);
+	player->setRect();
+}

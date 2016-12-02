@@ -47,29 +47,41 @@ const float MAX_FRAME_TIME = 1.0f / MIN_FRAME_RATE; // maximum time used in calc
 const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
-// graphic images
+// graphic images [Player]
 const char PLAYER_TEXTURE[]				= "resources\\player.png";
 const char PLAYER_DEATH_TEXTURE[]		= "resources\\player_death_animation.png";
+const char PLAYER_DAMAGED_TEXTURE[]		= "resources\\player_damaged_animation_spritesheet.png";
+const char PLAYER_INVUL_TEXTURE[]		= "resources\\player_invul_animation_spritesheet.png";
+
+// graphic images [Enemy]
 const char TRIANGLE_TEXTURE[]			= "resources\\triangle.png";
+const char CIRCLE_TEXTURE[]				= "resources\\circle.png";
+
+// graphic images [Powerups]
+const char DESTRUCTOR_TEXTURE[]			= "resources\\destructor.png";
+const char OBSTRUCTOR_TEXTURE[]			= "resources\\obstructor.png";
 const char BLACKHOLE_TEXTURE[]			= "resources\\blackhole.png";
+
+// graphic images [GUI]
 const char FONT_TEXTURE[]				= "resources\\font.png";
 const char FONT_TEXTURE_INFO[]			= "resources\\font.dat";
 const char HEART_TEXTURE[] 				= "resources\\sprite_hearts.png";
-const char CIRCLE_TEXTURE[] 			= "resources\\circle.png";
-
-//graphics image [Powerups]
-const char DESTRUCTOR_TEXTURE[]			= "resources\\destructor.png";
-const char OBSTRUCTOR_TEXTURE[]			= "resources\\obstructor.png";
 
 
-// PLAYER DEATH
+
+// PLAYER CONSTANTS
 const int P_DEATH_WIDTH								= 256;			// player death width
 const int P_DEATH_HEIGHT							= 256;			// player death height
-const int P_DEATH_COLS								= 8;			// player death columns
+const int P_DEATH_COLS								= 8;			// player death no. of columns in spritesheet
 const int P_DEATH_START_FRAME						= 0;			// player death start frame number
 const int P_DEATH_END_FRAME							= 25;			// player death end frame number
 const float P_DEATH_SCALE							= 0.5f;			// player death starting scale
 const float P_DEATH_ANIMATION_DELAY					= 0.42f;		// player death animation time between frames
+const int P_DAMAGED_COLS							= 4;			// player damaged no. of columns in spritesheet
+const int P_DAMAGED_START_FRAME						= 0;			// player death start frame number
+const int P_DAMAGED_END_FRAME						= 8;			// player death end frame number
+const float P_DAMAGED_ANIMATION_DELAY				= 0.25f;		// player death animation time between frames
+
 
 // key mappings
 // In this game simple constants are used for key mappings. If variables were used
