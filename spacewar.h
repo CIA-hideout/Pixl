@@ -46,6 +46,7 @@ private:
 	Font*					comboFont;
 	Font*					scoreFont;
 	Font*					menuFont;
+	Font*					effectFont;
 
 	Pickup*					generalPickup;
 	Pickup*					healthPickup;

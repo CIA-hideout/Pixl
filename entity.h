@@ -10,6 +10,7 @@
 #include "image.h"
 #include "input.h"
 #include "game.h"
+#include <map>
 
 namespace entityNS {
 	enum COLLISION_TYPE { NONE, CIRCLE, BOX, ROTATED_BOX };
@@ -24,39 +25,48 @@ enum ObjectType {
 	OBJECT_TYPE_BOSS,
 	OBJECT_TYPE_PICKUP,
 	OBJECT_TYPE_BLACKHOLE,
-	OBJECT_TYPE_GUI_HEART
+	OBJECT_TYPE_GUI_HEART,
+	OBJECT_TYPE_MISSILE
 };
 
-class Entity : public Image
-{
-	// Entity properties
+enum EffectType {
+	EFFECT_SLOW,
+	EFFECT_STUN,
+	EFFECT_INVINCIBLE,
+	EFFECT_INVERTED,
+	EFFECT_INVULNERABLE
+};
+
+class Entity : public Image {
 protected:
 
 	entityNS::COLLISION_TYPE	collisionType;
-	VECTOR2						center;         // center of entity
-	VECTOR2						distSquared;    // used for calculating circle collision
-	float						radius;         // radius of collision circle
+	VECTOR2						center;										// center of entity
+	VECTOR2						distSquared;								// used for calculating circle collision
+	float						radius;										// radius of collision circle
 	float						sumRadiiSquared;
 
-	RECT						edge;	        // for BOX and ROTATED_BOX collision detection
-	VECTOR2 corners[4];     // for ROTATED_BOX collision detection
-	VECTOR2 edge01, edge03;  // edges used for projection
-	float   edge01Min, edge01Max, edge03Min, edge03Max; // min and max projections
-	VECTOR2 velocity;       // velocity
-	VECTOR2 deltaV;         // added to velocity during next call to update()
-	float   mass;           // Mass of entity
-	float   health;         // health 0 to 100
-	float   rr;             // Radius squared variable
-	float   force;          // Force of gravity
-	float   gravity;        // gravitational constant of the game universe
-	Input   *input;         // pointer to the input system
-	HRESULT hr;             // standard return type
-	bool    active;         // only active entities may collide
-	bool    rotatedBoxReady;    // true when rotated collision box is ready
+	RECT						edge;										// for BOX and ROTATED_BOX collision detection
+	VECTOR2						corners[4];									// for ROTATED_BOX collision detection
+	VECTOR2						edge01, edge03;								// edges used for projection
+	VECTOR2						velocity;									// velocity
+	VECTOR2						deltaV;										// added to velocity during next call to update()
+	float						edge01Min, edge01Max, edge03Min, edge03Max;	// min and max projections
+	float						mass;										// Mass of entity
+	float						health;										// health 0 to 100
+	float						rr;											// Radius squared variable
+	float						force;										// Force of gravity
+	float						gravity;									// gravitational constant of the game universe
+	bool						active;										// only active entities may collide
+	bool						rotatedBoxReady;							// true when rotated collision box is ready
+	Input						*input;										// pointer to the input system
+	HRESULT						hr;											// standard return type
 
-	std::string	name;
-	int			id;
-	ObjectType	objectType;
+	std::string					name;
+	int							id;
+	ObjectType					objectType;
+
+	std::map<EffectType, float> effectTimers;
 
 
 	// --- The following functions are protected because they are not intended to be
@@ -88,11 +98,6 @@ public:
 	// Destructor
 	virtual ~Entity() {}
 
-	////////////////////////////////////////
-	//           Get functions            //
-	////////////////////get////////////////////
-
-	// Return center of scaled Entity as screen x,y.
 	virtual const VECTOR2* getCenter()
 	{
 		center = VECTOR2(getCenterX(), getCenterY());
@@ -134,10 +139,6 @@ public:
 	// Return collision type (NONE, CIRCLE, BOX, ROTATED_BOX)
 	virtual entityNS::COLLISION_TYPE getCollisionType() { return collisionType; }
 
-	////////////////////////////////////////
-	//           Set functions            //
-	////////////////////////////////////////
-
 	ObjectType getObjectType() { return objectType; }
 	void setObjectType(ObjectType objectType) { this->objectType = objectType; }
 
@@ -165,10 +166,6 @@ public:
 
 	// Set radius of collision circle.
 	virtual void setCollisionRadius(float r)    { radius = r; }
-
-	////////////////////////////////////////
-	//         Other functions            //
-	////////////////////////////////////////
 
 	// Update Entity.
 	// typically called once per frame
@@ -203,6 +200,10 @@ public:
 
 	// Adds the gravitational force to the velocity vector of this entity
 	void gravityForce(Entity *other, float deltaTime);
+
+	std::map<EffectType, float>* getEffectTimers() { return &this->effectTimers; };
+
+	bool hasEffect(EffectType effectType) { return this->effectTimers.at(effectType) >= 0.0f; }
 };
 
 #endif

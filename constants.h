@@ -58,6 +58,7 @@ const char HEART_TEXTURE[] 			= "resources\\images\\sprite_hearts.png";
 const char CIRCLE_TEXTURE[] 		= "resources\\images\\circle.png";
 const char DESTRUCTOR_TEXTURE[]		= "resources\\images\\destructor.png";
 const char OBSTRUCTOR_TEXTURE[]		= "resources\\images\\obstructor.png";
+const char MISSILE_TEXTURE[]		= "resources\\images\\missile.png";
 
 
 // PLAYER DEATH

@@ -13,11 +13,11 @@
 #include <iomanip>
 
 double calculateF(Entity* e1, Entity* e2);
+void PrintEffect(Entity* entity, Font* effectFont);
 
 float	playerAccelerationRate;
 float	playerDeccelerationRate;
 float	playerTurnMultiplier;
-float	playerInvulnerableTimer;
 float	slowedTime, slowRadians;			// Used for slowing down blackhole rotation
 float	deathAngle;							// the angle in radians at the point in time of the player's death
 float	waveBufferTime;
@@ -30,7 +30,7 @@ int		waveTriangleCount, waveCircleCount, waveBossCount;
 int		currentWave;
 
 bool	controlsInverted, blackholeRunning, isStunned, isEnlarged;
-bool	playerIsInvulnerable, playerIsDead, playerCanPickup;
+bool	playerIsDead, playerCanPickup;
 bool	waveStarted;
 
 
@@ -107,6 +107,13 @@ void Spacewar::initialize(HWND hwnd) {
 	menuFont->setHeight(128);
 	menuFont->setWidth(128);
 
+	effectFont = new Font();
+	effectFont->initialize(this, 2048, 2048, 16, &fontTexture);
+	effectFont->loadTextData(FONT_TEXTURE_INFO);
+	effectFont->setHeight(128);
+	effectFont->setWidth(128);
+	effectFont->setScale(0.3);
+
 	int dx = GAME_WIDTH - GAME_WIDTH / 100;
 	for (int i = 0; i < 10; i++) {
 		Entity* heart = new Entity();
@@ -138,10 +145,7 @@ void Spacewar::update() {
 									  playerAccelerationRate = 3.5f;
 									  playerDeccelerationRate = 0.005f;
 									  playerTurnMultiplier = 3.5f;
-									  playerInvulnerableTimer = 2.0f;
 
-									  playerInvulnerableTimer = 2.0f;
-									  playerIsInvulnerable = false;
 									  playerIsDead = false;
 
 									  playerHealth = 5;
@@ -159,6 +163,9 @@ void Spacewar::update() {
 									  player->setX(GAME_WIDTH / 2 - player->getWidth() / 2 * player->getScale());
 									  player->setY(GAME_HEIGHT / 2 - player->getHeight() / 2 * player->getScale());
 									  player->setHealth(playerHealth);
+									  player->getEffectTimers()->at(EFFECT_INVERTED) = 5.0f;
+									  player->getEffectTimers()->at(EFFECT_SLOW) = 5.0f;
+									  player->getEffectTimers()->at(EFFECT_STUN) = 5.0f;
 
 									  this->addEntity(player);
 
@@ -199,8 +206,6 @@ void Spacewar::update() {
 									  hearts[i]->setCurrentFrame(0);
 									  hearts[i]->update(deltaTime);
 								  }
-
-								  printf("player health: %.2f\n", player->getHealth());
 		} break;
 		case GAME_STATE_SETTING: {
 
@@ -239,8 +244,8 @@ void Spacewar::render()
 									  "P i x l ."
 									  );
 								  menuFont->Print(
-									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Press space to begin") / 2,
-									  GAME_HEIGHT / 2, "Press space to begin");
+									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Press space to start") / 2,
+									  GAME_HEIGHT / 2, "Press space to start");
 		} break;
 		case GAME_STATE_GAME: {
 
@@ -262,6 +267,7 @@ void Spacewar::render()
 										  for (std::vector<Entity*>::iterator iter = hearts.begin(); iter != hearts.end(); iter++) {
 											  (*iter)->draw();
 										  }
+										  PrintEffect(player, effectFont);
 									  }
 								  }
 								  else {
@@ -276,6 +282,8 @@ void Spacewar::render()
 									  for (std::vector<Entity*>::iterator iter = hearts.begin(); iter != hearts.end(); iter++) {
 										  (*iter)->draw();
 									  }
+									  float dy = 10;
+									  PrintEffect(player, effectFont);
 								  }
 
 		} break;
@@ -323,17 +331,23 @@ void Spacewar::UpdateEntities() {
 			case OBJECT_TYPE_PLAYER: {
 										 if (input->isKeyDown(VK_UP)) {
 											 (*iter)->setVelocity(
-												 (cos((*iter)->getRadians() - PI / 2) * playerAccelerationRate + (*iter)->getVelocity().x),
-												 (sin((*iter)->getRadians() - PI / 2) * playerAccelerationRate + (*iter)->getVelocity().y)
+												 (cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
+												 (sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y)
 												 );
 										 }
 
 										 if (input->isKeyDown(VK_LEFT)) {
-											 (*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
+											 if (!(*iter)->hasEffect(EFFECT_INVERTED))
+												(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
+											 else
+												 (*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
 										 }
 
 										 if (input->isKeyDown(VK_RIGHT)) {
-											 (*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
+											 if (!(*iter)->hasEffect(EFFECT_INVERTED))
+												(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
+											 else
+												 (*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
 										 }
 
 										 if (input->isKeyDown(0x5A)) {
@@ -344,13 +358,6 @@ void Spacewar::UpdateEntities() {
 											 (*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
 											 (*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
 											 );
-
-										 if (playerIsInvulnerable) {				// if player is not dead, set player sprite to no damage and blink animation.
-											 playerInvulnerableTimer -= deltaTime;
-											 if (playerInvulnerableTimer <= 0) {
-												 playerIsInvulnerable = false;
-											 }
-										 }
 
 										 if (!playerCanPickup) {
 											 pickupCoolDownTime -= deltaTime;
@@ -363,12 +370,57 @@ void Spacewar::UpdateEntities() {
 											 calculateF(blackhole, player);
 										 }
 
-										 (*iter)->update(deltaTime);
-			}
+										 // iterate through the various effect that the players have
+										 // effects should be applied here
+										 for (std::map<EffectType, float>::iterator iter_ = player->getEffectTimers()->begin(); iter_ != player->getEffectTimers()->end(); iter_++) {
+											 if (iter_->second > 0.0f) {
+												 iter_->second -= deltaTime;
+												 switch (iter_->first) {
+													 case EFFECT_STUN: {
+																		   if ((*iter)->hasEffect(EFFECT_STUN))
+																			   (*iter)->setVelocity(0, 0);
+													 } break;
+													 case EFFECT_INVINCIBLE: {
+
+													 } break;
+													 case EFFECT_SLOW: {
+																		   if ((*iter)->hasEffect(EFFECT_SLOW)) {
+																			   (*iter)->setVelocity((*iter)->getVelocity().x / 1.05, (*iter)->getVelocity().y / 1.05);
+																		   }
+													 } break;
+													 case EFFECT_INVULNERABLE: {
+																				   iter_->second = 2.0f;
+													 } break;
+												 }
+											 }
+										 }
+			} break;
+			case OBJECT_TYPE_TRIANGLES: {
+											double dx, dy;
+
+											dx = player->getX() - (*iter)->getX();
+											dy = player->getY() - (*iter)->getY();
+
+											// 1, 4 quad
+											if (dx > 0)
+												(*iter)->setRadians(atan(dy / dx));
+											// 2, 3 quad
+											else if (dx < 0)
+												(*iter)->setRadians(PI + atan(dy / dx));
+
+											if (!playerIsDead) {
+												(*iter)->setVelocity(
+													cos((*iter)->getRadians()) * 50,
+													sin((*iter)->getRadians()) * 50
+													);
+											}
+											else {
+												(*iter)->setVelocity(0, 0);
+											}
+			} break;
 		}
-
+		(*iter)->update(deltaTime);
 	}
-
 }
 
 void Spacewar::DrawEntities() {
@@ -402,25 +454,26 @@ void Spacewar::collisions() {
 											  case OBJECT_TYPE_BLACKHOLE: {
 																			  player->damage(WEAPON_BLACKHOLE);
 																			  combo = 0;
-
 											  }	break;
 
 											  case OBJECT_TYPE_CIRCLES: {
-																			if (!playerIsInvulnerable) {
+																			if (player->hasEffect(EFFECT_INVULNERABLE)) {
 																				player->bounce(collisionVector, *entity);
 																				player->damage(WEAPON_CIRCLE);
-																				playerIsInvulnerable = true;
-																				playerInvulnerableTimer = 2.0f;
+																				if (player->getEffectTimers()->at(EFFECT_INVULNERABLE) - 2.0f <= 0) {
+																					player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
+																				}
 																				combo = 0;
 																			}
 											  }	break;
 
 											  case OBJECT_TYPE_TRIANGLES: {
-																			  if (!playerIsInvulnerable) {
+																			  if (player->hasEffect(EFFECT_INVULNERABLE)) {
 																				  player->bounce(collisionVector, *entity);
 																				  player->damage(WEAPON_TRIANGLE);
-																				  playerIsInvulnerable = true;
-																				  playerInvulnerableTimer = 2.0f;
+																				  if (player->getEffectTimers()->at(EFFECT_INVULNERABLE) - 2.0f <= 0) {
+																					  player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
+																				  }
 																				  combo = 0;
 																			  }
 											  }	break;
@@ -470,7 +523,6 @@ void Spacewar::collisions() {
 																			   playerCanPickup = false;
 																			   pickupCoolDownTime = 1.0f;
 																		   }
-
 											  } break;
 										  }
 									  }
@@ -540,3 +592,28 @@ bool Spacewar::isEntityAlive(Entity *e)
 	return false;
 }
 
+void PrintEffect(Entity* entity, Font* effectFont) {
+	float dy = 10;
+	for (std::map<EffectType, float>::iterator iter = entity->getEffectTimers()->begin(); iter != entity->getEffectTimers()->end(); iter++) {
+		if (entity->hasEffect((*iter).first)) {
+			ss.str("");
+			switch ((*iter).first) {
+				case EFFECT_INVERTED: {
+										  ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Inverted";
+										  effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
+										  dy += effectFont->getHeight() * effectFont->getScale();
+				} break;
+				case EFFECT_SLOW: {
+									  ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Slowed";
+									  effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
+									  dy += effectFont->getHeight() * effectFont->getScale();
+				} break;
+				case EFFECT_STUN: {
+									  ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Stunned";
+									  effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
+									  dy += effectFont->getHeight() * effectFont->getScale();
+				} break;
+			}
+		}
+	}
+}
