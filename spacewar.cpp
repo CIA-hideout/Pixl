@@ -171,6 +171,7 @@ void Spacewar::initialize(HWND hwnd) {
 	for (int i = 0; i < 4; i++) {
 
 		Pickup* pickup = new Pickup();
+		pickup->setPickupType();		// randomly spawns an obstructor or detstructor
 
 		if (pickup->isDestructor())
 			pickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &destructorTexture);
@@ -201,53 +202,6 @@ void Spacewar::initialize(HWND hwnd) {
 		circle->spawn();
 		addEntity(circle);
 	}
-
-	// Spawn Obstructors
-	//Obstructor* obstructor = new Obstructor;
-
-
-	//for (int i = 0; i < 10; i++) {
-
-	//	Triangle* triangle = new Triangle();
-	//	triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
-	//	triangle->setFrames(TriangleNS::TRIANGLE_START_FRAME, TriangleNS::TRIANGLE_END_FRAME);
-	//	triangle->setCurrentFrame(TriangleNS::TRIANGLE_START_FRAME);
-	//	triangle->setVelocity(10, 20);
-	//	triangle->setObjectType(TRIANGLES);
-
-	//	// random spawn on border
-	//	side = rand() % 4;
-
-	//	switch (side) {
-	//		// left
-	//		case 0: {
-	//					triangle->setX(0 - rand() % GAME_WIDTH);
-	//					triangle->setY(rand() % GAME_HEIGHT);
-	//		} break;
-	//			// top
-	//		case 1: {
-	//					triangle->setX(rand() % GAME_WIDTH);
-	//					triangle->setY(-(rand() % GAME_HEIGHT));
-	//		} break;
-	//			// right
-	//		case 2: {
-	//					triangle->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
-	//					triangle->setY(rand() % GAME_HEIGHT);
-	//		} break;
-	//			// bottom
-	//		case 3: {
-	//					triangle->setX(rand() % GAME_WIDTH);
-	//					triangle->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
-	//		} break;
-	//	}
-
-	//	triangle->setX(rand() % GAME_WIDTH);
-	//	triangle->setY(rand() % GAME_HEIGHT);
-
-	//	triangle->setScale(0.5);
-
-	//	addEntity(triangle);
-	//}
 
 	baseTime = timeGetTime();
 
@@ -432,6 +386,57 @@ void Spacewar::UpdateEntities() {
 								 }
 							 }
 		} break;
+
+		case PICKUPS:
+		{
+		
+			Pickup* pickup = (Pickup*) (*iter);
+		
+			// Different pickups does different stuff
+			switch (pickup->getEffect())
+			{
+				// All the Obstructors
+
+				case OBSTRUCTOR_INVERT_CONTROLS:{
+						
+				} break;
+
+				case OBSTRUCTOR_STUN_PLAYER:{
+						
+				} break;
+
+				case OBSTRUCTOR_SLOW_PLAYER:{
+						
+				}break;
+
+				case OBSTRUCTOR_ENLARGE_PLAYER:{
+						
+				}break;
+
+				case OBSTRUCTOR_BLACKHOLE:{
+						
+				}break;
+
+
+				// All the Desstructors
+				
+				case DESTRUCTOR_EXPLOSION:{
+						
+				}break; 
+
+				case DESTRUCTOR_HOMING_MISSLES:{
+						
+				}break;
+
+				case DESTRUCTOR_FREEZE:{
+						
+				}break;
+
+				case DESTRUCTOR_INVULNERABILITY:{
+						
+				}break;
+			}
+		}break;
 		}
 
 		//if (((*iter)->getObjectType()) != BLACKHOLE_)

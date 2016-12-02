@@ -21,7 +21,7 @@ namespace PickupNS{
 
 enum	PickupTypes{
 	//Declare Obstructors
-	OBSTRUCTOR_INVERT_CONTROLS, 
+	OBSTRUCTOR_INVERT_CONTROLS,
 	OBSTRUCTOR_STUN_PLAYER,
 	OBSTRUCTOR_SLOW_PLAYER,
 	OBSTRUCTOR_ENLARGE_PLAYER,
@@ -46,14 +46,20 @@ public:
 
 
 	// SET Methods
-	bool isDestructor();
+	void setPickupType();
 
+	//---------------
 	// GET Methods
-	bool getDestructor(){
+
+	// return `true` if pickup is a destructor
+	// return `false` if otherwise
+	bool isDestructor(){
 		return destructor;
 	}
 
-	PickupTypes returnEffect(){
+	// return effect of pickups
+	// Example: return `BLACKHOLE` if it is a blackhole
+	PickupTypes getEffect(){
 		return type;
 	}
 
@@ -63,6 +69,8 @@ private:
 	PickupTypes type;
 	bool		destructor;
 
+	//find if it is a pickup which inverts control, grow the player, stun the player,
+	//spawns homing missles
 	void		calculatePickupType();
 };
 
