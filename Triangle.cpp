@@ -65,7 +65,7 @@ void Triangle::spawn()
 	setFrames(TriangleNS::TRIANGLE_START_FRAME, TriangleNS::TRIANGLE_END_FRAME);
 	setCurrentFrame(TriangleNS::TRIANGLE_START_FRAME);
 	setVelocity(10, 20);
-	setObjectType(OBJECT_TYPE_TRIANGLES);
+	setObjectType(OBJECT_TYPE_TRIANGLE);
 
 
 	// random spawn on border
@@ -77,14 +77,14 @@ void Triangle::spawn()
 					this->setX(0 - rand() % GAME_WIDTH);
 					this->setY(rand() % GAME_HEIGHT);
 		} break;
-		// top
+			// top
 		case 1: {
 					this->setX(rand() % GAME_WIDTH);
 					this->setY(-(rand() % GAME_HEIGHT));
 		} break;
 			// right
 		case 2: {
-			this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
+					this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
 					this->setY(rand() % GAME_HEIGHT);
 		} break;
 			// bottom
@@ -101,5 +101,12 @@ void Triangle::spawn()
 
 
 void Triangle::damage(WEAPON weapon) {
+	switch (weapon) {
+		case WEAPON_MISSILE: {
+								 this->setHealth(this->getHealth() - 1);
+		} break;
+	}
 
+	if (this->getHealth() < 0)
+		this->setHealth(0);
 }

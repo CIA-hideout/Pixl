@@ -61,7 +61,7 @@ void Circle::spawn(){
 	setFrames(startFrame, endFrame);
 	setCollisionRadius(getHeight() / 2);
 	setVelocity(100, 200);
-	setObjectType(OBJECT_TYPE_CIRCLES);
+	setObjectType(OBJECT_TYPE_CIRCLE);
 	setScale(0.2f);
 
 	// random spawn on border

@@ -37,7 +37,7 @@ void Pickup::spawn(){
 	setFrames(startFrame, endFrame);
 	setCollisionRadius(getHeight() / 2);
 	setVelocity(0, 0);						// powerups don't move;
-	setObjectType(OBJECT_TYPE_CIRCLES);
+	setObjectType(OBJECT_TYPE_CIRCLE);
 	setScale(0.2f);
 
 	//spawn randomly in window

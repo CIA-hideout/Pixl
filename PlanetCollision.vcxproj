@@ -104,6 +104,7 @@
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="input.cpp" />
+    <ClCompile Include="Missile.cpp" />
     <ClCompile Include="Pickup.cpp" />
     <ClCompile Include="ship.cpp" />
     <ClCompile Include="spacewar.cpp" />
@@ -123,6 +124,7 @@
     <ClInclude Include="graphics.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="Missile.h" />
     <ClInclude Include="Pickup.h" />
     <ClInclude Include="ship.h" />
     <ClInclude Include="spacewar.h" />

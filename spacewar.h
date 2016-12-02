@@ -15,6 +15,7 @@
 #include "Triangle.h"
 #include "Circle.h"
 #include "Blackhole.h"
+#include "Missile.h"
 #include "Pickup.h"
 
 enum GameState {
@@ -36,9 +37,11 @@ private:
 	TextureManager			heartTexture;
 	TextureManager			destructorTexture;
 	TextureManager			obstructorTexture;
+	TextureManager			missileTexture;
 
 	std::vector<Entity*>	entities;
 	std::vector<Entity*>	hearts;
+	std::vector<Missile*>	missiles;
 
 	Ship*					player;
 	Blackhole*				blackhole;

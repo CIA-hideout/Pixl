@@ -19,9 +19,9 @@ namespace entityNS {
 
 enum ObjectType {
 	OBJECT_TYPE_PLAYER,
-	OBJECT_TYPE_TRIANGLES,
+	OBJECT_TYPE_TRIANGLE,
 	OBJECT_TYPE_SQUARES,
-	OBJECT_TYPE_CIRCLES,
+	OBJECT_TYPE_CIRCLE,
 	OBJECT_TYPE_BOSS,
 	OBJECT_TYPE_PICKUP,
 	OBJECT_TYPE_BLACKHOLE,
@@ -203,7 +203,7 @@ public:
 
 	std::map<EffectType, float>* getEffectTimers() { return &this->effectTimers; };
 
-	bool hasEffect(EffectType effectType) { return this->effectTimers.at(effectType) >= 0.0f; }
+	bool hasEffect(EffectType effectType) { return this->effectTimers.at(effectType) > 0.0f; }
 };
 
 #endif
