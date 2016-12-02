@@ -175,52 +175,14 @@ void Spacewar::initialize(HWND hwnd) {
 		addEntity(circle);
 	}
 
-	// Spawn Obstructors
-	//Obstructor* obstructor = new Obstructor;
+	// Spawn a random Pickup
+	//Pickup* aRandomPickup = new Pickup;
+	//aRandomPickup->setPickUpType();
+	//bool something = aRandomPickup->getPickupType();
+	//printf(something + "\n");
 
 
-	//for (int i = 0; i < 10; i++) {
-
-	//	Triangle* triangle = new Triangle();
-	//	triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
-	//	triangle->setFrames(TriangleNS::TRIANGLE_START_FRAME, TriangleNS::TRIANGLE_END_FRAME);
-	//	triangle->setCurrentFrame(TriangleNS::TRIANGLE_START_FRAME);
-	//	triangle->setVelocity(10, 20);
-	//	triangle->setObjectType(TRIANGLES);
-
-	//	// random spawn on border
-	//	side = rand() % 4;
-
-	//	switch (side) {
-	//		// left
-	//		case 0: {
-	//					triangle->setX(0 - rand() % GAME_WIDTH);
-	//					triangle->setY(rand() % GAME_HEIGHT);
-	//		} break;
-	//			// top
-	//		case 1: {
-	//					triangle->setX(rand() % GAME_WIDTH);
-	//					triangle->setY(-(rand() % GAME_HEIGHT));
-	//		} break;
-	//			// right
-	//		case 2: {
-	//					triangle->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
-	//					triangle->setY(rand() % GAME_HEIGHT);
-	//		} break;
-	//			// bottom
-	//		case 3: {
-	//					triangle->setX(rand() % GAME_WIDTH);
-	//					triangle->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
-	//		} break;
-	//	}
-
-	//	triangle->setX(rand() % GAME_WIDTH);
-	//	triangle->setY(rand() % GAME_HEIGHT);
-
-	//	triangle->setScale(0.5);
-
-	//	addEntity(triangle);
-	//}
+	
 
 	baseTime = timeGetTime();
 

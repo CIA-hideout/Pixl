@@ -103,7 +103,6 @@ void Pickup::setPickUpType(){
 //	Calculate the type of Obstrutor or Destructor the pickup is 
 void Pickup::calculateObstructorDestructorType(){
 	
-	setPickUpType();
 	srand(timeGetTime());
 	int randNumber;
 

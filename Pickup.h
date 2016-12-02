@@ -52,7 +52,10 @@ public:
 		return isDestructor;
 	}
 
-	PickupTypes returnEffect(){
+
+	// return effect of pickups
+	// Example: return `blackhole`
+	PickupTypes getEffect(){
 		return type;
 	}
 
@@ -62,6 +65,8 @@ private:
 	PickupTypes type;
 	boolean		isDestructor;
 
+	//find if it is a pickup which inverts control, grow the player, stun the player,
+	//spawns homing missles
 	void calculateObstructorDestructorType();
 };
 
