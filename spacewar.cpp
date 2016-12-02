@@ -171,6 +171,7 @@ void Spacewar::initialize(HWND hwnd) {
 	for (int i = 0; i < 4; i++) {
 
 		Pickup* pickup = new Pickup();
+		pickup->setPickupType();		// randomly spawns an obstructor or detstructor
 
 		if (pickup->isDestructor())
 			pickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &destructorTexture);
@@ -201,15 +202,6 @@ void Spacewar::initialize(HWND hwnd) {
 		circle->spawn();
 		addEntity(circle);
 	}
-
-	// Spawn a random Pickup
-	//Pickup* aRandomPickup = new Pickup;
-	//aRandomPickup->setPickUpType();
-	//bool something = aRandomPickup->getPickupType();
-	//printf(something + "\n");
-
-
-	
 
 	baseTime = timeGetTime();
 
@@ -394,6 +386,57 @@ void Spacewar::UpdateEntities() {
 								 }
 							 }
 		} break;
+
+		case PICKUPS:
+		{
+		
+			Pickup* pickup = (Pickup*) (*iter);
+		
+			// Different pickups does different stuff
+			switch (pickup->getEffect())
+			{
+				// All the Obstructors
+
+				case OBSTRUCTOR_INVERT_CONTROLS:{
+						
+				} break;
+
+				case OBSTRUCTOR_STUN_PLAYER:{
+						
+				} break;
+
+				case OBSTRUCTOR_SLOW_PLAYER:{
+						
+				}break;
+
+				case OBSTRUCTOR_ENLARGE_PLAYER:{
+						
+				}break;
+
+				case OBSTRUCTOR_BLACKHOLE:{
+						
+				}break;
+
+
+				// All the Desstructors
+				
+				case DESTRUCTOR_EXPLOSION:{
+						
+				}break; 
+
+				case DESTRUCTOR_HOMING_MISSLES:{
+						
+				}break;
+
+				case DESTRUCTOR_FREEZE:{
+						
+				}break;
+
+				case DESTRUCTOR_INVULNERABILITY:{
+						
+				}break;
+			}
+		}break;
 		}
 
 		//if (((*iter)->getObjectType()) != BLACKHOLE_)

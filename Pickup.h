@@ -46,16 +46,19 @@ public:
 
 
 	// SET Methods
-	bool isDestructor();
+	void setPickupType();
 
+	//---------------
 	// GET Methods
-	bool getDestructor(){
+
+	// return `true` if pickup is a destructor
+	// return `false` if otherwise
+	bool isDestructor(){
 		return destructor;
 	}
 
-
 	// return effect of pickups
-	// Example: return `blackhole`
+	// Example: return `BLACKHOLE` if it is a blackhole
 	PickupTypes getEffect(){
 		return type;
 	}
