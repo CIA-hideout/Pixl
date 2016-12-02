@@ -17,7 +17,8 @@ double calculateF(Entity* e1, Entity* e2);
 float			playerAccelerationRate;
 float			playerDeccelerationRate;
 float			playerTurnMultiplier;
-float			playerInvulnerableTimer;
+float			playerInvulnerableTimer;			
+float			playerEffectTimer;					// Duration of Negative/Positive Pickup
 float			slowedTime, slowRadians;			// Used for slowing down blackhole rotation
 float			deathAngle;							// the angle in radians at the point in time of the player's death
 
@@ -29,7 +30,7 @@ int				waveTriangleCount, waveCircleCount, waveBossCount;
 int				currentWave;
 
 bool			controlsInverted, blackholeRunning, isStunned, isEnlarged;
-bool			playerIsInvulnerable, playerIsDead;
+bool			playerIsInvulnerable, playerIsDead, playerHasEffect;
 
 DWORD			waveStartTime, nextWaveTime;
 
@@ -70,8 +71,10 @@ void Spacewar::initialize(HWND hwnd) {
 	playerTurnMultiplier = 3.5f;
 
 	playerInvulnerableTimer = 2000.0f;
+	playerEffectTimer = 100000.0f;
 	playerIsInvulnerable = false;
 	playerIsDead = false;
+	playerHasEffect = false;					// If player gets a time-based pickup.
 
 	playerHealth = 3;
 	playerMaxHealth = 10;
@@ -322,6 +325,12 @@ void Spacewar::UpdateEntities() {
 										if (playerInvulnerableTimer < 0) {
 											playerIsInvulnerable = false;
 										}
+									}
+
+									if (playerHasEffect) {
+										playerEffectTimer -= deltaTime;
+										if (playerEffectTimer < 0)
+											playerHasEffect = false;
 									}
 								}
 								else
