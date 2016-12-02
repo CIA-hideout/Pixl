@@ -39,8 +39,6 @@ bool	waveStarted, waveOver;
 
 DWORD	baseTime;
 
-Missile* m = new Missile();
-
 std::stringstream ss;
 
 //=============================================================================
@@ -172,13 +170,27 @@ void Spacewar::update() {
 								  healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
 								  healthPickup->setScale(0.5);
 								  healthPickup->setVelocity(0, 0);
-								  healthPickup->setObjectType(OBJECT_TYPE_PICKUP);
 								  healthPickup->setPickUpType(PICKUP_HEALTH);
-								  healthPickup->setCurrentFrame(1);
+								  healthPickup->setCurrentFrame(0);
 								  healthPickup->setX(rand() % (int)(healthPickup->getWidth() * healthPickup->getScale() + GAME_WIDTH));
 								  healthPickup->setY(rand() % (int)(healthPickup->getHeight() * healthPickup->getScale() - GAME_HEIGHT));
 
 								  addEntity(healthPickup);
+
+								  generalPickup = new Pickup();
+								  generalPickup->calculateObstructorDestructorType();
+								  if (generalPickup->getIsDestructor())
+									  generalPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &destructorTexture);
+								  else
+									  generalPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &obstructorTexture);
+								  printf("%d\n", generalPickup);
+								  generalPickup->setCurrentFrame(0);
+								  generalPickup->setScale(0.5);
+								  generalPickup->setVelocity(0, 0);
+								  generalPickup->setX(rand() % (int)(healthPickup->getWidth() * healthPickup->getScale() + GAME_WIDTH));
+								  generalPickup->setY(rand() % (int)(healthPickup->getHeight() * healthPickup->getScale() - GAME_HEIGHT));
+
+								  addEntity(generalPickup);
 
 								  currentWave = 1;
 								  blackholeRunning = false;
@@ -240,7 +252,6 @@ void Spacewar::render() {
 								  GAME_HEIGHT / 2, "Press space to start");
 	} break;
 	case GAME_STATE_GAME: {
-							  m->draw();
 							  if (waveBufferTime > 0.0f) {
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth("wave" + std::to_string(currentWave)) / 2,
@@ -479,10 +490,17 @@ void Spacewar::collisions() {
 																	   Pickup* pickup_ = (Pickup*)entity;
 																	   switch (pickup_->getPickupType()) {
 																	   case PICKUP_DESTRUCTOR_EXPLOSION: {
+																											 pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
+																											 pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
+
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_FREEZE: {
+																										  pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
+																										  pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVULNERABILITY: {
+																												   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
+																												   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_MISSLES: {
 																										   // get the enemies to target first
@@ -517,14 +535,24 @@ void Spacewar::collisions() {
 																											 // requires the blackhole to be spawned a set distance away
 																											 float fx = pickup_->getX();
 																											 float fy = pickup_->getY();
+																											 pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
+																											 pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
+																												  pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
+																												  pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
+																												   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
+																												   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
+																											   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
+																											   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
+																											   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
+																											   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																	   } break;
 																	   }
 																	   playerCanPickup = false;

@@ -11,7 +11,7 @@ namespace PickupNS {
 	const float		ROTATION_RATE = (float)PI / 4;
 	const int		WIDTH = 128;
 	const int		HEIGHT = 128;
-	const int		TEXTURE_COLS = 2;
+	const int		TEXTURE_COLS = 1;
 	const int		PICKUP_END_FRAME = 0;
 	const int		PICKUP_START_FRAME = 0;
 	const int		X = GAME_WIDTH / 2 - WIDTH / 2;
@@ -46,16 +46,17 @@ public:
 
 
 	// GET and SET Methods
-	void setPickUpType(PickupType pickupType) { this->type = pickupType; };
+	void setPickUpType(PickupType pickupType);
 	void setPickUpType();
 
 	PickupType getPickupType() { return this->type; }
+	bool getIsDestructor() { return this->isDestructor; }
+	void calculateObstructorDestructorType();
 
 private:
+
 	PickupType type;
 	boolean		isDestructor;
-
-	void calculateObstructorDestructorType();
 };
 
 #endif

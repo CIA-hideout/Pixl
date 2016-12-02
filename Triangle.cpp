@@ -1,7 +1,6 @@
 #include "Triangle.h"
 
 Triangle::Triangle() : Entity() {
-
 	spriteData.width = TriangleNS::WIDTH;
 	spriteData.height = TriangleNS::HEIGHT;
 	spriteData.x = TriangleNS::X;
@@ -30,81 +29,54 @@ void Triangle::draw() {
 
 void Triangle::update(float deltaTime) {
 	Entity::update(deltaTime);
-	spriteData.angle += deltaTime * TriangleNS::ROTATION_RATE;  // rotate the ship
-	spriteData.x += deltaTime * velocity.x;         // move ship along X 
-	spriteData.y += deltaTime * velocity.y;         // move ship along Y
-
-	// Bounce off walls
-	if (spriteData.x > GAME_WIDTH - TriangleNS::WIDTH)    // if hit right screen edge
-	{
-		spriteData.x = GAME_WIDTH - TriangleNS::WIDTH;    // position at right screen edge
-		velocity.x = -velocity.x;                   // reverse X direction
-	}
-	else if (spriteData.x < 0)                    // else if hit left screen edge
-	{
-		spriteData.x = 0;                           // position at left screen edge
-		velocity.x = -velocity.x;                   // reverse X direction
-	}
-	if (spriteData.y > GAME_HEIGHT - TriangleNS::HEIGHT)  // if hit bottom screen edge
-	{
-		spriteData.y = GAME_HEIGHT - TriangleNS::HEIGHT;  // position at bottom screen edge
-		velocity.y = -velocity.y;                   // reverse Y direction
-	}
-	else if (spriteData.y < 0)                    // else if hit top screen edge
-	{
-		spriteData.y = 0;                           // position at top screen edge
-		velocity.y = -velocity.y;                   // reverse Y direction
-	}
+	spriteData.angle += deltaTime * TriangleNS::ROTATION_RATE;
+	spriteData.x += deltaTime * velocity.x;
+	spriteData.y += deltaTime * velocity.y;
 }
 
-
 // To spawn a triangle outside the border
-void Triangle::spawn()
-{
+void Triangle::spawn() {
 	// Set Triangles Details
 	setFrames(TriangleNS::TRIANGLE_START_FRAME, TriangleNS::TRIANGLE_END_FRAME);
 	setCurrentFrame(TriangleNS::TRIANGLE_START_FRAME);
 	setVelocity(10, 20);
 	setObjectType(OBJECT_TYPE_TRIANGLE);
 
-
 	// random spawn on border
 	int side = rand() % 4;
 
 	switch (side) {
 		// left
-		case 0: {
-					this->setX(0 - rand() % GAME_WIDTH);
-					this->setY(rand() % GAME_HEIGHT);
-		} break;
-			// top
-		case 1: {
-					this->setX(rand() % GAME_WIDTH);
-					this->setY(-(rand() % GAME_HEIGHT));
-		} break;
-			// right
-		case 2: {
-					this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
-					this->setY(rand() % GAME_HEIGHT);
-		} break;
-			// bottom
-		case 3: {
-					this->setX(rand() % GAME_WIDTH);
-					this->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
-		} break;
+	case 0: {
+				this->setX(0 - rand() % GAME_WIDTH);
+				this->setY(rand() % GAME_HEIGHT);
+	} break;
+		// top
+	case 1: {
+				this->setX(rand() % GAME_WIDTH);
+				this->setY(-(rand() % GAME_HEIGHT));
+	} break;
+		// right
+	case 2: {
+				this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
+				this->setY(rand() % GAME_HEIGHT);
+	} break;
+		// bottom
+	case 3: {
+				this->setX(rand() % GAME_WIDTH);
+				this->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
+	} break;
 	}
 
 	this->setX(rand() % GAME_WIDTH);
 	this->setY(rand() % GAME_HEIGHT);
 }
 
-
-
 void Triangle::damage(WEAPON weapon) {
 	switch (weapon) {
-		case WEAPON_MISSILE: {
-								 this->setHealth(this->getHealth() - 1);
-		} break;
+	case WEAPON_MISSILE: {
+							 this->setHealth(this->getHealth() - 1);
+	} break;
 	}
 
 	if (this->getHealth() < 0)

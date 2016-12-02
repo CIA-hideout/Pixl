@@ -5,7 +5,6 @@
 #include "constants.h"
 
 namespace CircleNS {
-
 	const float		MASS = 300.0f;
 	const float		SCALING = 0.2f;
 	const float		SPEED = 100;
@@ -17,8 +16,6 @@ namespace CircleNS {
 	const int		CIRCLE_START_FRAME = 0;
 	const int		X = GAME_WIDTH / 2 - WIDTH / 2;
 	const int		Y = GAME_HEIGHT / 2 - HEIGHT / 2;
-	//const LPCWSTR	fileName = L"circle.png";
-
 }
 
 class Circle : public Entity {
@@ -31,7 +28,6 @@ public:
 	void update(float deltaTime);
 	void spawn();
 	void damage(WEAPON);
-
 };
 
 #endif

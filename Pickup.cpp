@@ -3,8 +3,6 @@
 Pickup::Pickup() : Entity(){
 	spriteData.width = PickupNS::WIDTH;
 	spriteData.height = PickupNS::HEIGHT;
-	spriteData.x = PickupNS::X;
-	spriteData.y = PickupNS::Y;
 	spriteData.rect.bottom = PickupNS::HEIGHT;
 	spriteData.rect.right = PickupNS::WIDTH;
 	spriteData.scale = PickupNS::SCALING;
@@ -12,12 +10,11 @@ Pickup::Pickup() : Entity(){
 	velocity.y = 0;
 	startFrame = PickupNS::PICKUP_START_FRAME;
 	endFrame = PickupNS::PICKUP_END_FRAME;
-	currentFrame = startFrame;
+	currentFrame = 0;
 	radius = PickupNS::WIDTH / 2.0f;
 	mass = PickupNS::MASS;
 	collisionType = entityNS::CIRCLE;
-	PickupType type = PICKUP_OBSTRUCTOR_SLOW_PLAYER;
-	boolean isDestructor = true;
+	objectType = OBJECT_TYPE_PICKUP;
 }
 
 bool Pickup::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM){
@@ -76,7 +73,7 @@ void Pickup::damage(WEAPON weapon){
 	switch (weapon)
 	{
 		case OBJECT_TYPE_PLAYER: {
-									 this->setHealth(0);
+									 // this->setHealth(0);
 		}	break;
 	}
 }
@@ -84,19 +81,14 @@ void Pickup::damage(WEAPON weapon){
 void Pickup::setPickUpType(){
 	srand(timeGetTime());
 	int number = rand() % 100;
-
 	if (number >= 80)
 		isDestructor = false;	// 80% chance of a Obstructor, 20% a Destructor
 }
 
-//	Calculate whether is an Obstructor or Destructor
-
-
-//returns the type of Obstructor [Blackhole, slow, stun, enlarge, invert]
-
-/* ========================================	*/
-/*			Private Methods					*/
-/* ========================================	*/
+void Pickup::setPickUpType(PickupType pickupType) {
+	this->type = pickupType;
+	this->isDestructor = getPickupType() == PICKUP_DESTRUCTOR_EXPLOSION || getPickupType() == PICKUP_DESTRUCTOR_FREEZE || getPickupType() == PICKUP_DESTRUCTOR_INVULNERABILITY || getPickupType() == PICKUP_DESTRUCTOR_MISSLES;
+}
 
 //	Calculate the type of Obstrutor or Destructor the pickup is 
 void Pickup::calculateObstructorDestructorType(){
@@ -139,8 +131,7 @@ void Pickup::calculateObstructorDestructorType(){
 		PICKUP_DESTRUCTOR_INVULNERABILITY
 	};
 
-	if (isDestructor)
-	{
+	if (isDestructor) {
 		randNumber = rand() % 10; //Get a number from 0 - 9
 		type = destructorArray[randNumber];
 	}

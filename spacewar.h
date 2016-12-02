@@ -41,7 +41,6 @@ private:
 
 	std::vector<Entity*>	entities;
 	std::vector<Entity*>	hearts;
-	std::vector<Missile*>	missiles;
 
 	Ship*					player;
 	Blackhole*				blackhole;
