@@ -34,9 +34,8 @@ int		combo;
 int		waveTriangleCount, waveCircleCount, waveBossCount;
 int		currentWave;
 
-bool	blackholeRunning;
+bool	blackholeRunning, waveOver;
 bool	playerIsDead, playerCanPickup;
-bool	waveStarted, waveOver;
 
 DWORD	baseTime;
 
@@ -174,34 +173,34 @@ void Spacewar::update() {
 
 								  addEntity(healthPickup);
 
-								  generalPickup = new Pickup();
-								  generalPickup->calculateObstructorDestructorType();
-								  generalPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &destructorObstructorTexture);
-								  generalPickup->calculateObstructorDestructorType();
-								  if (generalPickup->getIsDestructor())
-									  generalPickup->setCurrentFrame(0);
-								  else
-									  generalPickup->setCurrentFrame(1);
-								  generalPickup->setScale(0.5);
-								  generalPickup->setVelocity(0, 0);
-								  generalPickup->setX(rand() % (int)(healthPickup->getWidth() * healthPickup->getScale() + GAME_WIDTH));
-								  generalPickup->setY(rand() % (int)(healthPickup->getHeight() * healthPickup->getScale() - GAME_HEIGHT));
+								  for (int i = 0; i < 4; i++) {
+									  Pickup* pickup = new Pickup();
+									  pickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &destructorObstructorTexture);
+									  pickup->calculateObstructorDestructorType();
+									  if (pickup->getIsDestructor())
+										  pickup->setCurrentFrame(0);
+									  else
+										  pickup->setCurrentFrame(1);
+									  pickup->setX(rand() % (int)(pickup->getWidth() * pickup->getScale() + GAME_WIDTH));
+									  pickup->setY(rand() % (int)(pickup->getHeight() * pickup->getScale() - GAME_HEIGHT));
 
-								  Triangle* tri = new Triangle();
-								  tri->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
-								  tri->setObjectType(OBJECT_TYPE_TRIANGLE);
-								  tri->setHealth(1);
-								  tri->spawn();
-
-								  addEntity(tri);
-
-								  addEntity(generalPickup);
+									  addEntity(pickup);
+								  }
 
 								  currentWave = 1;
 								  blackholeRunning = false;
 								  // wave is over if and only if all enemies are not active
-								  waveOver = false;
 								  waveTriangleCount = (int)SIGMOID(currentWave, 5);
+
+								  for (int i = 0; i <= waveTriangleCount; i++) {
+									  Triangle* tri = new Triangle();
+									  tri->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
+									  tri->setObjectType(OBJECT_TYPE_TRIANGLE);
+									  tri->setHealth(1);
+									  tri->spawn();
+									  addEntity(tri);
+								  }
+
 								  waveBufferTime = 1.5f;
 								  baseTime = timeGetTime();
 							  }
@@ -225,8 +224,21 @@ void Spacewar::update() {
 								  hearts[i]->setCurrentFrame(0);
 								  hearts[i]->update(deltaTime);
 							  }
+
+							  printf("iswaveover: %d\n", isWaveOver(entities));
 							  if (isWaveOver(entities)) {
-								  printf("true");
+								  currentWave++;
+								  waveBufferTime = 1.5f;
+								  waveTriangleCount = (int)SIGMOID(currentWave, 5);
+								  for (int i = 0; i < waveTriangleCount; i++) {
+									  Triangle* tri = new Triangle();
+									  tri->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
+									  tri->setObjectType(OBJECT_TYPE_TRIANGLE);
+									  tri->setActive(true);
+									  tri->setHealth(1);
+									  tri->spawn();
+									  addEntity(tri);
+								  }
 							  }
 
 							  VECTOR2 collisionVector;
@@ -245,9 +257,21 @@ void Spacewar::update() {
 									  }
 								  }
 								  else {
-									  // find a new target
+									  // find a new target. if no new target exists, kill itself
 									  for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
-
+										  // retard
+										  if (
+											  ((*iter_)->getObjectType() == OBJECT_TYPE_CIRCLE ||
+											  (*iter_)->getObjectType() == OBJECT_TYPE_TRIANGLE ||
+											  (*iter_)->getObjectType() == OBJECT_TYPE_BOSS) &&
+											  (*iter_)->getActive() == true &&
+											  !isTargeted(missiles, (*iter_))
+											  ) {
+											  (*iter)->setTarget(*iter_);
+										  }
+									  }
+									  if (!(*iter)->getTarget()->getActive()) {
+										  (*iter)->setActive(false);
 									  }
 								  }
 							  }
@@ -652,6 +676,7 @@ void Spacewar::collisions() {
 																											 float fy = pickup_->getY();
 																											 pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																											 pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
+																											 blackholeRunning = true;
 																											 pickup_->calculateObstructorDestructorType();
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
@@ -765,6 +790,11 @@ void PrintEffect(Entity* entity, Font* effectFont) {
 								  effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
 								  dy += effectFont->getHeight() * effectFont->getScale();
 			} break;
+			case EFFECT_INVULNERABLE: {
+										  ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Invulnerable";
+										  effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
+										  dy += effectFont->getHeight() * effectFont->getScale();
+			} break;
 			}
 		}
 	}
@@ -772,12 +802,12 @@ void PrintEffect(Entity* entity, Font* effectFont) {
 
 bool isWaveOver(std::vector<Entity*> entities) {
 	for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
-		if (
+		if ((
 			(*iter)->getObjectType() == OBJECT_TYPE_BOSS ||
 			(*iter)->getObjectType() == OBJECT_TYPE_TRIANGLE ||
 			(*iter)->getObjectType() == OBJECT_TYPE_CIRCLE ||
-			(*iter)->getObjectType() == OBJECT_TYPE_BLACKHOLE ||
-			(*iter)->getObjectType() == OBJECT_TYPE_MISSILE
+			(*iter)->getObjectType() == OBJECT_TYPE_BLACKHOLE) &&
+			(*iter)->getActive() == true
 			)
 			return false;
 	}
@@ -786,9 +816,8 @@ bool isWaveOver(std::vector<Entity*> entities) {
 
 bool isTargeted(std::vector<Missile*> missiles, Entity* entity) {
 	for (std::vector<Missile*>::iterator iter = missiles.begin(); iter != missiles.end(); iter++) {
-		if ((*iter)->getTarget() == entity) {
+		if ((*iter)->getTarget() == entity)
 			return true;
-		}
 	}
 	return false;
 }

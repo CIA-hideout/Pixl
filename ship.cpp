@@ -8,8 +8,7 @@
 //=============================================================================
 // default constructor
 //=============================================================================
-Ship::Ship() : Entity()
-{
+Ship::Ship() : Entity() {
 	spriteData.width = shipNS::WIDTH;
 	spriteData.height = shipNS::HEIGHT;
 	spriteData.scale = shipNS::SCALING;
@@ -25,7 +24,7 @@ Ship::Ship() : Entity()
 	radius = shipNS::WIDTH / 2.0;
 	mass = shipNS::MASS;
 	collisionType = entityNS::CIRCLE;
-	health = 5;
+	health = 3;
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_STUN, 0.0f));
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_SLOW, 0.0f));
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_INVINCIBLE, 0.0f));

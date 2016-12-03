@@ -6,7 +6,7 @@
 
 namespace PickupNS {
 	const float		MASS = 0.0f;
-	const float		SCALING = 0.2f;
+	const float		SCALING = 0.4f;
 	const float		SPEED = 0;
 	const float		ROTATION_RATE = (float)PI / 4;
 	const int		WIDTH = 128;
