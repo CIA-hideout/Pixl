@@ -29,7 +29,7 @@ int				waveTriangleCount, waveCircleCount, waveBossCount;
 int				currentWave;
 
 bool			controlsInverted, blackholeRunning, isStunned, isEnlarged;
-bool			playerIsInvulnerable, playerIsDead, playerHasEffect;
+bool			playerIsInvulnerable, playerIsDead;
 
 DWORD			waveStartTime, nextWaveTime;
 
@@ -41,8 +41,9 @@ bool			isPlayerSlow;						//	true if player gets SLOW pickup
 bool			isEnemyFrozen;						//	true if player gets FROZEN and let it go 
 
 // In case different pickups have different duration set
-float			playerEffectStunTimer;				// Duration of STUN pickup
-float			playerEffectSlowTimer;				//	
+float			obstructor_timer_stun;				// Duration of STUN pickup
+float			obstructor_timer_slow;				// Duration of SLOW pickup
+float			destructor_timer_frozen;			// Duration of LET IT GO
 
 
 std::stringstream ss;
@@ -83,7 +84,6 @@ void Spacewar::initialize(HWND hwnd) {
 
 	playerIsInvulnerable = false;
 	playerIsDead = false;
-	playerHasEffect = false;					// If player gets a time-based pickup.
 
 	playerHealth = 3;
 	playerMaxHealth = 10;
@@ -93,8 +93,9 @@ void Spacewar::initialize(HWND hwnd) {
 	isPlayerSlow = false;						
 	isEnemyFrozen = false;
 
-	playerEffectStunTimer = 100000.0f;
-	playerEffectSlowTimer = 100000.0f;
+	obstructor_timer_stun = 2000.0f;
+	obstructor_timer_slow = 2000.0f;
+	destructor_timer_frozen = 2000.0f;
 
 	srand(timeGetTime());
 
@@ -363,18 +364,18 @@ void Spacewar::UpdateEntities() {
 
 									if (isPlayerStun) {
 
-										playerEffectStunTimer -= deltaTime;
-										if (playerEffectStunTimer < 0){
+										obstructor_timer_stun -= deltaTime;
+										if (obstructor_timer_stun < 0){
 											isPlayerStun = false;
 											
 										}
 									}
 
 									if (isPlayerSlow){
-										playerEffectSlowTimer -= deltaTime;
-										if (playerEffectSlowTimer < 0)
+										obstructor_timer_slow -= deltaTime;
+										if (obstructor_timer_slow < 0)
 										{
-											//isPlayerSlow = false;
+											isPlayerSlow = false;
 										}
 									}
 								}
@@ -409,6 +410,12 @@ void Spacewar::UpdateEntities() {
 								if (isEnemyFrozen)
 								{
 									(*iter)->setVelocity(0, 0);
+									destructor_timer_frozen -= deltaTime;
+									
+									if (destructor_timer_frozen < 0)
+									{
+										isEnemyFrozen = false;
+									}
 								}
 							}
 							else
@@ -421,7 +428,15 @@ void Spacewar::UpdateEntities() {
 		case CIRCLES: {
 							// Freeze enemy circles
 							if (isEnemyFrozen)
+							{
 								(*iter)->setVelocity(0, 0);
+								destructor_timer_frozen -= deltaTime;
+
+								if (destructor_timer_frozen < 0)
+								{
+									isEnemyFrozen = false;
+								}
+							}
 
 							if (playerIsDead)
 							  {
@@ -541,13 +556,13 @@ void Spacewar::collisions()
 
 											//STUN : Player cannot move
 										case OBSTRUCTOR_STUN_PLAYER:{
-												playerHasEffect = true;
 												isPlayerStun = true;
+												obstructor_timer_stun = 5.0f;
 										} break;
 
 										case OBSTRUCTOR_SLOW_PLAYER:{
-											playerHasEffect = true;
 											isPlayerSlow = true;
+											obstructor_timer_slow = 5.0f;
 										}break;
 
 										case OBSTRUCTOR_ENLARGE_PLAYER:{
@@ -570,7 +585,8 @@ void Spacewar::collisions()
 										}break;
 
 										case DESTRUCTOR_FREEZE:{
-
+											isEnemyFrozen = true;
+											destructor_timer_frozen = 5.0;
 										}break;
 
 										case DESTRUCTOR_INVULNERABILITY:{
