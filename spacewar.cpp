@@ -90,7 +90,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	// Pickup Declarations
 	isPlayerStun = false;						
-	isPlayerSlow = true;						
+	isPlayerSlow = false;						
 	isEnemyFrozen = false;
 
 	playerEffectStunTimer = 100000.0f;
@@ -203,7 +203,7 @@ void Spacewar::initialize(HWND hwnd) {
 	}
 
 	// Spawn Triangles
-	for (int i = 0; i < 0; i++) {
+	for (int i = 0; i < 4; i++) {
 
 		Triangle* triangle = new Triangle();
 		triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
@@ -214,7 +214,7 @@ void Spacewar::initialize(HWND hwnd) {
 	}
 
 	// Spawn Circles
-	for (int i = 0; i < 0; i++){
+	for (int i = 0; i < 4; i++){
 
 		Circle* circle = new Circle();
 		circle->initialize(this, CircleNS::WIDTH, CircleNS::HEIGHT, CircleNS::TEXTURE_COLS, &circleTextures);
@@ -327,16 +327,11 @@ void Spacewar::UpdateEntities() {
 										if (input->isKeyDown(VK_UP)) {
 											float x = (cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x);
 											float y = (sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y);
-
-											float s = x * speedMultipler;
-											float q = y * speedMultipler;
 											
 											(*iter)->setVelocity(
-												//(cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
-												//(sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y)
+												(cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x) * speedMultipler,
+												(sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y) * speedMultipler
 
-												x * speedMultipler, 
-												y * speedMultipler
 												);
 											printf("%.2f, %.2f\n", (*iter)->getVelocity().x, (*iter)->getVelocity().y);
 										}
@@ -409,6 +404,12 @@ void Spacewar::UpdateEntities() {
 									cos((*iter)->getRadians()) * 50,
 									sin((*iter)->getRadians()) * 50
 									);
+
+								// Freeze enemy triangles
+								if (isEnemyFrozen)
+								{
+									(*iter)->setVelocity(0, 0);
+								}
 							}
 							else
 							{
@@ -418,10 +419,15 @@ void Spacewar::UpdateEntities() {
 		} break;
 
 		case CIRCLES: {
-						  if (playerIsDead)
-						  {
-							  (*iter)->setVelocity(0, 0);
-						  }
+							// Freeze enemy circles
+							if (isEnemyFrozen)
+								(*iter)->setVelocity(0, 0);
+
+							if (playerIsDead)
+							  {
+								  (*iter)->setVelocity(0, 0);
+							  }
+							
 		} break;
 
 		case BLACKHOLE_: {
