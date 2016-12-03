@@ -81,6 +81,7 @@ const UCHAR SHIP_ROTATE_LEFT = VK_LEFT;
 const UCHAR SHIP_ROTATE_RIGHT = VK_RIGHT;
 const UCHAR SHIP_ADD_V = VK_UP;
 const UCHAR SHIP_SUBTRACT_V = VK_DOWN;
+const UCHAR Z_KEY = 0x5A;
 
 // weapon types
 enum WEAPON {
