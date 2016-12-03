@@ -17,7 +17,7 @@ double calculateF(Entity* e1, Entity* e2);
 float			playerAccelerationRate;
 float			playerDeccelerationRate;
 float			playerTurnMultiplier;
-float			playerInvulnerableTimer;
+float			playerInvulnerableTimer;			
 float			slowedTime, slowRadians;			// Used for slowing down blackhole rotation
 float			deathAngle;							// the angle in radians at the point in time of the player's death
 
@@ -34,6 +34,17 @@ bool			playerIsInvulnerable, playerIsDead;
 DWORD			waveStartTime, nextWaveTime;
 
 DWORD			baseTime, currTime;
+
+// Pickups Variables
+bool			isPlayerStun;						//	true if player gets STUN pickup
+bool			isPlayerSlow;						//	true if player gets SLOW pickup
+bool			isEnemyFrozen;						//	true if player gets FROZEN and let it go 
+
+// In case different pickups have different duration set
+float			obstructor_timer_stun;				// Duration of STUN pickup
+float			obstructor_timer_slow;				// Duration of SLOW pickup
+float			destructor_timer_frozen;			// Duration of LET IT GO
+
 
 std::stringstream ss;
 
@@ -57,7 +68,7 @@ Spacewar::~Spacewar() {
 //=============================================================================
 void Spacewar::initialize(HWND hwnd) {
 
-	//AllocConsole();			// Brings up console
+	AllocConsole();			// Brings up console
 
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
@@ -70,11 +81,21 @@ void Spacewar::initialize(HWND hwnd) {
 	playerTurnMultiplier = 3.5f;
 
 	playerInvulnerableTimer = 2000.0f;
+
 	playerIsInvulnerable = false;
 	playerIsDead = false;
 
 	playerHealth = 3;
 	playerMaxHealth = 10;
+
+	// Pickup Declarations
+	isPlayerStun = false;						
+	isPlayerSlow = false;						
+	isEnemyFrozen = false;
+
+	obstructor_timer_stun = 2000.0f;
+	obstructor_timer_slow = 2000.0f;
+	destructor_timer_frozen = 2000.0f;
 
 	srand(timeGetTime());
 
@@ -183,7 +204,7 @@ void Spacewar::initialize(HWND hwnd) {
 	}
 
 	// Spawn Triangles
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 4; i++) {
 
 		Triangle* triangle = new Triangle();
 		triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
@@ -194,7 +215,7 @@ void Spacewar::initialize(HWND hwnd) {
 	}
 
 	// Spawn Circles
-	for (int i = 0; i < 5; i++){
+	for (int i = 0; i < 4; i++){
 
 		Circle* circle = new Circle();
 		circle->initialize(this, CircleNS::WIDTH, CircleNS::HEIGHT, CircleNS::TEXTURE_COLS, &circleTextures);
@@ -294,28 +315,45 @@ void Spacewar::UpdateEntities() {
 		case PLAYER_SPRITE: {
 								if (!playerIsDead)
 								{
-									if (input->isKeyDown(VK_UP)) {
+									// if player is not stun, player move
+									if (!isPlayerStun)
+									{
+										float speedMultipler = 1.0f;	//speed multipler to reduce/increase player speed
+										
+										if (isPlayerSlow)
+											speedMultipler = 0.5f;		//reduce speed by 0.5
+
+										
+
+										if (input->isKeyDown(VK_UP)) {
+											float x = (cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x);
+											float y = (sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y);
+											
+											(*iter)->setVelocity(
+												(cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x) * speedMultipler,
+												(sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y) * speedMultipler
+
+												);
+											printf("%.2f, %.2f\n", (*iter)->getVelocity().x, (*iter)->getVelocity().y);
+										}
+
+										if (input->isKeyDown(VK_LEFT)) {
+											(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
+										}
+
+										if (input->isKeyDown(VK_RIGHT)) {
+											(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
+										}
+
+										if (input->isKeyDown(Z_KEY)) {
+											(*iter)->setVelocity(0, 0);
+										}
 										(*iter)->setVelocity(
-											(cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
-											(sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y)
+											((*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate),
+											((*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate)
 											);
 									}
-
-									if (input->isKeyDown(VK_LEFT)) {
-										(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
-									}
-
-									if (input->isKeyDown(VK_RIGHT)) {
-										(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
-									}
-
-									if (input->isKeyDown(0x5A)) {
-										(*iter)->setVelocity(0, 0);
-									}
-									(*iter)->setVelocity(
-										(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
-										(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
-										);
+									
 									
 									if (playerIsInvulnerable) {				// if player is not dead, set player sprite to no damage and blink animation.
 										playerInvulnerableTimer -= deltaTime;
@@ -323,7 +361,25 @@ void Spacewar::UpdateEntities() {
 											playerIsInvulnerable = false;
 										}
 									}
+
+									if (isPlayerStun) {
+
+										obstructor_timer_stun -= deltaTime;
+										if (obstructor_timer_stun < 0){
+											isPlayerStun = false;
+											
+										}
+									}
+
+									if (isPlayerSlow){
+										obstructor_timer_slow -= deltaTime;
+										if (obstructor_timer_slow < 0)
+										{
+											isPlayerSlow = false;
+										}
+									}
 								}
+
 								else
 								{
 									(*iter)->setVelocity(0, 0);
@@ -349,6 +405,18 @@ void Spacewar::UpdateEntities() {
 									cos((*iter)->getRadians()) * 50,
 									sin((*iter)->getRadians()) * 50
 									);
+
+								// Freeze enemy triangles
+								if (isEnemyFrozen)
+								{
+									(*iter)->setVelocity(0, 0);
+									destructor_timer_frozen -= deltaTime;
+									
+									if (destructor_timer_frozen < 0)
+									{
+										isEnemyFrozen = false;
+									}
+								}
 							}
 							else
 							{
@@ -358,10 +426,23 @@ void Spacewar::UpdateEntities() {
 		} break;
 
 		case CIRCLES: {
-						  if (playerIsDead)
-						  {
-							  (*iter)->setVelocity(0, 0);
-						  }
+							// Freeze enemy circles
+							if (isEnemyFrozen)
+							{
+								(*iter)->setVelocity(0, 0);
+								destructor_timer_frozen -= deltaTime;
+
+								if (destructor_timer_frozen < 0)
+								{
+									isEnemyFrozen = false;
+								}
+							}
+
+							if (playerIsDead)
+							  {
+								  (*iter)->setVelocity(0, 0);
+							  }
+							
 		} break;
 
 		case BLACKHOLE_: {
@@ -389,54 +470,8 @@ void Spacewar::UpdateEntities() {
 
 		case PICKUPS:
 		{
-		
-			Pickup* pickup = (Pickup*) (*iter);
-		
-			// Different pickups does different stuff
-			switch (pickup->getEffect())
-			{
-				// All the Obstructors
-
-				case OBSTRUCTOR_INVERT_CONTROLS:{
-						
-				} break;
-
-				case OBSTRUCTOR_STUN_PLAYER:{
-						
-				} break;
-
-				case OBSTRUCTOR_SLOW_PLAYER:{
-						
-				}break;
-
-				case OBSTRUCTOR_ENLARGE_PLAYER:{
-						
-				}break;
-
-				case OBSTRUCTOR_BLACKHOLE:{
-						
-				}break;
-
-
-				// All the Desstructors
-				
-				case DESTRUCTOR_EXPLOSION:{
-						
-				}break; 
-
-				case DESTRUCTOR_HOMING_MISSLES:{
-						
-				}break;
-
-				case DESTRUCTOR_FREEZE:{
-						
-				}break;
-
-				case DESTRUCTOR_INVULNERABILITY:{
-						
-				}break;
-			}
-		}break;
+			// I DON'T KNOW WHAT TO DO WITH THIS
+		}	break;
 		}
 
 		//if (((*iter)->getObjectType()) != BLACKHOLE_)
@@ -503,6 +538,62 @@ void Spacewar::collisions()
 											playerInvulnerableTimer = 2.0f;
 										}
 				}	break;
+
+				case (PICKUPS):
+				{
+
+										Pickup* pickup = (Pickup*)(*iter);
+										printf("%s\n", pickup->getEffect());
+
+										// Different pickups does different stuff
+										switch (pickup->getEffect())
+										{
+											// All the Obstructors
+
+										case OBSTRUCTOR_INVERT_CONTROLS:{
+
+										} break;
+
+											//STUN : Player cannot move
+										case OBSTRUCTOR_STUN_PLAYER:{
+												isPlayerStun = true;
+												obstructor_timer_stun = 5.0f;
+										} break;
+
+										case OBSTRUCTOR_SLOW_PLAYER:{
+											isPlayerSlow = true;
+											obstructor_timer_slow = 5.0f;
+										}break;
+
+										case OBSTRUCTOR_ENLARGE_PLAYER:{
+
+										}break;
+
+										case OBSTRUCTOR_BLACKHOLE:{
+
+										}break;
+
+
+											// All the Desstructors
+
+										case DESTRUCTOR_EXPLOSION:{
+
+										}break;
+
+										case DESTRUCTOR_HOMING_MISSLES:{
+
+										}break;
+
+										case DESTRUCTOR_FREEZE:{
+											isEnemyFrozen = true;
+											destructor_timer_frozen = 5.0;
+										}break;
+
+										case DESTRUCTOR_INVULNERABILITY:{
+
+										}break;
+										}
+				}break;
 			}
 		}
 				
