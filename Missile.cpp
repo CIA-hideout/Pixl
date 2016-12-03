@@ -39,8 +39,6 @@ void Missile::update(float deltaTime) {
 	spriteData.x += deltaTime * velocity.x;
 	spriteData.y += deltaTime * velocity.y;
 
-	printf("a1, a2: %.2f, %.2f\n", cos(this->getRadians()) * 100, sin(this->getRadians()) * 100);
-
 }
 
 void Missile::draw() {

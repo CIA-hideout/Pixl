@@ -18,6 +18,7 @@
 double calculateF(Entity* e1, Entity* e2);
 void PrintEffect(Entity* entity, Font* effectFont);
 bool isWaveOver(std::vector<Entity*> entities);
+bool isTargeted(std::vector<Missile*> missiles, Entity* entity);
 
 float	playerAccelerationRate;
 float	playerDeccelerationRate;
@@ -77,8 +78,7 @@ void Spacewar::initialize(HWND hwnd) {
 	heartTexture.initialize(graphics, HEART_TEXTURE);
 	fontTexture.initialize(graphics, FONT_TEXTURE);
 	missileTexture.initialize(graphics, MISSILE_TEXTURE);
-	obstructorTexture.initialize(graphics, OBSTRUCTOR_TEXTURE);
-	destructorTexture.initialize(graphics, DESTRUCTOR_TEXTURE);
+	destructorObstructorTexture.initialize(graphics, DESTRUCTOR_OBSTRUCTOR_TEXTURE);
 
 	this->setGameState(GAME_STATE_MENU);
 
@@ -160,9 +160,6 @@ void Spacewar::update() {
 								  player->setX(GAME_WIDTH / 2 - player->getWidth() / 2 * player->getScale());
 								  player->setY(GAME_HEIGHT / 2 - player->getHeight() / 2 * player->getScale());
 								  player->setHealth(playerHealth);
-								  player->getEffectTimers()->at(EFFECT_INVERTED) = 0.0f;
-								  player->getEffectTimers()->at(EFFECT_SLOW) = 0.0f;
-								  player->getEffectTimers()->at(EFFECT_STUN) = 0.0f;
 
 								  this->addEntity(player);
 
@@ -179,16 +176,24 @@ void Spacewar::update() {
 
 								  generalPickup = new Pickup();
 								  generalPickup->calculateObstructorDestructorType();
+								  generalPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &destructorObstructorTexture);
+								  generalPickup->calculateObstructorDestructorType();
 								  if (generalPickup->getIsDestructor())
-									  generalPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &destructorTexture);
+									  generalPickup->setCurrentFrame(0);
 								  else
-									  generalPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &obstructorTexture);
-								  printf("%d\n", generalPickup);
-								  generalPickup->setCurrentFrame(0);
+									  generalPickup->setCurrentFrame(1);
 								  generalPickup->setScale(0.5);
 								  generalPickup->setVelocity(0, 0);
 								  generalPickup->setX(rand() % (int)(healthPickup->getWidth() * healthPickup->getScale() + GAME_WIDTH));
 								  generalPickup->setY(rand() % (int)(healthPickup->getHeight() * healthPickup->getScale() - GAME_HEIGHT));
+
+								  Triangle* tri = new Triangle();
+								  tri->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
+								  tri->setObjectType(OBJECT_TYPE_TRIANGLE);
+								  tri->setHealth(1);
+								  tri->spawn();
+
+								  addEntity(tri);
 
 								  addEntity(generalPickup);
 
@@ -220,8 +225,36 @@ void Spacewar::update() {
 								  hearts[i]->setCurrentFrame(0);
 								  hearts[i]->update(deltaTime);
 							  }
+							  if (isWaveOver(entities)) {
+								  printf("true");
+							  }
+
+							  VECTOR2 collisionVector;
+							  for (std::vector<Missile*>::iterator iter = missiles.begin(); iter != missiles.end(); iter++) {
+								  (*iter)->update(deltaTime);
+								  if ((*iter)->getTarget()->getActive()) {
+									  if ((*iter)->getObjectType() == OBJECT_TYPE_MISSILE) {
+										  if ((*iter)->collidesWith(*(*iter)->getTarget(), collisionVector)) {
+											  if ((*iter)->getTarget()->getObjectType() == OBJECT_TYPE_TRIANGLE) {
+												  Triangle* tri = (Triangle*)(*iter)->getTarget();
+												  tri->damage(WEAPON_MISSILE);
+												  (*iter)->setVisible(false);
+												  (*iter)->setActive(false);
+											  }
+										  }
+									  }
+								  }
+								  else {
+									  // find a new target
+									  for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
+
+									  }
+								  }
+							  }
+							  KillEntities();
 	} break;
 	case GAME_STATE_SETTING: {
+
 	}
 	}
 }
@@ -271,6 +304,9 @@ void Spacewar::render() {
 										  (*iter)->draw();
 									  }
 									  PrintEffect(player, effectFont);
+									  for (std::vector<Missile*>::iterator iter = missiles.begin(); iter != missiles.end(); iter++) {
+										  (*iter)->draw();
+									  }
 								  }
 							  }
 							  else {
@@ -287,6 +323,9 @@ void Spacewar::render() {
 								  }
 								  float dy = 10;
 								  PrintEffect(player, effectFont);
+								  for (std::vector<Missile*>::iterator iter = missiles.begin(); iter != missiles.end(); iter++) {
+									  (*iter)->draw();
+								  }
 							  }
 	} break;
 	case GAME_STATE_SETTING: {
@@ -379,8 +418,6 @@ void Spacewar::UpdateEntities() {
 										 calculateF(blackhole, player);
 									 }
 
-									 calculateF(player, healthPickup);
-
 									 // iterate through the various effect that the players have
 									 // effects should be applied here
 									 for (std::map<EffectType, float>::iterator iter_ = player->getEffectTimers()->begin(); iter_ != player->getEffectTimers()->end(); iter_++) {
@@ -399,7 +436,7 @@ void Spacewar::UpdateEntities() {
 																   }
 											 } break;
 											 case EFFECT_INVULNERABLE: {
-																		   iter_->second = 2.0f;
+
 											 } break;
 											 }
 										 }
@@ -435,6 +472,63 @@ void Spacewar::UpdateEntities() {
 	}
 }
 
+void Spacewar::KillEntities() {
+	std::vector<Entity*>::iterator iter = entities.begin();
+	while (iter != entities.end()) {
+		if ((*iter)->getHealth() <= 0) {
+			// whatever happends on death of the entity goes here
+			switch ((*iter)->getObjectType()) {
+			case OBJECT_TYPE_BLACKHOLE: {
+											(*iter)->setActive(false);
+											(*iter)->setVisible(false);
+											iter = entities.erase(iter);
+			} break;
+			case OBJECT_TYPE_BOSS: {
+									   (*iter)->setActive(false);
+									   (*iter)->setVisible(false);
+									   iter = entities.erase(iter);
+			} break;
+			case OBJECT_TYPE_CIRCLE: {
+										 (*iter)->setActive(false);
+										 (*iter)->setVisible(false);
+										 iter = entities.erase(iter);
+			} break;
+			case OBJECT_TYPE_PICKUP: {
+										 (*iter)->setActive(false);
+										 (*iter)->setVisible(false);
+										 iter = entities.erase(iter);
+			} break;
+			case OBJECT_TYPE_PLAYER: {
+										 (*iter)->setActive(false);
+										 (*iter)->setVisible(false);
+										 iter = entities.erase(iter);
+			} break;
+			case OBJECT_TYPE_SQUARES: {
+										  (*iter)->setActive(false);
+										  (*iter)->setVisible(false);
+										  iter = entities.erase(iter);
+			} break;
+			case OBJECT_TYPE_TRIANGLE: {
+										   (*iter)->setActive(false);
+										   (*iter)->setVisible(false);
+										   iter = entities.erase(iter);
+										   playerScore += genScore(++combo);
+			} break;
+			}
+		}
+		else iter++;
+	}
+
+	std::vector<Missile*>::iterator iter_ = missiles.begin();
+	while (iter_ != missiles.end()) {
+		if (!(*iter_)->getActive()) {
+			iter_ = missiles.erase(iter_);
+		}
+		else iter_++;
+	}
+
+}
+
 void Spacewar::DrawEntities() {
 	for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++){
 		(*iter)->draw();
@@ -465,8 +559,7 @@ void Spacewar::collisions() {
 									  }	break;
 
 									  case OBJECT_TYPE_CIRCLE: {
-																   if (player->hasEffect(EFFECT_INVULNERABLE)) {
-																	   player->bounce(collisionVector, *entity);
+																   if (!player->hasEffect(EFFECT_INVULNERABLE)) {
 																	   player->damage(WEAPON_CIRCLE);
 																	   if (player->getEffectTimers()->at(EFFECT_INVULNERABLE) - 2.0f <= 0) {
 																		   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
@@ -476,8 +569,7 @@ void Spacewar::collisions() {
 									  }	break;
 
 									  case OBJECT_TYPE_TRIANGLE: {
-																	 if (player->hasEffect(EFFECT_INVULNERABLE)) {
-																		 player->bounce(collisionVector, *entity);
+																	 if (!player->hasEffect(EFFECT_INVULNERABLE)) {
 																		 player->damage(WEAPON_TRIANGLE);
 																		 if (player->getEffectTimers()->at(EFFECT_INVULNERABLE) - 2.0f <= 0) {
 																			 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
@@ -492,42 +584,65 @@ void Spacewar::collisions() {
 																	   case PICKUP_DESTRUCTOR_EXPLOSION: {
 																											 pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																											 pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
-
+																											 pickup_->calculateObstructorDestructorType();
+																											 if (generalPickup->getIsDestructor())
+																												 generalPickup->setCurrentFrame(0);
+																											 else
+																												 generalPickup->setCurrentFrame(1);
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_FREEZE: {
 																										  pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																										  pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
+																										  pickup_->calculateObstructorDestructorType();
+																										  if (generalPickup->getIsDestructor())
+																											  generalPickup->setCurrentFrame(0);
+																										  else
+																											  generalPickup->setCurrentFrame(1);
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVULNERABILITY: {
 																												   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																												   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
+																												   pickup_->calculateObstructorDestructorType();
+																												   if (generalPickup->getIsDestructor())
+																													   generalPickup->setCurrentFrame(0);
+																												   else
+																													   generalPickup->setCurrentFrame(1);
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_MISSLES: {
 																										   // get the enemies to target first
 																										   std::vector<Entity*> tempVect;
 																										   for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
-																											   if ((*iter)->getObjectType() == OBJECT_TYPE_CIRCLE || (*iter)->getObjectType() == OBJECT_TYPE_TRIANGLE || (*iter)->getObjectType() == OBJECT_TYPE_BOSS) {
-																												   tempVect.push_back(*iter);
+																											   printf("%d\n", (*iter_)->getObjectType());
+																											   if (
+																												   ((*iter_)->getObjectType() == OBJECT_TYPE_CIRCLE ||
+																												   (*iter_)->getObjectType() == OBJECT_TYPE_TRIANGLE ||
+																												   (*iter_)->getObjectType() == OBJECT_TYPE_BOSS) &&
+																												   (*iter_)->getActive() == true &&
+																												   !isTargeted(missiles, (*iter_))
+																												   ) {
+																												   tempVect.push_back(*iter_);
 																											   }
 																										   }
 
 																										   // locates the target that the missile should go for
-																										   // max of 10 enemies
+																										   // max 10
 																										   for (int i = 0; i <= 10 && i < tempVect.size(); i++) {
 																											   Missile* m = new Missile();
 																											   m->initialize(this, 128, 32, 1, &missileTexture);
-																											   m->setX((*iter)->getX() / 2 - m->getWidth() / 2);
-																											   m->setY((*iter)->getY() / 2 - m->getHeight() / 2);
+																											   m->setX(player->getX() + m->getWidth() / 2);
+																											   m->setY(player->getY() + m->getHeight() / 2);
 																											   m->setTarget(tempVect[i]);
+																											   missiles.push_back(m);
 																										   }
+																										   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
+																										   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
+																										   pickup_->calculateObstructorDestructorType();
 																	   } break;
 																	   case PICKUP_HEALTH: {
 																							   player->setHealth(player->getHealth() + 1);
 																							   if (player->getHealth() > 10)
 																								   player->setHealth(10);
-																							   // no need to set type for this pickup
-																							   playerScore += 1 * genScore(combo);
-																							   combo += 1;
+																							   playerScore += genScore(++combo);
 																							   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																							   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																	   } break;
@@ -537,22 +652,27 @@ void Spacewar::collisions() {
 																											 float fy = pickup_->getY();
 																											 pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																											 pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
+																											 pickup_->calculateObstructorDestructorType();
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
 																												  pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																												  pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
+																												  pickup_->calculateObstructorDestructorType();
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
 																												   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																												   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
+																												   pickup_->calculateObstructorDestructorType();
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
 																											   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																											   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
+																											   pickup_->calculateObstructorDestructorType();
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
 																											   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																											   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
+																											   pickup_->calculateObstructorDestructorType();
 																	   } break;
 																	   }
 																	   playerCanPickup = false;
@@ -584,17 +704,6 @@ void Spacewar::collisions() {
 										  player->setRadians(deathAngle);
 										  player->setScale(0.5f);
 										  player->setRect();
-									  }
-								  }
-
-								  // check for missile and enemies collision here
-								  if ((*iter)->getObjectType() == OBJECT_TYPE_MISSILE) {
-									  Missile* m = (Missile*)entity;
-									  if ((*iter)->collidesWith(*m->getTarget(), collisionVector)) {
-										  // just kill off both the entities
-										  m->damage(WEAPON_MISSILE);
-										  m->setActive(false);
-										  m->setVisible(false);
 									  }
 								  }
 							  }
@@ -671,6 +780,15 @@ bool isWaveOver(std::vector<Entity*> entities) {
 			(*iter)->getObjectType() == OBJECT_TYPE_MISSILE
 			)
 			return false;
-		return true;
 	}
+	return true;
+}
+
+bool isTargeted(std::vector<Missile*> missiles, Entity* entity) {
+	for (std::vector<Missile*>::iterator iter = missiles.begin(); iter != missiles.end(); iter++) {
+		if ((*iter)->getTarget() == entity) {
+			return true;
+		}
+	}
+	return false;
 }

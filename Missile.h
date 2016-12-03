@@ -31,7 +31,7 @@ public:
 
 private:
 
-	Entity*			target;
+	Entity* target;
 
 };
 

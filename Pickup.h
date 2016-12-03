@@ -11,7 +11,7 @@ namespace PickupNS {
 	const float		ROTATION_RATE = (float)PI / 4;
 	const int		WIDTH = 128;
 	const int		HEIGHT = 128;
-	const int		TEXTURE_COLS = 1;
+	const int		TEXTURE_COLS = 2;
 	const int		PICKUP_END_FRAME = 0;
 	const int		PICKUP_START_FRAME = 0;
 	const int		X = GAME_WIDTH / 2 - WIDTH / 2;

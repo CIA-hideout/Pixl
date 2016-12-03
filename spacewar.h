@@ -35,12 +35,12 @@ private:
 	TextureManager			blackHoleTexture;
 	TextureManager			fontTexture;
 	TextureManager			heartTexture;
-	TextureManager			destructorTexture;
-	TextureManager			obstructorTexture;
+	TextureManager			destructorObstructorTexture;
 	TextureManager			missileTexture;
 
 	std::vector<Entity*>	entities;
 	std::vector<Entity*>	hearts;
+	std::vector<Missile*>	missiles;
 
 	Ship*					player;
 	Blackhole*				blackhole;
@@ -85,6 +85,8 @@ public:
 
 	bool getIsRunning() { return this->isRunning; }
 	void setIsRunning(bool isRunning) { this->isRunning; }
+
+	void KillEntities();
 };
 
 #endif

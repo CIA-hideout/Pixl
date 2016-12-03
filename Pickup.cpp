@@ -42,25 +42,25 @@ void Pickup::spawn(){
 
 	switch (side) {
 		// left
-		case 0: {
-					this->setX(0 - rand() % GAME_WIDTH);
-					this->setY(rand() % GAME_HEIGHT);
-		} break;
-			// top
-		case 1: {
-					this->setX(rand() % GAME_WIDTH);
-					this->setY(-(rand() % GAME_HEIGHT));
-		} break;
-			// right
-		case 2: {
-					this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
-					this->setY(rand() % GAME_HEIGHT);
-		} break;
-			// bottom
-		case 3: {
-					this->setX(rand() % GAME_WIDTH);
-					this->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
-		} break;
+	case 0: {
+				this->setX(0 - rand() % GAME_WIDTH);
+				this->setY(rand() % GAME_HEIGHT);
+	} break;
+		// top
+	case 1: {
+				this->setX(rand() % GAME_WIDTH);
+				this->setY(-(rand() % GAME_HEIGHT));
+	} break;
+		// right
+	case 2: {
+				this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
+				this->setY(rand() % GAME_HEIGHT);
+	} break;
+		// bottom
+	case 3: {
+				this->setX(rand() % GAME_WIDTH);
+				this->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
+	} break;
 	}
 
 	this->setX(rand() % GAME_WIDTH);
@@ -72,17 +72,18 @@ void Pickup::spawn(){
 void Pickup::damage(WEAPON weapon){
 	switch (weapon)
 	{
-		case OBJECT_TYPE_PLAYER: {
-									 // this->setHealth(0);
-		}	break;
+	case OBJECT_TYPE_PLAYER: {
+								 // this->setHealth(0);
+	}	break;
 	}
 }
 
 void Pickup::setPickUpType(){
-	srand(timeGetTime());
 	int number = rand() % 100;
 	if (number >= 80)
-		isDestructor = false;	// 80% chance of a Obstructor, 20% a Destructor
+		isDestructor = false;
+	else
+		isDestructor = true;
 }
 
 void Pickup::setPickUpType(PickupType pickupType) {
@@ -94,7 +95,6 @@ void Pickup::setPickUpType(PickupType pickupType) {
 void Pickup::calculateObstructorDestructorType(){
 
 	setPickUpType();
-	srand(timeGetTime());
 	int randNumber;
 
 	// Array containing types of obstructor
@@ -140,4 +140,11 @@ void Pickup::calculateObstructorDestructorType(){
 		randNumber = rand() % 9;	//Get a number from 0 - 8
 		type = obstructorArray[randNumber];
 	}
+
+	if (isDestructor)
+		this->setCurrentFrame(0);
+	else
+		this->setCurrentFrame(1);
+
+	type = PICKUP_DESTRUCTOR_MISSLES;
 }
