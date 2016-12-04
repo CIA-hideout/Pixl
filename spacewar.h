@@ -17,6 +17,7 @@
 #include "Blackhole.h"
 #include "Missile.h"
 #include "Pickup.h"
+#include "Explosion.h"
 
 enum GameState {
 	GAME_STATE_MENU,
@@ -37,6 +38,7 @@ private:
 	TextureManager			heartTexture;
 	TextureManager			destructorObstructorTexture;
 	TextureManager			missileTexture;
+	TextureManager			explosionTexture;
 
 	std::vector<Entity*>	entities;
 	std::vector<Entity*>	hearts;

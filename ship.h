@@ -20,7 +20,7 @@ namespace shipNS {
 	const int   TEXTURE_COLS = 1;
 	const int   player_START_FRAME = 0;			// player starts at frame 0
 	const int   player_END_FRAME = 0;			// player animation frames 0,1,2,3
-	const float	SCALING = 1.0f;
+	const float	SCALING = 0.5f;
 }
 
 // inherits from Entity class

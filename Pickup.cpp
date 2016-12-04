@@ -146,5 +146,5 @@ void Pickup::calculateObstructorDestructorType(){
 	else
 		this->setCurrentFrame(1);
 
-	type = PICKUP_DESTRUCTOR_MISSLES;
+	type = PICKUP_DESTRUCTOR_EXPLOSION;
 }

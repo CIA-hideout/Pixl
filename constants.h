@@ -58,6 +58,7 @@ const char HEART_TEXTURE[] 					= "resources\\images\\sprite_hearts.png";
 const char CIRCLE_TEXTURE[] 				= "resources\\images\\circle.png";
 const char DESTRUCTOR_OBSTRUCTOR_TEXTURE[]	= "resources\\images\\destructor_obstructor.png";
 const char MISSILE_TEXTURE[]				= "resources\\images\\missile.png";
+const char EXPLOSION_TEXTURE[]				= "resources\\images\\explosion.png";
 
 
 // PLAYER DEATH
@@ -87,6 +88,7 @@ enum WEAPON {
 	WEAPON_BLACKHOLE,
 	WEAPON_PLAYER,
 	WEAPON_BOSS,
-	WEAPON_MISSILE
+	WEAPON_MISSILE,
+	WEAPON_EXPLOSION
 };
 #endif

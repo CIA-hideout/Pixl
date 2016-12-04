@@ -27,6 +27,7 @@ float	slowedTime, slowRadians;			// Used for slowing down blackhole rotation
 float	deathAngle;							// the angle in radians at the point in time of the player's death
 float	waveBufferTime;
 float	pickupCoolDownTime;
+float	blackholeTimer;
 
 int		playerMaxHealth, playerHealth;
 int		playerScore, playerLevel;
@@ -34,7 +35,7 @@ int		combo;
 int		waveTriangleCount, waveCircleCount, waveBossCount;
 int		currentWave;
 
-bool	blackholeRunning, waveOver;
+bool	waveOver;
 bool	playerIsDead, playerCanPickup;
 
 DWORD	baseTime;
@@ -78,6 +79,7 @@ void Spacewar::initialize(HWND hwnd) {
 	fontTexture.initialize(graphics, FONT_TEXTURE);
 	missileTexture.initialize(graphics, MISSILE_TEXTURE);
 	destructorObstructorTexture.initialize(graphics, DESTRUCTOR_OBSTRUCTOR_TEXTURE);
+	explosionTexture.initialize(graphics, EXPLOSION_TEXTURE);
 
 	this->setGameState(GAME_STATE_MENU);
 
@@ -151,11 +153,9 @@ void Spacewar::update() {
 								  player = new Ship();
 								  player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
 								  player->setCurrentFrame(shipNS::player_START_FRAME);
-								  player->setScale(0.5f);
 								  player->setObjectType(OBJECT_TYPE_PLAYER);
 								  player->setRadians(0);
 								  player->setVisible(true);
-								  player->setVelocity(0, 0);
 								  player->setX(GAME_WIDTH / 2 - player->getWidth() / 2 * player->getScale());
 								  player->setY(GAME_HEIGHT / 2 - player->getHeight() / 2 * player->getScale());
 								  player->setHealth(playerHealth);
@@ -164,8 +164,6 @@ void Spacewar::update() {
 
 								  healthPickup = new Pickup();
 								  healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
-								  healthPickup->setScale(0.5);
-								  healthPickup->setVelocity(0, 0);
 								  healthPickup->setPickUpType(PICKUP_HEALTH);
 								  healthPickup->setCurrentFrame(0);
 								  healthPickup->setX(rand() % (int)(healthPickup->getWidth() * healthPickup->getScale() + GAME_WIDTH));
@@ -188,7 +186,6 @@ void Spacewar::update() {
 								  }
 
 								  currentWave = 1;
-								  blackholeRunning = false;
 								  // wave is over if and only if all enemies are not active
 								  waveTriangleCount = (int)SIGMOID(currentWave, 5);
 
@@ -225,7 +222,6 @@ void Spacewar::update() {
 								  hearts[i]->update(deltaTime);
 							  }
 
-							  printf("iswaveover: %d\n", isWaveOver(entities));
 							  if (isWaveOver(entities)) {
 								  currentWave++;
 								  waveBufferTime = 1.5f;
@@ -259,13 +255,11 @@ void Spacewar::update() {
 								  else {
 									  // find a new target. if no new target exists, kill itself
 									  for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
-										  // retard
 										  if (
 											  ((*iter_)->getObjectType() == OBJECT_TYPE_CIRCLE ||
 											  (*iter_)->getObjectType() == OBJECT_TYPE_TRIANGLE ||
 											  (*iter_)->getObjectType() == OBJECT_TYPE_BOSS) &&
-											  (*iter_)->getActive() == true &&
-											  !isTargeted(missiles, (*iter_))
+											  (*iter_)->getActive() == true
 											  ) {
 											  (*iter)->setTarget(*iter_);
 										  }
@@ -275,6 +269,26 @@ void Spacewar::update() {
 									  }
 								  }
 							  }
+
+							  // explosion collision detection
+							  for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
+								  if ((*iter)->getObjectType() == OBJECT_TYPE_EXPLOSION) {
+									  for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
+										  if (((*iter_)->getObjectType() == OBJECT_TYPE_CIRCLE ||
+											  (*iter_)->getObjectType() == OBJECT_TYPE_TRIANGLE ||
+											  (*iter_)->getObjectType() == OBJECT_TYPE_BOSS) &&
+											  (*iter_)->getActive() == true) {
+											  if ((*iter_)->collidesWith(**iter, collisionVector)) {
+												  if ((*iter_)->getObjectType() == OBJECT_TYPE_TRIANGLE) {
+													  Triangle* triangle = (Triangle*)(*iter_);
+													  triangle->damage(WEAPON_EXPLOSION);
+												  }
+											  }
+										  }
+									  }
+								  }
+							  }
+
 							  KillEntities();
 	} break;
 	case GAME_STATE_SETTING: {
@@ -438,10 +452,6 @@ void Spacewar::UpdateEntities() {
 										 }
 									 }
 
-									 if (blackholeRunning) {
-										 calculateF(blackhole, player);
-									 }
-
 									 // iterate through the various effect that the players have
 									 // effects should be applied here
 									 for (std::map<EffectType, float>::iterator iter_ = player->getEffectTimers()->begin(); iter_ != player->getEffectTimers()->end(); iter_++) {
@@ -491,6 +501,9 @@ void Spacewar::UpdateEntities() {
 		} break;
 		case OBJECT_TYPE_MISSILE: {
 		} break;
+		case OBJECT_TYPE_BLACKHOLE: {
+										calculateF(*iter, player);
+		} break;
 		}
 		(*iter)->update(deltaTime);
 	}
@@ -538,6 +551,11 @@ void Spacewar::KillEntities() {
 										   iter = entities.erase(iter);
 										   playerScore += genScore(++combo);
 			} break;
+			case OBJECT_TYPE_EXPLOSION: {
+											(*iter)->setActive(false);
+											(*iter)->setVisible(false);
+											iter = entities.erase(iter);
+			} break;
 			}
 		}
 		else iter++;
@@ -564,6 +582,9 @@ int Spacewar::genScore(int combo) {
 }
 
 void Spacewar::collisions() {
+
+	std::vector<Entity*> tempVector;
+
 	switch (this->getGameState())
 	{
 	case GAME_STATE_MENU: {
@@ -571,8 +592,7 @@ void Spacewar::collisions() {
 	case GAME_STATE_GAME: {
 							  VECTOR2 collisionVector;
 
-							  for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++)
-							  {
+							  for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
 								  Entity* entity = *iter;
 								  if (player->collidesWith(*entity, collisionVector)) {
 									  switch (entity->getObjectType())
@@ -585,9 +605,7 @@ void Spacewar::collisions() {
 									  case OBJECT_TYPE_CIRCLE: {
 																   if (!player->hasEffect(EFFECT_INVULNERABLE)) {
 																	   player->damage(WEAPON_CIRCLE);
-																	   if (player->getEffectTimers()->at(EFFECT_INVULNERABLE) - 2.0f <= 0) {
-																		   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
-																	   }
+																	   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
 																	   combo = 0;
 																   }
 									  }	break;
@@ -595,9 +613,7 @@ void Spacewar::collisions() {
 									  case OBJECT_TYPE_TRIANGLE: {
 																	 if (!player->hasEffect(EFFECT_INVULNERABLE)) {
 																		 player->damage(WEAPON_TRIANGLE);
-																		 if (player->getEffectTimers()->at(EFFECT_INVULNERABLE) - 2.0f <= 0) {
-																			 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
-																		 }
+																		 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
 																		 combo = 0;
 																	 }
 									  }	break;
@@ -606,43 +622,47 @@ void Spacewar::collisions() {
 																	   Pickup* pickup_ = (Pickup*)entity;
 																	   switch (pickup_->getPickupType()) {
 																	   case PICKUP_DESTRUCTOR_EXPLOSION: {
+																											 Explosion* explosion = new Explosion();
+																											 explosion->initialize(this, explosion->getWidth(), explosion->getHeight(), explosionNS::TEXTURE_COLS, &explosionTexture);
+																											 explosion->setX(pickup_->getX() - explosion->getWidth() / 2 - pickup_->getWidth() * pickup_->getScale() / 2);
+																											 explosion->setY(pickup_->getY() - explosion->getHeight() / 2 - pickup_->getHeight() * pickup_->getScale() / 2);
+																											 explosion->setCollisionRadius(explosionNS::WIDTH / 2.0f * explosion->getScale());
+																											 tempVector.push_back(explosion);
+
 																											 pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																											 pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																											 pickup_->calculateObstructorDestructorType();
-																											 if (generalPickup->getIsDestructor())
-																												 generalPickup->setCurrentFrame(0);
-																											 else
-																												 generalPickup->setCurrentFrame(1);
+
+																											 for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
+																												 if (
+																													 ((*iter_)->getObjectType() == OBJECT_TYPE_CIRCLE ||
+																													 (*iter_)->getObjectType() == OBJECT_TYPE_TRIANGLE ||
+																													 (*iter_)->getObjectType() == OBJECT_TYPE_BOSS) &&
+																													 (*iter_)->getActive() == true
+																													 ) {
+																												 }
+																											 }
+
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_FREEZE: {
 																										  pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																										  pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																										  pickup_->calculateObstructorDestructorType();
-																										  if (generalPickup->getIsDestructor())
-																											  generalPickup->setCurrentFrame(0);
-																										  else
-																											  generalPickup->setCurrentFrame(1);
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVULNERABILITY: {
 																												   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																												   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																												   pickup_->calculateObstructorDestructorType();
-																												   if (generalPickup->getIsDestructor())
-																													   generalPickup->setCurrentFrame(0);
-																												   else
-																													   generalPickup->setCurrentFrame(1);
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_MISSLES: {
 																										   // get the enemies to target first
 																										   std::vector<Entity*> tempVect;
 																										   for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
-																											   printf("%d\n", (*iter_)->getObjectType());
 																											   if (
 																												   ((*iter_)->getObjectType() == OBJECT_TYPE_CIRCLE ||
 																												   (*iter_)->getObjectType() == OBJECT_TYPE_TRIANGLE ||
 																												   (*iter_)->getObjectType() == OBJECT_TYPE_BOSS) &&
-																												   (*iter_)->getActive() == true &&
-																												   !isTargeted(missiles, (*iter_))
+																												   (*iter_)->getActive() == true
 																												   ) {
 																												   tempVect.push_back(*iter_);
 																											   }
@@ -671,13 +691,14 @@ void Spacewar::collisions() {
 																							   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_BLACKHOLE: {
-																											 // requires the blackhole to be spawned a set distance away
-																											 float fx = pickup_->getX();
-																											 float fy = pickup_->getY();
 																											 pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																											 pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
-																											 blackholeRunning = true;
 																											 pickup_->calculateObstructorDestructorType();
+
+																											 Blackhole* blackhole = new Blackhole();
+																											 blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
+
+																											 addEntity(blackhole);
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
 																												  pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
@@ -732,6 +753,11 @@ void Spacewar::collisions() {
 									  }
 								  }
 							  }
+
+							  for (std::vector<Entity*>::iterator iter = tempVector.begin(); iter != tempVector.end(); iter++) {
+								  addEntity(*iter);
+							  }
+
 	} break;
 	case GAME_STATE_SETTING: {
 	} break;
@@ -820,4 +846,15 @@ bool isTargeted(std::vector<Missile*> missiles, Entity* entity) {
 			return true;
 	}
 	return false;
+}
+
+bool isWithinRange(int radius, Entity* e1, Entity* e2) {
+
+	float dx = (e1->getX() + e1->getWidth() / 2) - (e2->getX() + e2->getWidth() / 2);
+	float dy = (e1->getY() + e1->getHeight() / 2) - (e2->getY() + e2->getHeight() / 2);
+
+	if (sqrt(pow(dx, 2) + pow(dy, 2)) < 300)
+		return true;
+	return false;
+
 }

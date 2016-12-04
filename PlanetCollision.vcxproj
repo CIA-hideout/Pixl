@@ -99,6 +99,7 @@
     <ClCompile Include="Blackhole.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="entity.cpp" />
+    <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="graphics.cpp" />
@@ -118,6 +119,7 @@
     <ClInclude Include="Circle.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="entity.h" />
+    <ClInclude Include="Explosion.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="gameError.h" />

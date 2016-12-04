@@ -16,7 +16,6 @@ Triangle::Triangle() : Entity() {
 	radius = TriangleNS::WIDTH / 2.0f;
 	mass = TriangleNS::MASS;
 	collisionType = entityNS::CIRCLE;
-	this->setScale(TriangleNS::SCALING);
 }
 
 bool Triangle::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM) {
@@ -75,7 +74,10 @@ void Triangle::spawn() {
 void Triangle::damage(WEAPON weapon) {
 	switch (weapon) {
 	case WEAPON_MISSILE: {
-							 this->setHealth(this->getHealth() - 1);
+							 this->setHealth(0);
+	} break;
+	case WEAPON_EXPLOSION: {
+							   this->setHealth(0);
 	} break;
 	}
 
