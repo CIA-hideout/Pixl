@@ -39,7 +39,7 @@ void Pickup::spawn(){
 	setFrames(startFrame, endFrame);
 	setCollisionRadius(getHeight() / 2);
 	setVelocity(0, 0);						// powerups don't move;
-	setObjectType(CIRCLES);
+	setObjectType(PICKUPS);
 	setScale(0.2f);
 
 	//spawn randomly in window
@@ -94,6 +94,36 @@ void Pickup::setPickupType()	//	Calculate whether is an Obstructor or Destructor
 		destructor = true;
 
 	calculatePickupType();
+}
+
+
+//	return effects of pickups in a string format
+//	enum is not supported in console
+//	use for debug purposes
+std::string Pickup::getEffect_string()
+{
+	switch (type)
+	{
+		case OBSTRUCTOR_INVERT_CONTROLS:	return "OBSTRUCTOR_INVERT_CONTROLS";
+		
+		case OBSTRUCTOR_STUN_PLAYER:		return "OBSTRUCTOR_STUN_PLAYER";
+
+		case OBSTRUCTOR_SLOW_PLAYER:		return "OBSTRUCTOR_SLOW_PLAYER";
+
+		case OBSTRUCTOR_ENLARGE_PLAYER:		return "OBSTRUCTOR_ENLARGE_PLAYER";
+
+		case OBSTRUCTOR_BLACKHOLE:			return "OBSTRUCTOR_BLACKHOLE";
+
+		case DESTRUCTOR_EXPLOSION:			return "DESTRUCTOR_EXPLOSION";
+
+		case DESTRUCTOR_HOMING_MISSLES:		return "DESTRUCTOR_HOMING_MISSLES";
+
+		case DESTRUCTOR_FREEZE:				return "DESTRUCTOR_FREEZE";
+
+		case DESTRUCTOR_INVULNERABILITY:	return "DESTRUCTOR_INVULNERABILITY";
+
+		default:							return "NO PICKUPS";
+	}
 }
 
 /* ========================================	*/

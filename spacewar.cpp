@@ -204,7 +204,7 @@ void Spacewar::initialize(HWND hwnd) {
 	}
 
 	// Spawn Triangles
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 0; i++) {
 
 		Triangle* triangle = new Triangle();
 		triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
@@ -215,7 +215,7 @@ void Spacewar::initialize(HWND hwnd) {
 	}
 
 	// Spawn Circles
-	for (int i = 0; i < 4; i++){
+	for (int i = 0; i < 0; i++){
 
 		Circle* circle = new Circle();
 		circle->initialize(this, CircleNS::WIDTH, CircleNS::HEIGHT, CircleNS::TEXTURE_COLS, &circleTextures);
@@ -334,7 +334,7 @@ void Spacewar::UpdateEntities() {
 												(sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y) * speedMultipler
 
 												);
-											printf("%.2f, %.2f\n", (*iter)->getVelocity().x, (*iter)->getVelocity().y);
+											//printf("%.2f, %.2f\n", (*iter)->getVelocity().x, (*iter)->getVelocity().y);
 										}
 
 										if (input->isKeyDown(VK_LEFT)) {
@@ -541,58 +541,62 @@ void Spacewar::collisions()
 
 				case (PICKUPS):
 				{
+										if (player->collidesWith(*entity, collisionVector)){
+											Pickup* pickup = (Pickup*)(*iter);
 
-										Pickup* pickup = (Pickup*)(*iter);
-										printf("%s\n", pickup->getEffect());
+											std::string test = pickup->getEffect_string();
+											printf("%s\n", test);
 
-										// Different pickups does different stuff
-										switch (pickup->getEffect())
-										{
-											// All the Obstructors
+											// Different pickups does different stuff
+											switch (pickup->getEffect())
+											{
+												// All the Obstructors
 
-										case OBSTRUCTOR_INVERT_CONTROLS:{
+											case OBSTRUCTOR_INVERT_CONTROLS:{
 
-										} break;
+											} break;
 
-											//STUN : Player cannot move
-										case OBSTRUCTOR_STUN_PLAYER:{
+												//STUN : Player cannot move
+											case OBSTRUCTOR_STUN_PLAYER:{
 												isPlayerStun = true;
 												obstructor_timer_stun = 5.0f;
-										} break;
+											} break;
 
-										case OBSTRUCTOR_SLOW_PLAYER:{
-											isPlayerSlow = true;
-											obstructor_timer_slow = 5.0f;
-										}break;
+											case OBSTRUCTOR_SLOW_PLAYER:{
+												isPlayerSlow = true;
+												obstructor_timer_slow = 5.0f;
+											}break;
 
-										case OBSTRUCTOR_ENLARGE_PLAYER:{
+											case OBSTRUCTOR_ENLARGE_PLAYER:{
 
-										}break;
+											}break;
 
-										case OBSTRUCTOR_BLACKHOLE:{
+											case OBSTRUCTOR_BLACKHOLE:{
 
-										}break;
+											}break;
 
 
-											// All the Desstructors
+												// All the Desstructors
 
-										case DESTRUCTOR_EXPLOSION:{
+											case DESTRUCTOR_EXPLOSION:{
 
-										}break;
+											}break;
 
-										case DESTRUCTOR_HOMING_MISSLES:{
+											case DESTRUCTOR_HOMING_MISSLES:{
 
-										}break;
+											}break;
 
-										case DESTRUCTOR_FREEZE:{
-											isEnemyFrozen = true;
-											destructor_timer_frozen = 5.0;
-										}break;
+											case DESTRUCTOR_FREEZE:{
+												isEnemyFrozen = true;
+												destructor_timer_frozen = 5.0;
+											}break;
 
-										case DESTRUCTOR_INVULNERABILITY:{
+											case DESTRUCTOR_INVULNERABILITY:{
 
-										}break;
+											}break;
+											}
 										}
+										
 				}break;
 			}
 		}

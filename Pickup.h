@@ -59,11 +59,15 @@ public:
 
 	// return effect of pickups
 	// Example: return `BLACKHOLE` if it is a blackhole
+	// Note that this returns the enum which is not compatible in console
 	PickupTypes getEffect(){
 		return type;
 	}
 
-
+	//return effects of pickups in a string format
+	//enum is not supported in console
+	//use for debug purposes
+	std::string getEffect_string();
 
 private:
 	PickupTypes type;
