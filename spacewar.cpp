@@ -662,7 +662,7 @@ void Spacewar::collisions() {
 																										  pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																										  pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
 																										  pickup_->calculatePickupType();
-																										  pickup_->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
+																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVULNERABILITY: {
 																												   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
