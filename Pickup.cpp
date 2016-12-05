@@ -100,29 +100,29 @@ void Pickup::setPickupType()	//	Calculate whether is an Obstructor or Destructor
 //	return effects of pickups in a string format
 //	enum is not supported in console
 //	use for debug purposes
-std::string Pickup::getEffect_string()
+void Pickup::getEffectDebug()
 {
 	switch (type)
 	{
-		case OBSTRUCTOR_INVERT_CONTROLS:	return "OBSTRUCTOR_INVERT_CONTROLS";
-		
-		case OBSTRUCTOR_STUN_PLAYER:		return "OBSTRUCTOR_STUN_PLAYER";
-
-		case OBSTRUCTOR_SLOW_PLAYER:		return "OBSTRUCTOR_SLOW_PLAYER";
-
-		case OBSTRUCTOR_ENLARGE_PLAYER:		return "OBSTRUCTOR_ENLARGE_PLAYER";
-
-		case OBSTRUCTOR_BLACKHOLE:			return "OBSTRUCTOR_BLACKHOLE";
-
-		case DESTRUCTOR_EXPLOSION:			return "DESTRUCTOR_EXPLOSION";
-
-		case DESTRUCTOR_HOMING_MISSLES:		return "DESTRUCTOR_HOMING_MISSLES";
-
-		case DESTRUCTOR_FREEZE:				return "DESTRUCTOR_FREEZE";
-
-		case DESTRUCTOR_INVULNERABILITY:	return "DESTRUCTOR_INVULNERABILITY";
-
-		default:							return "NO PICKUPS";
+		case OBSTRUCTOR_INVERT_CONTROLS:	printf("OBSTRUCTOR_INVERT_CONTROLS\n");
+			break;
+		case OBSTRUCTOR_STUN_PLAYER:		printf("OBSTRUCTOR_STUN_PLAYER\n");
+			break;
+		case OBSTRUCTOR_SLOW_PLAYER:		printf("OBSTRUCTOR_SLOW_PLAYER\n");
+			break;
+		case OBSTRUCTOR_ENLARGE_PLAYER:		printf("OBSTRUCTOR_ENLARGE_PLAYER\n");
+			break;
+		case OBSTRUCTOR_BLACKHOLE:			printf("OBSTRUCTOR_BLACKHOLE\n");
+			break;
+		case DESTRUCTOR_EXPLOSION:			printf("DESTRUCTOR_EXPLOSION\n");
+			break;
+		case DESTRUCTOR_HOMING_MISSLES:		printf("DESTRUCTOR_HOMING_MISSLES\n");
+			break;
+		case DESTRUCTOR_FREEZE:				printf("DESTRUCTOR_FREEZE\n");
+			break;
+		case DESTRUCTOR_INVULNERABILITY:	printf("DESTRUCTOR_INVULNERABILITY\n");
+			break;
+		default:							printf ("NO PICKUPS\n");
 	}
 }
 

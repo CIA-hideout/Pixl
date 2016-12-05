@@ -543,10 +543,8 @@ void Spacewar::collisions()
 				{
 										if (player->collidesWith(*entity, collisionVector)){
 											Pickup* pickup = (Pickup*)(*iter);
-
-											std::string test = pickup->getEffect_string();
-											printf("%s\n", test);
-
+											pickup->getEffectDebug();
+											
 											// Different pickups does different stuff
 											switch (pickup->getEffect())
 											{

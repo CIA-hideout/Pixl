@@ -67,8 +67,7 @@ public:
 	//return effects of pickups in a string format
 	//enum is not supported in console
 	//use for debug purposes
-	std::string getEffect_string();
-
+	void getEffectDebug();
 private:
 	PickupTypes type;
 	bool		destructor;
