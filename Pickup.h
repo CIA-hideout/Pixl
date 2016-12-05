@@ -19,18 +19,20 @@ namespace PickupNS {
 }
 
 enum PickupType{
-	
+	// Obstructors
 	PICKUP_OBSTRUCTOR_INVERT_CONTROLS,
 	PICKUP_OBSTRUCTOR_STUN_PLAYER,
 	PICKUP_OBSTRUCTOR_SLOW_PLAYER,
 	PICKUP_OBSTRUCTOR_ENLARGE_PLAYER,
 	PICKUP_OBSTRUCTOR_BLACKHOLE,
-	
+
+	// Destructors
 	PICKUP_DESTRUCTOR_EXPLOSION,
 	PICKUP_DESTRUCTOR_MISSLES,
 	PICKUP_DESTRUCTOR_FREEZE,
 	PICKUP_DESTRUCTOR_INVULNERABILITY,
 
+	// Others
 	PICKUP_HEALTH
 };
 
@@ -45,18 +47,32 @@ public:
 	void damage(WEAPON);
 
 
-	// GET and SET Methods
+	// SET Methods
+	void setPickupType();
 	void setPickUpType(PickupType pickupType);
-	void setPickUpType();
 
+	//---------------
+	// GET Methods
+
+	// return `true` if pickup is a destructor
+	// return `false` if otherwise
+	bool getDestructor() { return this->isDestructor; }
+
+	// return effect of pickups
+	// Example: return `BLACKHOLE` if it is a blackhole
 	PickupType getPickupType() { return this->type; }
-	bool getIsDestructor() { return this->isDestructor; }
-	void calculateObstructorDestructorType();
+
+	void calculatePickupType();			// set a random pickup effect
+
+
 
 private:
+	PickupTypes type;
+	bool		destructor;
 
-	PickupType type;
-	boolean		isDestructor;
+	//find if it is a pickup which inverts control, grow the player, stun the player,
+	//spawns homing missles
+	void		calculatePickupType();
 };
 
 #endif

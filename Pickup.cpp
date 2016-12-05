@@ -15,6 +15,7 @@ Pickup::Pickup() : Entity(){
 	mass = PickupNS::MASS;
 	collisionType = entityNS::CIRCLE;
 	objectType = OBJECT_TYPE_PICKUP;
+	bool destructor = true;
 }
 
 bool Pickup::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM){
@@ -78,12 +79,15 @@ void Pickup::damage(WEAPON weapon){
 	}
 }
 
-void Pickup::setPickUpType(){
+void Pickup::setPickUpType(){ 			// Calculate whether is an Obstructor or Destructor
 	int number = rand() % 100;
-	if (number >= 80)
-		isDestructor = false;
-	else
-		isDestructor = true;
+
+	if (number >= 80)			// 20% chance of a Obstructor
+		destructor = false;
+	else						// 80% chance of a Destructor
+		destructor = true;
+
+		calculatePickupType();
 }
 
 void Pickup::setPickUpType(PickupType pickupType) {
@@ -91,7 +95,10 @@ void Pickup::setPickUpType(PickupType pickupType) {
 	this->isDestructor = getPickupType() == PICKUP_DESTRUCTOR_EXPLOSION || getPickupType() == PICKUP_DESTRUCTOR_FREEZE || getPickupType() == PICKUP_DESTRUCTOR_INVULNERABILITY || getPickupType() == PICKUP_DESTRUCTOR_MISSLES;
 }
 
-//	Calculate the type of Obstrutor or Destructor the pickup is 
+/* ========================================	*/
+/*			Private Methods					*/
+/* ========================================	*/
+//	Calculate the type of Obstrutor or Destructor the pickup is
 void Pickup::calculateObstructorDestructorType(){
 
 	setPickUpType();
@@ -131,8 +138,9 @@ void Pickup::calculateObstructorDestructorType(){
 		PICKUP_DESTRUCTOR_INVULNERABILITY
 	};
 
-	if (isDestructor) {
-		randNumber = rand() % 10; //Get a number from 0 - 9
+	if (this->isDestructor())
+	{
+		randNumber = rand() % 10;	//Get a number from 0 - 9
 		type = destructorArray[randNumber];
 	}
 	else // is an obstructor

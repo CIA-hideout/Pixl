@@ -64,27 +64,57 @@ void Spacewar::initialize(HWND hwnd) {
 
 	Game::initialize(hwnd);
 
-	AllocConsole();
+	//AllocConsole();			// Brings up console
 
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
 	freopen("conout$", "w", stderr);
 
+	int side;
+
+	playerAccelerationRate = 3.5f;
+	playerDeccelerationRate = 0.005f;
+	playerTurnMultiplier = 3.5f;
+
+	playerInvulnerableTimer = 2000.0f;
+	playerIsInvulnerable = false;
+	playerIsDead = false;
+
+	playerHealth = 3;
+	playerMaxHealth = 10;
+
+	srand(timeGetTime());
+
+	Game::initialize(hwnd); // throws GameError
+
+	//=============================================================================
+	// Main game textures
+	//=============================================================================
+
+	// Player
 	shipTextures.initialize(graphics, PLAYER_TEXTURE);
 	p_deathTextures.initialize(graphics, PLAYER_DEATH_TEXTURE);
+	p_damagedTextures.initialize(graphics, PLAYER_DAMAGED_TEXTURE);
+
+	// Enemy
 	triangleTextures.initialize(graphics, TRIANGLE_TEXTURE);
 	circleTextures.initialize(graphics, CIRCLE_TEXTURE);
+
+	// Pickups
+	obstructorTexture.initialize(graphics, OBSTRUCTOR_TEXTURE);
+	destructorTexture.initialize(graphics, DESTRUCTOR_TEXTURE);
+	destructorObstructorTexture.initialize(graphics, DESTRUCTOR_OBSTRUCTOR_TEXTURE);
+	missileTexture.initialize(graphics, MISSILE_TEXTURE);
+	explosionTexture.initialize(graphics, EXPLOSION_TEXTURE);
 	blackHoleTexture.initialize(graphics, BLACKHOLE_TEXTURE);
+
+	// GUI/HUD
 	heartTexture.initialize(graphics, HEART_TEXTURE);
 	fontTexture.initialize(graphics, FONT_TEXTURE);
-	missileTexture.initialize(graphics, MISSILE_TEXTURE);
-	destructorObstructorTexture.initialize(graphics, DESTRUCTOR_OBSTRUCTOR_TEXTURE);
-	explosionTexture.initialize(graphics, EXPLOSION_TEXTURE);
 
 	this->setGameState(GAME_STATE_MENU);
 
 	// everything here should just be initialized onced
-
 	timeFont = new Font();
 	timeFont->initialize(this, 2048, 2048, 16, &fontTexture);
 	timeFont->loadTextData(FONT_TEXTURE_INFO);
@@ -114,27 +144,18 @@ void Spacewar::initialize(HWND hwnd) {
 	effectFont->loadTextData(FONT_TEXTURE_INFO);
 	effectFont->setHeight(128);
 	effectFont->setWidth(128);
-	effectFont->setScale(0.3);
-
-	int dx = GAME_WIDTH - GAME_WIDTH / 100;
-	for (int i = 0; i < 10; i++) {
-		Entity* heart = new Entity();
-		heart->initialize(this, 128, 128, 2, &heartTexture);
-		heart->setCurrentFrame(0);
-		heart->setVelocity(0, 0);
-		heart->setMass(0);
-		heart->setRadians(0);
-		heart->setScale(0.4);
-		heart->setX(dx - heart->getWidth() * heart->getScale());
-		heart->setY(GAME_HEIGHT - heart->getHeight() * heart->getScale() - 10);
-		dx -= heart->getWidth() * heart->getScale();
-		hearts.push_back(heart);
-	}
+	effectFont->setScale(0.3)
 
 	return;
 }
 
 void Spacewar::update() {
+
+	//if (input->isKeyDown(0x42))
+	//	blackhole->setMass(1);
+	//else
+	//	blackhole->setMass(9999999999999.0f);
+
 	switch (this->getGameState()) {
 	case GAME_STATE_MENU: {
 							  if (input->isKeyDown(0x20)) {
@@ -290,9 +311,9 @@ void Spacewar::update() {
 							  }
 
 							  KillEntities();
-	} break;
+							} break;
 	case GAME_STATE_SETTING: {
-	}
+		}
 	}
 }
 
@@ -405,6 +426,8 @@ void Spacewar::UpdateEntities() {
 	for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
 		switch ((*iter)->getObjectType()) {
 		case OBJECT_TYPE_PLAYER: {
+			if (!playerIsDead)
+			{
 									 if (input->isKeyDown(VK_UP)) {
 										 (*iter)->setVelocity(
 											 (cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
@@ -444,7 +467,7 @@ void Spacewar::UpdateEntities() {
 										 (*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
 										 );
 
-									 if (!playerCanPickup) {
+									 if (!playerCanPickup) {			// what for lol???
 										 pickupCoolDownTime -= deltaTime;
 										 if (pickupCoolDownTime <= 0) {
 											 playerCanPickup = true;
@@ -469,12 +492,19 @@ void Spacewar::UpdateEntities() {
 																   }
 											 } break;
 											 case EFFECT_INVULNERABLE: {
+												 if ((*iter)->hasEffect(EFFECT_INVULNERABLE)){
+													 playerInvulnerableTimer -= deltaTime;
+			 										if (playerInvulnerableTimer < 0) {
+			 											(*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
+			 											(*iter)->setFrames(shipNS::player_START_FRAME, shipNS::player_END_FRAME);
+			 											(*iter)->setCurrentFrame(shipNS::player_START_FRAME);
+			 											playerIsInvulnerable = false;
+												 }
 											 } break;
 											 }
 										 }
 									 }
-									 if (player->hasEffect(EFFECT_STUN))
-										 player->setVelocity(0, 0);
+								 }
 		} break;
 		case OBJECT_TYPE_TRIANGLE: {
 									   double dx, dy;
@@ -503,8 +533,82 @@ void Spacewar::UpdateEntities() {
 		} break;
 		case OBJECT_TYPE_BLACKHOLE: {
 										calculateF(*iter, player);
+
+										int comparedValue = 0;
+
+										if (!playerIsDead)
+										{
+											(*iter)->setRadians(timeGetTime());
+											(*iter)->update(deltaTime);
+
+											slowedTime = timeGetTime() - 50;			// it is 50 "frames" slower
+											slowRadians = timeGetTime();				// set to start where player dies
+										}
+										else
+										{
+											comparedValue = timeGetTime() - slowedTime;
+
+											if (comparedValue >= 50)					// every 50 radians,
+											{
+												slowRadians += 10.0f;					// increase radians by 10 (5x slower)
+												slowedTime = timeGetTime();			// reset slowed time so it is caught up with the current time
+												(*iter)->setRadians(slowRadians);		// rotate circle based on the slowed version of the radians
+											}
+										}
 		} break;
+
+		case PICKUPS:
+		{
+
+			Pickup* pickup = (Pickup*) (*iter);
+
+			// Different pickups does different stuff
+			switch (pickup->getEffect())
+			{
+				// All the Obstructors
+
+				case OBSTRUCTOR_INVERT_CONTROLS:{
+
+				} break;
+
+				case OBSTRUCTOR_STUN_PLAYER:{
+
+				} break;
+
+				case OBSTRUCTOR_SLOW_PLAYER:{
+
+				}break;
+
+				case OBSTRUCTOR_ENLARGE_PLAYER:{
+
+				}break;
+
+				case OBSTRUCTOR_BLACKHOLE:{
+
+				}break;
+
+
+				// All the Desstructors
+
+				case DESTRUCTOR_EXPLOSION:{
+
+				}break;
+
+				case DESTRUCTOR_HOMING_MISSLES:{
+
+				}break;
+
+				case DESTRUCTOR_FREEZE:{
+
+				}break;
+
+				case DESTRUCTOR_INVULNERABILITY:{
+
+				}break;
+			}
+		}break;
 		}
+
 		(*iter)->update(deltaTime);
 	}
 }
@@ -596,8 +700,10 @@ void Spacewar::collisions() {
 									  switch (entity->getObjectType())
 									  {
 									  case OBJECT_TYPE_BLACKHOLE: {
+											if (!player->hasEffect(EFFECT_INVULNERABLE)){
 																	  player->damage(WEAPON_BLACKHOLE);
 																	  combo = 0;
+																	}
 									  }	break;
 
 									  case OBJECT_TYPE_CIRCLE: {
@@ -823,6 +929,19 @@ void PrintEffect(Entity* entity, Font* effectFont) {
 			}
 		}
 	}
+}
+
+void Spacewar::setPlayerInvulnerable(Entity *player, float t)
+{
+	playerIsInvulnerable = true;
+	playerInvulnerableTimer = t;
+
+	player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, P_DAMAGED_COLS, &p_damagedTextures);
+	player->setFrames(P_DAMAGED_START_FRAME, P_DAMAGED_END_FRAME);
+	player->setCurrentFrame(P_DAMAGED_START_FRAME);
+	player->setFrameDelay(P_DAMAGED_ANIMATION_DELAY);
+	player->setLoop(false);
+	player->setRect();
 }
 
 bool isWaveOver(std::vector<Entity*> entities) {
