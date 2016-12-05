@@ -28,6 +28,7 @@ float	deathAngle;							// the angle in radians at the point in time of the play
 float	waveBufferTime;
 float	pickupCoolDownTime;
 float	blackholeTimer;
+float	frozenTime;							// Time for freezing enemy
 float	velocityMultiplier;					// Used to reduce the velocity of the player
 
 int		playerMaxHealth, playerHealth;
@@ -154,6 +155,7 @@ void Spacewar::update() {
 								  playerMaxHealth = 10;
 
 								  velocityMultiplier = 1.05;
+								  frozenTime = 5.0f;
 
 								  player = new Ship();
 								  player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
@@ -470,7 +472,7 @@ void Spacewar::UpdateEntities() {
 											 } break;
 											 case EFFECT_SLOW: {
 																   if ((*iter)->hasEffect(EFFECT_SLOW)) {
-																	   (*iter)->setVelocity((*iter)->getVelocity().x / 1.05, (*iter)->getVelocity().y / 1.05);
+																	   (*iter)->setVelocity((*iter)->getVelocity().x / velocityMultiplier, (*iter)->getVelocity().y / 1.05);
 																   }
 											 } break;
 											 case EFFECT_INVULNERABLE: {
@@ -478,6 +480,13 @@ void Spacewar::UpdateEntities() {
 											 case EFFECT_FROZEN: {
 																	if ((*iter)->hasEffect(EFFECT_FROZEN)) {
 																		enemyIsFrozen = true;
+
+																		frozenTime -= deltaTime;
+
+																		if (frozenTime < 0) {
+																			enemyIsFrozen = true;
+																		}
+
 																	}
 												 }
 											 }

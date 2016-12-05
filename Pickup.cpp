@@ -116,6 +116,8 @@ void Pickup::getEffectDebug()
 		break;
 	case PICKUP_DESTRUCTOR_INVULNERABILITY:	printf("PICKUP_DESTRUCTOR_INVULNERABILITY\n");
 		break;
+	case PICKUP_HEALTH:						printf("PICKUP_HEALTH\n");
+		break;
 	default:							printf("NO PICKUPS\n");
 	}
 }
