@@ -478,17 +478,8 @@ void Spacewar::UpdateEntities() {
 											 case EFFECT_INVULNERABLE: {
 											 } break;
 											 case EFFECT_FROZEN: {
-																	if ((*iter)->hasEffect(EFFECT_FROZEN)) {
-																		enemyIsFrozen = true;
 
-																		frozenTime -= deltaTime;
-
-																		if (frozenTime < 0) {
-																			enemyIsFrozen = true;
-																		}
-
-																	}
-												 }
+											 } break;
 											 }
 										 }
 									 }
@@ -518,9 +509,13 @@ void Spacewar::UpdateEntities() {
 										   else {
 											   (*iter)->setVelocity(0, 0);
 										   }
-										
+
 									   }
 									   else {
+										   (*iter)->setVelocity(0, 0);
+									   }
+
+									   if (player->hasEffect(EFFECT_FROZEN)) {
 										   (*iter)->setVelocity(0, 0);
 									   }
 		} break;
@@ -846,6 +841,11 @@ void PrintEffect(Entity* entity, Font* effectFont) {
 										  ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Invulnerable";
 										  effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
 										  dy += effectFont->getHeight() * effectFont->getScale();
+			} break;
+			case EFFECT_FROZEN: {
+									ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Frozen";
+									effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
+									dy += effectFont->getHeight() * effectFont->getScale();
 			} break;
 			}
 		}
