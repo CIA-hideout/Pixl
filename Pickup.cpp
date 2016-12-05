@@ -121,7 +121,6 @@ void Pickup::calculateObstructorDestructorType(){
 		PICKUP_OBSTRUCTOR_BLACKHOLE
 	};
 
->>>>>>> refs/remotes/origin/GAME_MENU
 	//	Array containing types of Destructor
 	PickupType destructorArray[] = {
 		PICKUP_DESTRUCTOR_EXPLOSION,
