@@ -48,26 +48,25 @@ const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
 // graphic images [Player]
-const char PLAYER_TEXTURE[]				= "resources\\player.png";
-const char PLAYER_DEATH_TEXTURE[]		= "resources\\player_death_animation.png";
-const char PLAYER_DAMAGED_TEXTURE[]		= "resources\\player_damaged_animation_spritesheet.png";
-const char PLAYER_INVUL_TEXTURE[]		= "resources\\player_invul_animation_spritesheet.png";
+const char PLAYER_TEXTURE[]					= "resources\\images\\player.png";
+const char PLAYER_DEATH_TEXTURE[]			= "resources\\images\\player_death_animation.png";
+const char PLAYER_INVUL_TEXTURE[]		= "resources\\player_damaged_animation_spritesheet.png";
+const char PLAYER_INVIN_TEXTURE[]		= "resources\\player_invul_animation_spritesheet.png";
 
 // graphic images [Enemy]
-const char TRIANGLE_TEXTURE[]			= "resources\\triangle.png";
-const char CIRCLE_TEXTURE[]				= "resources\\circle.png";
+const char TRIANGLE_TEXTURE[]				= "resources\\images\\triangle.png";
+const char BLACKHOLE_TEXTURE[]				= "resources\\images\\blackhole.png";
 
 // graphic images [Powerups]
-const char DESTRUCTOR_TEXTURE[]			= "resources\\destructor.png";
-const char OBSTRUCTOR_TEXTURE[]			= "resources\\obstructor.png";
-const char BLACKHOLE_TEXTURE[]			= "resources\\blackhole.png";
+const char DESTRUCTOR_OBSTRUCTOR_TEXTURE[]	= "resources\\images\\destructor_obstructor.png";
+const char MISSILE_TEXTURE[]				= "resources\\images\\missile.png";
+const char EXPLOSION_TEXTURE[]				= "resources\\images\\explosion.png";
 
 // graphic images [GUI]
-const char FONT_TEXTURE[]				= "resources\\font.png";
-const char FONT_TEXTURE_INFO[]			= "resources\\font.dat";
-const char HEART_TEXTURE[] 				= "resources\\sprite_hearts.png";
-
-
+const char FONT_TEXTURE[]					= "resources\\images\\font.png";
+const char FONT_TEXTURE_INFO[]				= "resources\\images\\font.dat";
+const char HEART_TEXTURE[] 					= "resources\\images\\sprite_hearts.png";
+const char CIRCLE_TEXTURE[] 				= "resources\\images\\circle.png";
 
 // PLAYER CONSTANTS
 const int P_DEATH_WIDTH								= 256;			// player death width
@@ -96,7 +95,12 @@ const UCHAR SHIP_SUBTRACT_V = VK_DOWN;
 
 // weapon types
 enum WEAPON {
-	ENEMY,				// enemy = cicles, triangles
-	BLACKHOLE,
-	PLAYER};
+	WEAPON_TRIANGLE,
+	WEAPON_CIRCLE,
+	WEAPON_BLACKHOLE,
+	WEAPON_PLAYER,
+	WEAPON_BOSS,
+	WEAPON_MISSILE,
+	WEAPON_EXPLOSION
+};
 #endif

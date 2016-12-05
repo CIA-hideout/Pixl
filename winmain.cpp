@@ -92,22 +92,22 @@ bool CreateMainWindow(HWND &hwnd, HINSTANCE hInstance, int nCmdShow)
 {
 	WNDCLASSEX wcx;
 
-	// Fill in the window class structure with parameters 
-	// that describe the main window. 
-	wcx.cbSize = sizeof(wcx);           // size of structure 
-	wcx.style = CS_HREDRAW | CS_VREDRAW;    // redraw if size changes 
-	wcx.lpfnWndProc = WinProc;          // points to window procedure 
-	wcx.cbClsExtra = 0;                 // no extra class memory 
-	wcx.cbWndExtra = 0;                 // no extra window memory 
-	wcx.hInstance = hInstance;          // handle to instance 
+	// Fill in the window class structure with parameters
+	// that describe the main window.
+	wcx.cbSize = sizeof(wcx);           // size of structure
+	wcx.style = CS_HREDRAW | CS_VREDRAW;    // redraw if size changes
+	wcx.lpfnWndProc = WinProc;          // points to window procedure
+	wcx.cbClsExtra = 0;                 // no extra class memory
+	wcx.cbWndExtra = 0;                 // no extra window memory
+	wcx.hInstance = hInstance;          // handle to instance
 	wcx.hIcon = NULL;
-	wcx.hCursor = LoadCursor(NULL, IDC_ARROW);   // predefined arrow 
-	wcx.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);    // black background 
-	wcx.lpszMenuName = NULL;           // name of menu resource 
-	wcx.lpszClassName = CLASS_NAME;     // name of window class 
-	wcx.hIconSm = NULL;                 // small class icon 
+	wcx.hCursor = LoadCursor(NULL, IDC_ARROW);   // predefined arrow
+	wcx.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);    // black background
+	wcx.lpszMenuName = NULL;           // name of menu resource
+	wcx.lpszClassName = CLASS_NAME;     // name of window class
+	wcx.hIconSm = NULL;                 // small class icon
 
-	// Register the window class. 
+	// Register the window class.
 	// RegisterClassEx returns 0 on error.
 	if (RegisterClassEx(&wcx) == 0)    // if error
 		return false;
@@ -155,5 +155,3 @@ bool CreateMainWindow(HWND &hwnd, HINSTANCE hInstance, int nCmdShow)
 
 	return true;
 }
-
-

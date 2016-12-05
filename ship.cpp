@@ -8,40 +8,36 @@
 //=============================================================================
 // default constructor
 //=============================================================================
-Ship::Ship() : Entity()
-{
-    spriteData.width = shipNS::WIDTH;           // size of player
-    spriteData.height = shipNS::HEIGHT;
+Ship::Ship() : Entity() {
+	spriteData.width = shipNS::WIDTH;
+	spriteData.height = shipNS::HEIGHT;
 	spriteData.scale = shipNS::SCALING;
-    spriteData.x = shipNS::X;                   // location on screen
-    spriteData.y = shipNS::Y;
-    spriteData.rect.bottom = shipNS::HEIGHT;    // rectangle to select parts of an image
-    spriteData.rect.right = shipNS::WIDTH;
-    velocity.x = 0;                             // velocity X
-    velocity.y = 0;                             // velocity Y
-    startFrame = shipNS::player_START_FRAME;     // first frame of ship animation
-    endFrame     = shipNS::player_END_FRAME;     // last frame of ship animation
-    currentFrame = startFrame;
-    radius = shipNS::WIDTH/2.0;
-    mass = shipNS::MASS;
-    collisionType = entityNS::CIRCLE;
+	spriteData.x = shipNS::X;
+	spriteData.y = shipNS::Y;
+	spriteData.rect.bottom = shipNS::HEIGHT;
+	spriteData.rect.right = shipNS::WIDTH;
+	velocity.x = 0;
+	velocity.y = 0;
+	startFrame = shipNS::player_START_FRAME;
+	endFrame = shipNS::player_END_FRAME;
+	currentFrame = startFrame;
+	radius = shipNS::WIDTH / 2.0;
+	mass = shipNS::MASS;
+	collisionType = entityNS::CIRCLE;
 	health = 3;
-	combo = 0;
+	effectTimers.insert(std::pair<EffectType, float>(EFFECT_STUN, 0.0f));
+	effectTimers.insert(std::pair<EffectType, float>(EFFECT_SLOW, 0.0f));
+	effectTimers.insert(std::pair<EffectType, float>(EFFECT_INVINCIBLE, 0.0f));
+	effectTimers.insert(std::pair<EffectType, float>(EFFECT_INVERTED, 0.0f));
+	effectTimers.insert(std::pair<EffectType, float>(EFFECT_INVULNERABLE, 0.0f));
 }
 
-//=============================================================================
-// Initialize the Ship.
-// Post: returns true if successful, false if failed
-//=============================================================================
 bool Ship::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM) {
-    return(Entity::initialize(gamePtr, width, height, ncols, textureM));
+	return(Entity::initialize(gamePtr, width, height, ncols, textureM));
 }
 
-//=============================================================================
-// draw the ship
-//=============================================================================
 void Ship::draw() {
-    Image::draw();              // draw ship
+	Image::draw();              // draw ship
 }
 
 //=============================================================================
@@ -51,56 +47,47 @@ void Ship::draw() {
 //=============================================================================
 void Ship::update(float deltaTime)
 {
-    Entity::update(deltaTime);
-    spriteData.angle += deltaTime * shipNS::ROTATION_RATE;  // rotate the ship
-    spriteData.x += deltaTime * velocity.x;         // move ship along X
-    spriteData.y += deltaTime * velocity.y;         // move ship along Y
+	Entity::update(deltaTime);
+	spriteData.angle += deltaTime * shipNS::ROTATION_RATE;
+	spriteData.x += deltaTime * velocity.x;
+	spriteData.y += deltaTime * velocity.y;
 
-    // Bounce off walls
-    if (spriteData.x > GAME_WIDTH-shipNS::WIDTH)    // if hit right screen edge
-    {
-        spriteData.x = GAME_WIDTH-shipNS::WIDTH;    // position at right screen edge
-        velocity.x = -velocity.x;                   // reverse X direction
-    } else if (spriteData.x < 0)                    // else if hit left screen edge
-    {
-        spriteData.x = 0;                           // position at left screen edge
-        velocity.x = -velocity.x;                   // reverse X direction
-    }
-    if (spriteData.y > GAME_HEIGHT-shipNS::HEIGHT)  // if hit bottom screen edge
-    {
-        spriteData.y = GAME_HEIGHT-shipNS::HEIGHT;  // position at bottom screen edge
-        velocity.y = -velocity.y;                   // reverse Y direction
-    } else if (spriteData.y < 0)                    // else if hit top screen edge
-    {
-        spriteData.y = 0;                           // position at top screen edge
-        velocity.y = -velocity.y;                   // reverse Y direction
-    }
+	if (spriteData.x > GAME_WIDTH - shipNS::WIDTH * this->getScale()) {
+		spriteData.x = GAME_WIDTH - shipNS::WIDTH * this->getScale();
+		velocity.x = -velocity.x;
+	}
+	else if (spriteData.x < 0) {
+		spriteData.x = 0;
+		velocity.x = -velocity.x;
+	}
+	if (spriteData.y > GAME_HEIGHT - shipNS::HEIGHT  * this->getScale()) {
+		spriteData.y = GAME_HEIGHT - shipNS::HEIGHT  * this->getScale();
+		velocity.y = -velocity.y;
+	}
+	else if (spriteData.y < 0) {
+		spriteData.y = 0;
+		velocity.y = -velocity.y;
+	}
 }
 
-//=============================================================================
-// damage
-//=============================================================================
 void Ship::damage(WEAPON weapon) {
 
 	switch (weapon)
 	{
-		case ENEMY: {													// if player touch normal enemies (CIRCLES and TRIANGLES)
-							this->setHealth(this->getHealth() - 1);		// reduce player health by 1
-							this->combo = 0;							// reset combo	
+		case WEAPON_CIRCLE: {
+								this->setHealth(this->getHealth() - 1);
 		} break;
-
-		case BOSS: {													// if player touch boss enemy
-							this->setHealth(this->getHealth() - 2);		// reduce player health by 2
-							this->combo = 0;							// reset combo
+		case WEAPON_TRIANGLE: {
+								  this->setHealth(this->getHealth() - 1);
 		} break;
-
-		case BLACKHOLE: {												// if player touch blackhole entity
-							this->setHealth(0);							// kill player instantly
-							this->combo = 0;							// reset combo
+		case WEAPON_BOSS: {
+							  this->setHealth(this->getHealth() - 2);
 		} break;
-
-		default:
-			break;
+		case WEAPON_BLACKHOLE: {
+								   this->setHealth(0);
+		} break;
 	}
 
+	if (this->getHealth() < 0)
+		this->setHealth(0);
 }

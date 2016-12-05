@@ -4,34 +4,36 @@
 #include "entity.h"
 #include "constants.h"
 
-namespace PickupNS{
+namespace PickupNS {
 	const float		MASS = 0.0f;
-	const float		SCALING = 0.2f;
+	const float		SCALING = 0.4f;
 	const float		SPEED = 0;
 	const float		ROTATION_RATE = (float)PI / 4;
 	const int		WIDTH = 128;
 	const int		HEIGHT = 128;
-	const int		TEXTURE_COLS = 1;
+	const int		TEXTURE_COLS = 2;
 	const int		PICKUP_END_FRAME = 0;
 	const int		PICKUP_START_FRAME = 0;
 	const int		X = GAME_WIDTH / 2 - WIDTH / 2;
 	const int		Y = GAME_HEIGHT / 2 - HEIGHT / 2;
-	//const LPCWSTR	fileName = L"obstructor.png";
 }
 
-enum	PickupTypes{
-	//Declare Obstructors
-	OBSTRUCTOR_INVERT_CONTROLS,
-	OBSTRUCTOR_STUN_PLAYER,
-	OBSTRUCTOR_SLOW_PLAYER,
-	OBSTRUCTOR_ENLARGE_PLAYER,
-	OBSTRUCTOR_BLACKHOLE,
+enum PickupType{
+	// Obstructors
+	PICKUP_OBSTRUCTOR_INVERT_CONTROLS,
+	PICKUP_OBSTRUCTOR_STUN_PLAYER,
+	PICKUP_OBSTRUCTOR_SLOW_PLAYER,
+	PICKUP_OBSTRUCTOR_ENLARGE_PLAYER,
+	PICKUP_OBSTRUCTOR_BLACKHOLE,
 
-	//Declare Destructors
-	DESTRUCTOR_EXPLOSION,
-	DESTRUCTOR_HOMING_MISSLES,
-	DESTRUCTOR_FREEZE,
-	DESTRUCTOR_INVULNERABILITY
+	// Destructors
+	PICKUP_DESTRUCTOR_EXPLOSION,
+	PICKUP_DESTRUCTOR_MISSLES,
+	PICKUP_DESTRUCTOR_FREEZE,
+	PICKUP_DESTRUCTOR_INVULNERABILITY,
+
+	// Others
+	PICKUP_HEALTH
 };
 
 class Pickup : public Entity{
@@ -47,21 +49,20 @@ public:
 
 	// SET Methods
 	void setPickupType();
+	void setPickUpType(PickupType pickupType);
 
 	//---------------
 	// GET Methods
 
 	// return `true` if pickup is a destructor
 	// return `false` if otherwise
-	bool isDestructor(){
-		return destructor;
-	}
+	bool getDestructor() { return this->isDestructor; }
 
 	// return effect of pickups
 	// Example: return `BLACKHOLE` if it is a blackhole
-	PickupTypes getEffect(){
-		return type;
-	}
+	PickupType getPickupType() { return this->type; }
+
+	void calculatePickupType();			// set a random pickup effect
 
 
 

@@ -5,6 +5,7 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include "entity.h"
+#include "Pickup.h"
 #include "constants.h"
 
 namespace shipNS {
@@ -19,15 +20,11 @@ namespace shipNS {
 	const int   TEXTURE_COLS = 1;
 	const int   player_START_FRAME = 0;			// player starts at frame 0
 	const int   player_END_FRAME = 0;			// player animation frames 0,1,2,3
-	const float	SCALING = 1.0f;
+	const float	SCALING = 0.5f;
 }
 
 // inherits from Entity class
 class Ship : public Entity {
-
-protected:
-	int combo;				// combo of player based on no. of kills per life
-
 public:
 	// constructor
 	Ship();
@@ -37,6 +34,7 @@ public:
 	virtual bool initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
 	void update(float deltaTime);
 	void damage(WEAPON);
+	void effect(Pickup* pickUp);
 };
 #endif
 

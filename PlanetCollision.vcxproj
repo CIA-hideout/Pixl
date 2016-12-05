@@ -101,14 +101,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Audio.cpp" />
     <ClCompile Include="Blackhole.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="entity.cpp" />
+    <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="input.cpp" />
+    <ClCompile Include="Missile.cpp" />
     <ClCompile Include="Pickup.cpp" />
     <ClCompile Include="ship.cpp" />
     <ClCompile Include="spacewar.cpp" />
@@ -121,16 +124,19 @@
     <ClCompile Include="winmain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Audio.h" />
     <ClInclude Include="Blackhole.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="entity.h" />
+    <ClInclude Include="Explosion.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="gameError.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="Missile.h" />
     <ClInclude Include="Pickup.h" />
     <ClInclude Include="ship.h" />
     <ClInclude Include="spacewar.h" />

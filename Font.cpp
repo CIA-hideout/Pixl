@@ -48,7 +48,6 @@ bool Font::loadTextData(std::string fileName) {
 
 	for (int i = 0; i < sizeof(this->widths) / sizeof(this->widths[0]); i++) {
 		widths[i] = (int)buffer[i * 2];
-		printf("width: %d\n", widths[i]);
 	}
 
 	return true;

@@ -3,8 +3,6 @@
 Pickup::Pickup() : Entity(){
 	spriteData.width = PickupNS::WIDTH;
 	spriteData.height = PickupNS::HEIGHT;
-	spriteData.x = PickupNS::X;
-	spriteData.y = PickupNS::Y;
 	spriteData.rect.bottom = PickupNS::HEIGHT;
 	spriteData.rect.right = PickupNS::WIDTH;
 	spriteData.scale = PickupNS::SCALING;
@@ -12,14 +10,12 @@ Pickup::Pickup() : Entity(){
 	velocity.y = 0;
 	startFrame = PickupNS::PICKUP_START_FRAME;
 	endFrame = PickupNS::PICKUP_END_FRAME;
-	currentFrame = startFrame;
+	currentFrame = 0;
 	radius = PickupNS::WIDTH / 2.0f;
 	mass = PickupNS::MASS;
 	collisionType = entityNS::CIRCLE;
-	PickupTypes type = OBSTRUCTOR_SLOW_PLAYER;
-	boolean destructor = true;
-
-	
+	objectType = OBJECT_TYPE_PICKUP;
+	bool destructor = true;
 }
 
 bool Pickup::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM){
@@ -31,15 +27,15 @@ void Pickup::draw(){
 }
 
 void Pickup::update(float deltaTime){
-	
+
 }
 
 void Pickup::spawn(){
-	
+
 	setFrames(startFrame, endFrame);
 	setCollisionRadius(getHeight() / 2);
 	setVelocity(0, 0);						// powerups don't move;
-	setObjectType(CIRCLES);
+	setObjectType(OBJECT_TYPE_CIRCLE);
 	setScale(0.2f);
 
 	//spawn randomly in window
@@ -48,23 +44,23 @@ void Pickup::spawn(){
 	switch (side) {
 		// left
 	case 0: {
-		this->setX(0 - rand() % GAME_WIDTH);
-		this->setY(rand() % GAME_HEIGHT);
+				this->setX(0 - rand() % GAME_WIDTH);
+				this->setY(rand() % GAME_HEIGHT);
 	} break;
 		// top
 	case 1: {
-		this->setX(rand() % GAME_WIDTH);
-		this->setY(-(rand() % GAME_HEIGHT));
+				this->setX(rand() % GAME_WIDTH);
+				this->setY(-(rand() % GAME_HEIGHT));
 	} break;
 		// right
 	case 2: {
-		this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
-		this->setY(rand() % GAME_HEIGHT);
+				this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
+				this->setY(rand() % GAME_HEIGHT);
 	} break;
 		// bottom
 	case 3: {
-		this->setX(rand() % GAME_WIDTH);
-		this->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
+				this->setX(rand() % GAME_WIDTH);
+				this->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
 	} break;
 	}
 
@@ -77,15 +73,13 @@ void Pickup::spawn(){
 void Pickup::damage(WEAPON weapon){
 	switch (weapon)
 	{
-		case PLAYER:{
-			this->setHealth(0);
-		}	break;
+	case OBJECT_TYPE_PLAYER: {
+								 // this->setHealth(0);
+	}	break;
 	}
 }
 
-void Pickup::setPickupType()	//	Calculate whether is an Obstructor or Destructor
-{
-	srand(timeGetTime());
+void Pickup::setPickUpType(){ 			// Calculate whether is an Obstructor or Destructor
 	int number = rand() % 100;
 
 	if (number >= 80)			// 20% chance of a Obstructor
@@ -93,51 +87,56 @@ void Pickup::setPickupType()	//	Calculate whether is an Obstructor or Destructor
 	else						// 80% chance of a Destructor
 		destructor = true;
 
-	calculatePickupType();
+		calculatePickupType();
+}
+
+void Pickup::setPickUpType(PickupType pickupType) {
+	this->type = pickupType;
+	this->isDestructor = getPickupType() == PICKUP_DESTRUCTOR_EXPLOSION || getPickupType() == PICKUP_DESTRUCTOR_FREEZE || getPickupType() == PICKUP_DESTRUCTOR_INVULNERABILITY || getPickupType() == PICKUP_DESTRUCTOR_MISSLES;
 }
 
 /* ========================================	*/
 /*			Private Methods					*/
 /* ========================================	*/
+//	Calculate the type of Obstrutor or Destructor the pickup is
+void Pickup::calculateObstructorDestructorType(){
 
-//	Calculate the type of Obstrutor or Destructor the pickup is 
-void Pickup::calculatePickupType(){
-	
-	srand(timeGetTime());
+	setPickUpType();
 	int randNumber;
 
-	//	Array containing types of Destructor
-	PickupTypes destructorArray[] = {
-		DESTRUCTOR_EXPLOSION,
-		DESTRUCTOR_EXPLOSION,
-		DESTRUCTOR_EXPLOSION,
+	// Array containing types of obstructor
+	PickupType obstructorArray[] = {
+		PICKUP_OBSTRUCTOR_SLOW_PLAYER,
+		PICKUP_OBSTRUCTOR_SLOW_PLAYER,
 
-		DESTRUCTOR_HOMING_MISSLES,
-		DESTRUCTOR_HOMING_MISSLES,
-		DESTRUCTOR_HOMING_MISSLES,
+		PICKUP_OBSTRUCTOR_STUN_PLAYER,
+		PICKUP_OBSTRUCTOR_STUN_PLAYER,
 
-		DESTRUCTOR_FREEZE,
-		DESTRUCTOR_FREEZE,
+		PICKUP_OBSTRUCTOR_INVERT_CONTROLS,
+		PICKUP_OBSTRUCTOR_INVERT_CONTROLS,
 
-		DESTRUCTOR_INVULNERABILITY,
-		DESTRUCTOR_INVULNERABILITY
+		PICKUP_OBSTRUCTOR_ENLARGE_PLAYER,
+		PICKUP_OBSTRUCTOR_ENLARGE_PLAYER,
+
+		PICKUP_OBSTRUCTOR_BLACKHOLE
 	};
 
-	// Array containing types of Obstructor
-	PickupTypes obstructorArray[] = {
-		OBSTRUCTOR_SLOW_PLAYER,
-		OBSTRUCTOR_SLOW_PLAYER,
+>>>>>>> refs/remotes/origin/GAME_MENU
+	//	Array containing types of Destructor
+	PickupType destructorArray[] = {
+		PICKUP_DESTRUCTOR_EXPLOSION,
+		PICKUP_DESTRUCTOR_EXPLOSION,
+		PICKUP_DESTRUCTOR_EXPLOSION,
 
-		OBSTRUCTOR_STUN_PLAYER,
-		OBSTRUCTOR_STUN_PLAYER,
+		PICKUP_DESTRUCTOR_MISSLES,
+		PICKUP_DESTRUCTOR_MISSLES,
+		PICKUP_DESTRUCTOR_MISSLES,
 
-		OBSTRUCTOR_INVERT_CONTROLS,
-		OBSTRUCTOR_INVERT_CONTROLS,
+		PICKUP_DESTRUCTOR_FREEZE,
+		PICKUP_DESTRUCTOR_FREEZE,
 
-		OBSTRUCTOR_ENLARGE_PLAYER,
-		OBSTRUCTOR_ENLARGE_PLAYER,
-
-		OBSTRUCTOR_BLACKHOLE
+		PICKUP_DESTRUCTOR_INVULNERABILITY,
+		PICKUP_DESTRUCTOR_INVULNERABILITY
 	};
 
 	if (this->isDestructor())
@@ -150,4 +149,9 @@ void Pickup::calculatePickupType(){
 		randNumber = rand() % 9;	//Get a number from 0 - 8
 		type = obstructorArray[randNumber];
 	}
+
+	if (isDestructor)
+		this->setCurrentFrame(0);
+	else
+		this->setCurrentFrame(1);
 }
