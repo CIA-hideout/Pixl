@@ -28,6 +28,7 @@ float	deathAngle;							// the angle in radians at the point in time of the play
 float	waveBufferTime;
 float	pickupCoolDownTime;
 float	blackholeTimer;
+float	velocityMultiplier;					// Used to reduce the velocity of the player
 
 int		playerMaxHealth, playerHealth;
 int		playerScore, playerLevel;
@@ -37,6 +38,7 @@ int		currentWave;
 
 bool	waveOver;
 bool	playerIsDead, playerCanPickup;
+bool	enemyIsFrozen;
 
 DWORD	baseTime;
 
@@ -146,9 +148,12 @@ void Spacewar::update() {
 								  playerTurnMultiplier = 3.5f;
 
 								  playerIsDead = false;
+								  enemyIsFrozen = false;
 
 								  playerHealth = 5;
 								  playerMaxHealth = 10;
+
+								  velocityMultiplier = 1.05;
 
 								  player = new Ship();
 								  player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
@@ -174,7 +179,7 @@ void Spacewar::update() {
 								  for (int i = 0; i < 3; i++) {
 									  Pickup* pickup = new Pickup();
 									  pickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &destructorObstructorTexture);
-									  pickup->calculateObstructorDestructorType();
+									  pickup->calculatePickupType();
 									  if (pickup->getIsDestructor())
 										  pickup->setCurrentFrame(0);
 									  else
@@ -470,6 +475,11 @@ void Spacewar::UpdateEntities() {
 											 } break;
 											 case EFFECT_INVULNERABLE: {
 											 } break;
+											 case EFFECT_FROZEN: {
+																	if ((*iter)->hasEffect(EFFECT_FROZEN)) {
+																		enemyIsFrozen = true;
+																	}
+												 }
 											 }
 										 }
 									 }
@@ -490,10 +500,16 @@ void Spacewar::UpdateEntities() {
 										   (*iter)->setRadians(PI + atan(dy / dx));
 
 									   if (!playerIsDead) {
-										   (*iter)->setVelocity(
-											   cos((*iter)->getRadians()) * 50,
-											   sin((*iter)->getRadians()) * 50
-											   );
+										   if (!enemyIsFrozen)	{
+											   (*iter)->setVelocity(
+												   cos((*iter)->getRadians()) * 50,
+												   sin((*iter)->getRadians()) * 50
+												   );
+										   }
+										   else {
+											   (*iter)->setVelocity(0, 0);
+										   }
+										
 									   }
 									   else {
 										   (*iter)->setVelocity(0, 0);
@@ -618,6 +634,7 @@ void Spacewar::collisions() {
 									  case OBJECT_TYPE_PICKUP: {
 																   if (playerCanPickup) {
 																	   Pickup* pickup_ = (Pickup*)entity;
+																	   pickup_->getEffectDebug();
 																	   switch (pickup_->getPickupType()) {
 																	   case PICKUP_DESTRUCTOR_EXPLOSION: {
 																											 Explosion* explosion = new Explosion();
@@ -629,7 +646,7 @@ void Spacewar::collisions() {
 
 																											 pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																											 pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
-																											 pickup_->calculateObstructorDestructorType();
+																											 pickup_->calculatePickupType();
 
 																											 for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
 																												 if (
@@ -644,12 +661,13 @@ void Spacewar::collisions() {
 																	   case PICKUP_DESTRUCTOR_FREEZE: {
 																										  pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																										  pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
-																										  pickup_->calculateObstructorDestructorType();
+																										  pickup_->calculatePickupType();
+																										  pickup_->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVULNERABILITY: {
 																												   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																												   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
-																												   pickup_->calculateObstructorDestructorType();
+																												   pickup_->calculatePickupType();
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_MISSLES: {
 																										   // get the enemies to target first
@@ -677,7 +695,7 @@ void Spacewar::collisions() {
 																										   }
 																										   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																										   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
-																										   pickup_->calculateObstructorDestructorType();
+																										   pickup_->calculatePickupType();
 																	   } break;
 																	   case PICKUP_HEALTH: {
 																							   player->setHealth(player->getHealth() + 1);
@@ -690,7 +708,7 @@ void Spacewar::collisions() {
 																	   case PICKUP_OBSTRUCTOR_BLACKHOLE: {
 																											 pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																											 pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
-																											 pickup_->calculateObstructorDestructorType();
+																											 pickup_->calculatePickupType();
 
 																											 Blackhole* blackhole = new Blackhole();
 																											 blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
@@ -700,24 +718,24 @@ void Spacewar::collisions() {
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
 																												  pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																												  pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
-																												  pickup_->calculateObstructorDestructorType();
+																												  pickup_->calculatePickupType();
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
 																												   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																												   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
-																												   pickup_->calculateObstructorDestructorType();
+																												   pickup_->calculatePickupType();
 																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
 																											   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																											   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
-																											   pickup_->calculateObstructorDestructorType();
+																											   pickup_->calculatePickupType();
 																											   player->getEffectTimers()->at(EFFECT_SLOW) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
 																											   pickup_->setX(rand() % (int)(GAME_WIDTH - pickup_->getWidth() * pickup_->getScale()));
 																											   pickup_->setY(rand() % (int)(GAME_HEIGHT - pickup_->getHeight() * pickup_->getScale()));
-																											   pickup_->calculateObstructorDestructorType();
+																											   pickup_->calculatePickupType();
 																											   player->getEffectTimers()->at(EFFECT_STUN) = 5.0f;
 																	   } break;
 																	   }

@@ -44,6 +44,10 @@ public:
 	void spawn();
 	void damage(WEAPON);
 
+	//return effects of pickups in a string format
+	//enum is not supported in console
+	//use for debug purposes
+	void getEffectDebug();
 
 	// GET and SET Methods
 	void setPickUpType(PickupType pickupType);
@@ -51,7 +55,7 @@ public:
 
 	PickupType getPickupType() { return this->type; }
 	bool getIsDestructor() { return this->isDestructor; }
-	void calculateObstructorDestructorType();
+	void calculatePickupType();
 
 private:
 
