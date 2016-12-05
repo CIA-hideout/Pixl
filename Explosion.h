@@ -5,7 +5,7 @@
 
 namespace explosionNS {
 	const float	MASS = 0.0f;
-	const float	SCALING = 2.0f;
+	const float	SCALING = 4.0f;
 	const int	WIDTH = 128;
 	const int	HEIGHT = 128;
 	const int	TEXTURE_COLS = 4;
