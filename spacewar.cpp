@@ -20,6 +20,7 @@ float			playerTurnMultiplier;
 float			playerInvulnerableTimer;			
 float			slowedTime, slowRadians;			// Used for slowing down blackhole rotation
 float			deathAngle;							// the angle in radians at the point in time of the player's death
+float			velocityMultipler;					// Used to give a new velocity if player is slowed
 
 //int				deathX, deathY;						// x and y value at the point in time of the player's death
 int				playerMaxHealth, playerHealth;
@@ -81,6 +82,7 @@ void Spacewar::initialize(HWND hwnd) {
 	playerTurnMultiplier = 3.5f;
 
 	playerInvulnerableTimer = 2000.0f;
+	velocityMultipler = 1.05;					// set new velocity if slowed
 
 	playerIsInvulnerable = false;
 	playerIsDead = false;
@@ -91,7 +93,7 @@ void Spacewar::initialize(HWND hwnd) {
 	// Pickup Declarations
 	isPlayerStun = false;						
 	isPlayerSlow = false;						
-	isEnemyFrozen = false;
+	isEnemyFrozen = true;
 
 	obstructor_timer_stun = 2000.0f;
 	obstructor_timer_slow = 2000.0f;
@@ -317,24 +319,14 @@ void Spacewar::UpdateEntities() {
 								{
 									// if player is not stun, player move
 									if (!isPlayerStun)
-									{
-										float speedMultipler = 1.0f;	//speed multipler to reduce/increase player speed
-										
-										if (isPlayerSlow)
-											speedMultipler = 0.5f;		//reduce speed by 0.5
-
-										
-
+									{										
 										if (input->isKeyDown(VK_UP)) {
-											float x = (cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x);
-											float y = (sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y);
-											
+					
 											(*iter)->setVelocity(
-												(cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x) * speedMultipler,
-												(sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y) * speedMultipler
+												(cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
+												(sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y)
 
 												);
-											//printf("%.2f, %.2f\n", (*iter)->getVelocity().x, (*iter)->getVelocity().y);
 										}
 
 										if (input->isKeyDown(VK_LEFT)) {
@@ -354,7 +346,6 @@ void Spacewar::UpdateEntities() {
 											);
 									}
 									
-									
 									if (playerIsInvulnerable) {				// if player is not dead, set player sprite to no damage and blink animation.
 										playerInvulnerableTimer -= deltaTime;
 										if (playerInvulnerableTimer < 0) {
@@ -363,15 +354,23 @@ void Spacewar::UpdateEntities() {
 									}
 
 									if (isPlayerStun) {
+										// Freeze player
+										player->setVelocity(0, 0);
 
 										obstructor_timer_stun -= deltaTime;
 										if (obstructor_timer_stun < 0){
 											isPlayerStun = false;
-											
 										}
 									}
 
 									if (isPlayerSlow){
+
+										// slow player by velocityMultipler rate
+										player->setVelocity(
+											player->getVelocity().x / velocityMultipler,
+											player->getVelocity().y / velocityMultipler
+											);
+										
 										obstructor_timer_slow -= deltaTime;
 										if (obstructor_timer_slow < 0)
 										{
@@ -467,11 +466,6 @@ void Spacewar::UpdateEntities() {
 								 }
 							 }
 		} break;
-
-		case PICKUPS:
-		{
-			// I DON'T KNOW WHAT TO DO WITH THIS
-		}	break;
 		}
 
 		//if (((*iter)->getObjectType()) != BLACKHOLE_)
