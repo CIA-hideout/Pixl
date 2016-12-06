@@ -81,6 +81,7 @@ void Spacewar::initialize(HWND hwnd) {
 	missileTexture.initialize(graphics, MISSILE_TEXTURE);
 	destructorObstructorTexture.initialize(graphics, DESTRUCTOR_OBSTRUCTOR_TEXTURE);
 	explosionTexture.initialize(graphics, EXPLOSION_TEXTURE);
+	freezeTexture.initialize(graphics, FREEZE_TEXTURE);
 
 	// GUI
 	heartTexture.initialize(graphics, HEART_TEXTURE);
@@ -784,7 +785,6 @@ void Spacewar::KillEntities() {
 				(*iter)->setVisible(false);
 				iter = entities.erase(iter);
 			} break;
-
 			case OBJECT_TYPE_FREEZE: {
 				(*iter)->setActive(false);
 				(*iter)->setVisible(false);
@@ -898,6 +898,7 @@ void Spacewar::collisions() {
 																											 explosion->initialize(this, explosion->getWidth(), explosion->getHeight(), explosionNS::TEXTURE_COLS, &explosionTexture);
 																											 explosion->setX(pickup_->getX() + pickup_->getWidth() * pickup_->getScale() / 2 - (explosion->getWidth() / 2 * explosion->getScale()));
 																											 explosion->setY(pickup_->getY() + pickup_->getHeight() * pickup_->getScale() / 2 - (explosion->getHeight() / 2 * explosion->getScale()));
+																											 explosion->setFrameDelay(explosionNS::ANIMATION_DELAY);
 																											 explosion->setCollisionRadius(explosionNS::WIDTH / 2.0f);
 																											 tempVector.push_back(explosion);
 
@@ -911,7 +912,15 @@ void Spacewar::collisions() {
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_FREEZE: {
 																										  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-
+																										  Freeze* freeze = new Freeze();
+																										  freeze->initialize(this, freezeNS::WIDTH, freezeNS::HEIGHT, freezeNS::TEXTURE_COLS, &freezeTexture);
+																										  freeze->setFrames(freezeNS::START_FRAME, freezeNS::END_FRAME);
+																										  freeze->setCurrentFrame(freezeNS::START_FRAME);
+																										  freeze->setX(GAME_WIDTH / 2 - freezeNS::WIDTH / 2 * freezeNS::SCALING);
+																										  freeze->setY(GAME_HEIGHT / 2 - freezeNS::WIDTH / 2 * freezeNS::SCALING);
+																										  freeze->setFrameDelay(freezeNS::ANIMATION_DELAY);
+																										  freeze->setRect();
+																										  tempVector.push_back(freeze);
 																										  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																										  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																										  pickup_->calculateObstructorDestructorType();
