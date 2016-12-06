@@ -150,7 +150,7 @@ void Spacewar::update() {
 
 								  playerIsDead = false;
 
-								  playerHealth = 1;
+								  playerHealth = 10;
 								  playerMaxHealth = 10;
 
 								  player = new Ship();
@@ -689,13 +689,14 @@ void Spacewar::collisions() {
 									  }	break;
 
 									  case OBJECT_TYPE_CIRCLE: {
+																   Circle* circle = (Circle*)(*iter);
 																   if (!player->hasEffect(EFFECT_INVULNERABLE)) {
 																	   player->damage(WEAPON_CIRCLE);
 																	   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
 																	   combo = 0;
 																   }
 																   if (player->hasEffect(EFFECT_INVINCIBLE)) {
-																	   (*iter)->damage(WEAPON_PLAYER);
+																	   circle->damage(WEAPON_PLAYER);
 																   }
 									  }	break;
 
