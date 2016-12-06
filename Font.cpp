@@ -16,6 +16,7 @@
 
 Font::Font() {
 
+	// set everything in array to 0
 	memset(&this->widths, 0, sizeof(widths));
 
 	spriteData.width = 128;
@@ -31,11 +32,6 @@ Font::Font() {
 	endFrame = 127;
 	currentFrame = 0;
 
-}
-
-bool Font::loadTextSprite(TextureManager* texture) {
-
-	return true;
 }
 
 bool Font::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM) {
@@ -56,8 +52,6 @@ bool Font::loadTextData(std::string fileName) {
 	if (infile.bad()) return false;
 	infile.close();
 
-	// convert raw data to proportional data width
-
 	for (int i = 0; i < sizeof(this->widths) / sizeof(this->widths[0]); i++) {
 		widths[i] = (int)buffer[i * 2];
 	}
@@ -72,6 +66,7 @@ void Font::Print(int x, int y, std::string text) {
 
 	for (int i = 0; i < text.length(); i++) {
 
+		// char can be cast to int
 		int frame = (int)text[i] - '!' + 1;
 		setCurrentFrame(frame);
 		setX(fx);
