@@ -34,7 +34,8 @@ enum ObjectType {
 	OBJECT_TYPE_BLACKHOLE,
 	OBJECT_TYPE_GUI_HEART,
 	OBJECT_TYPE_MISSILE,
-	OBJECT_TYPE_EXPLOSION
+	OBJECT_TYPE_EXPLOSION,
+	OBJECT_TYPE_FREEZE
 };
 
 // types of effects that an object may have
@@ -77,7 +78,6 @@ protected:
 	std::string					name;
 	int							id;
 	ObjectType					objectType;
-
 	std::map<EffectType, float> effectTimers;								// effect timers of the effects that an entity might have
 
 

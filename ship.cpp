@@ -4,10 +4,15 @@
 //					Lin Lue			(S10158175E)
 //					Amos Tan		(S10158017D)
 
+// Programming 2D Games
+// Copyright (c) 2011 by:
+// Charles Kelly
+// Chapter 6 ship.cpp v1.0
+
 #include "ship.h"
 
 //=============================================================================
-// default constructor
+// Default Constructor
 //=============================================================================
 Ship::Ship() : Entity() {
 	spriteData.width = shipNS::WIDTH;
@@ -26,6 +31,7 @@ Ship::Ship() : Entity() {
 	mass = shipNS::MASS;
 	collisionType = entityNS::CIRCLE;
 	health = 3;
+
 	// add the key and value pairs here
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_STUN, 0.0f));
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_SLOW, 0.0f));
@@ -48,14 +54,13 @@ void Ship::draw() {
 }
 
 //=============================================================================
-// update
+//									UPDATE
 // typically called once per frame
 // deltaTime is used to regulate the speed of movement and animation
 //=============================================================================
 void Ship::update(float deltaTime)
 {
 	// bouncing off the side of the screen
-
 	Entity::update(deltaTime);
 	spriteData.angle += deltaTime * shipNS::ROTATION_RATE;
 	spriteData.x += deltaTime * velocity.x;
