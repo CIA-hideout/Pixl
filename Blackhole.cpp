@@ -35,11 +35,14 @@ void Blackhole::draw() {
 	Image::draw();
 }
 
+// all blackhole does is rotate
 void Blackhole::update(float deltaTime) {
 	aliveTimer -= deltaTime;
 	Entity::update(deltaTime);
 	spriteData.angle += deltaTime * blackholeNS::ROTATION_RATE;
 	setRadians(timeGetTime() / 600.0f);
+	// set health to zero once its lifespan is up
+	// so it can be removed from entities vector
 	if (aliveTimer < 0.0f)
 		setHealth(0);
 }
