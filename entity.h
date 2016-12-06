@@ -23,6 +23,7 @@ namespace entityNS {
 	const float GRAVITY = 6.67428e-11f;         // gravitational constant
 }
 
+// types of object
 enum ObjectType {
 	OBJECT_TYPE_PLAYER,
 	OBJECT_TYPE_TRIANGLE,
@@ -36,6 +37,7 @@ enum ObjectType {
 	OBJECT_TYPE_EXPLOSION
 };
 
+// types of effects that an object may have
 enum EffectType {
 	EFFECT_SLOW,
 	EFFECT_STUN,
@@ -76,7 +78,7 @@ protected:
 	int							id;
 	ObjectType					objectType;
 
-	std::map<EffectType, float> effectTimers;
+	std::map<EffectType, float> effectTimers;								// effect timers of the effects that an entity might have
 
 
 	// --- The following functions are protected because they are not intended to be
@@ -213,6 +215,7 @@ public:
 
 	std::map<EffectType, float>* getEffectTimers() { return &this->effectTimers; };
 
+	// returns effect true if timer for effect > 0.0f
 	bool hasEffect(EffectType effectType) { return this->effectTimers.at(effectType) > 0.0f; }
 };
 
