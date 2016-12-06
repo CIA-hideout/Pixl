@@ -128,7 +128,6 @@ void Spacewar::update() {
 	switch (this->getGameState()) {
 	case GAME_STATE_MENU: {
 							  if (input->isKeyDown(SPACEBAR)) {
-								  // play sound async to the game to avoid 'lag'
 								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 								  printf("SELECT sound is played\n");
 
@@ -211,7 +210,6 @@ void Spacewar::update() {
 	} break;
 	case GAME_STATE_GAME: {
 							  if (input->isKeyDown(ESC_KEY)) {
-								  // play sound async to the game to avoid 'lag'
 								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 								  printf("SELECT sound is played\n");
 
@@ -336,7 +334,6 @@ void Spacewar::update() {
 	} break;
 	case GAME_STATE_GAMEOVER: {
 								  if (input->isKeyDown(ESC_KEY)) {
-									  // play sound async to the game to avoid 'lag'
 									  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 									  printf("SELECT sound is played\n");
 
@@ -423,9 +420,9 @@ void Spacewar::render() {
 	} break;
 	case GAME_STATE_GAMEOVER: {
 								  menuFont->Print(
-									  GAME_WIDTH / 2 - menuFont->getTotalWidth("You have died") / 2,
+									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Game over") / 2,
 									  GAME_HEIGHT / 3,
-									  "You have died"
+									  "Game over"
 									  );
 
 								  ss.str("");
@@ -675,7 +672,6 @@ void Spacewar::collisions() {
 									  switch (entity->getObjectType())
 									  {
 									  case OBJECT_TYPE_BLACKHOLE: {
-																	  // play sound async to the game to avoid 'lag'
 																	  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 																	  printf("DAMAGE sound is played\n");
 
@@ -688,10 +684,8 @@ void Spacewar::collisions() {
 
 																   if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																	   circle->damage(WEAPON_PLAYER);
-
 																   }
 																   else if (!player->hasEffect(EFFECT_INVULNERABLE)) {
-																	   // play sound async to the game to avoid 'lag'
 																	   PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 																	   printf("DAMAGE sound is played\n");
 
@@ -708,7 +702,6 @@ void Spacewar::collisions() {
 																		 tri->damage(WEAPON_PLAYER);
 																	 }
 																	 else if (!player->hasEffect(EFFECT_INVULNERABLE)) {
-																		 // play sound async to the game to avoid 'lag'
 																		 PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 																		 printf("DAMAGE sound is played\n");
 
@@ -722,7 +715,6 @@ void Spacewar::collisions() {
 																	   Pickup* pickup_ = (Pickup*)entity;
 
 																	   switch (pickup_->getPickupType()) {
-
 																	   case PICKUP_DESTRUCTOR_EXPLOSION: {
 																											 Explosion* explosion = new Explosion();
 																											 explosion->initialize(this, explosion->getWidth(), explosion->getHeight(), explosionNS::TEXTURE_COLS, &explosionTexture);
@@ -731,34 +723,27 @@ void Spacewar::collisions() {
 																											 explosion->setCollisionRadius(explosionNS::WIDTH / 2.0f);
 																											 tempVector.push_back(explosion);
 
-																											 // play sound async to the game to avoid 'lag'
 																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-																											 printf("I play the PICKUP sound\n");
 
 																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																											 pickup_->calculateObstructorDestructorType();
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_FREEZE: {
-																										  // play sound async to the game to avoid 'lag'
 																										  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-																										  printf("I play the PICKUP sound\n");
 
 																										  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																										  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																										  pickup_->calculateObstructorDestructorType();
-																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
+																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 10.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVINCIBILITY: {
-
-																												 // play sound async to the game to avoid 'lag'
 																												 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-																												 printf("I play the PICKUP sound\n");
 
 																												 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																												 pickup_->calculateObstructorDestructorType();
-																												 player->getEffectTimers()->at(EFFECT_INVINCIBLE) = 5.0f;
+																												 player->getEffectTimers()->at(EFFECT_INVINCIBLE) = 10.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_MISSLES: {
 																										   // get the enemies to target first
@@ -774,8 +759,6 @@ void Spacewar::collisions() {
 																											   }
 																										   }
 
-																										   // locates the target that the missile should go for
-																										   // max 10
 																										   for (int i = 0; i <= minMaxRand(5, 10) && i < tempVect.size(); i++) {
 																											   Missile* m = new Missile();
 																											   m->initialize(this, 128, 32, 1, &missileTexture);
@@ -785,16 +768,12 @@ void Spacewar::collisions() {
 																											   missiles.push_back(m);
 																										   }
 
-
-																										   // play sound async to the game to avoid 'lag'
 																										   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-																										   printf("I play the PICKUP sound\n");
 
 																										   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																										   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																	   } break;
 																	   case PICKUP_HEALTH: {
-																							   // play sound async to the game to avoid 'lag'
 																							   PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
 																							   printf("I play the HEART sound\n");
 
@@ -806,13 +785,10 @@ void Spacewar::collisions() {
 																							   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_BLACKHOLE: {
-
 																											 Blackhole* blackhole = new Blackhole();
 																											 blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
 
-																											 // play sound async to the game to avoid 'lag'
-																											PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-																											printf("I play the PICKUP sound\n");
+																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 
@@ -822,39 +798,31 @@ void Spacewar::collisions() {
 																											 addEntity(blackhole);
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
-																												  // play sound async to the game to avoid 'lag'
 																												  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-																												  printf("I play the PICKUP sound\n");
 
-																	   											  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
+																												  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																												  pickup_->calculateObstructorDestructorType();
 																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
-																												   // play sound async to the game to avoid 'lag'
 																												   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-																												   printf("I play the PICKUP sound\n");
 
-																	   											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
+																												   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																												   pickup_->calculateObstructorDestructorType();
 																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
-																											   // play sound async to the game to avoid 'lag'
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-																											   printf("I play the PICKUP sound\n");
 
-																	   										   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
+																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																											   pickup_->calculateObstructorDestructorType();
 																											   player->getEffectTimers()->at(EFFECT_SLOW) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
-																											   // play sound async to the game to avoid 'lag'
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-																											   printf("I play the PICKUP sound\n");
 
 																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
