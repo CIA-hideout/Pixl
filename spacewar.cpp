@@ -693,7 +693,12 @@ void Spacewar::collisions() {
 									  case OBJECT_TYPE_PICKUP: {
 																   if (!player->hasEffect(EFFECT_CANNOT_PICKUP)) {
 																	   Pickup* pickup_ = (Pickup*)entity;
+
+																	   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																	   printf("I play the PICKUP sound\n");
+
 																	   switch (pickup_->getPickupType()) {
+
 																	   case PICKUP_DESTRUCTOR_EXPLOSION: {
 																											 Explosion* explosion = new Explosion();
 																											 explosion->initialize(this, explosion->getWidth(), explosion->getHeight(), explosionNS::TEXTURE_COLS, &explosionTexture);

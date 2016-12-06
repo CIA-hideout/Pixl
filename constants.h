@@ -12,6 +12,7 @@
 
 #include <windows.h>
 #include <windowsx.h>
+#include <mmsystem.h>
 
 //-----------------------------------------------
 // Useful macros
@@ -60,6 +61,9 @@ const char DESTRUCTOR_OBSTRUCTOR_TEXTURE[]	= "resources\\images\\destructor_obst
 const char MISSILE_TEXTURE[]				= "resources\\images\\missile.png";
 const char EXPLOSION_TEXTURE[]				= "resources\\images\\explosion.png";
 
+// sound 
+const char PLAYER_PICKUP_SOUND[]			= "resources\\sounds\\pickup.wav";
+const char PLAYER_DAMAGE_SOUND[]			= "resources\\sounds\\damage.wav";
 
 // PLAYER DEATH
 const int P_DEATH_WIDTH								= 256;			// player death width
