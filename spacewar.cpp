@@ -11,6 +11,7 @@
 #include <timeapi.h>
 #include <sstream>
 #include <iomanip>
+#include <fstream>
 
 #define TRIANGLE_COUNT(x) (x * 0.15 * 16)
 #define CIRCLE_COUNT(x) (x * 0.15 * 8)
@@ -38,6 +39,9 @@ int		currentWave;
 bool	waveOver;
 bool	playerIsDead, playerCanPickup;
 bool	playerDefaultTexture;
+bool	beatenHighScore;
+
+int highscore;
 
 DWORD	baseTime;
 
@@ -131,6 +135,12 @@ void Spacewar::initialize(HWND hwnd) {
 		dx -= heart->getWidth() * heart->getScale();
 		hearts.push_back(heart);
 	}
+
+	FILE* file;
+	file = fopen("highscore.dat", "r");
+	fscanf(file, "%d", &highscore);
+	fclose(file);
+
 	return;
 }
 
@@ -140,6 +150,8 @@ void Spacewar::update() {
 							  if (input->isKeyDown(SPACEBAR)) {
 								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 								  printf("SELECT sound is played\n");
+
+								  beatenHighScore = false;
 
 								  this->setGameState(GAME_STATE_GAME);
 								  this->setIsRunning(true);
@@ -424,6 +436,7 @@ void Spacewar::render() {
 	case GAME_STATE_SETTING: {
 	} break;
 	case GAME_STATE_GAMEOVER: {
+
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Game over") / 2,
 									  GAME_HEIGHT / 3,
@@ -441,6 +454,25 @@ void Spacewar::render() {
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Press esc to return to main menu") / 2,
 									  GAME_HEIGHT / 2, "Press esc to return to main menu");
+
+								  ss.str("");
+
+								  if (beatenHighScore) {
+									  ss << "New highscore!";
+									  menuFont->Print(
+										  GAME_WIDTH / 2 - menuFont->getTotalWidth(ss.str()) / 2,
+										  GAME_HEIGHT / 4,
+										  ss.str()
+										  );
+								  }
+								  else {
+									  ss << "Highscore: " << highscore;
+									  menuFont->Print(
+										  GAME_WIDTH / 2 - menuFont->getTotalWidth(ss.str()) / 2,
+										  GAME_HEIGHT - GAME_HEIGHT / 4,
+										  ss.str()
+										  );
+								  }
 	} break;
 	}
 
@@ -646,6 +678,17 @@ void Spacewar::KillEntities() {
 											 (*iter)->setActive(false);
 											 (*iter)->setVisible(false);
 											 iter = entities.erase(iter);
+											 
+											 FILE* file;
+
+											 if (playerScore > highscore) {
+												 beatenHighScore = true;
+												 file = fopen("highscore.dat", "w");
+												 highscore = playerScore;
+												 fprintf(file, "%d", highscore);
+												 fclose(file);
+											 }
+
 											 this->setGameState(GAME_STATE_GAMEOVER);
 			} break;
 			case OBJECT_TYPE_SQUARES: {
