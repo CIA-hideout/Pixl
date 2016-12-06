@@ -4,6 +4,9 @@
 //					Lin Lue			(S10158175E)
 //					Amos Tan		(S10158017D)
 
+// Explosion is just a circular sprite that may collide with other entities
+// kills itself after the animation is completed
+
 #ifndef _EXPLOSION_H_
 #define _EXPLOSION_H_
 
