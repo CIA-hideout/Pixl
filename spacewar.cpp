@@ -732,8 +732,8 @@ void Spacewar::collisions() {
 																											 tempVector.push_back(explosion);
 
 																											 // play sound async to the game to avoid 'lag'
-																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-																											 printf("I play the PICKUP sound\n");
+																											 PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
+																											 printf("Pickup EXPLODES!\n");
 
 																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));

@@ -66,6 +66,7 @@ const char PLAYER_PICKUP_SOUND[]			= "resources\\sounds\\pickup_2.wav";		// play
 const char PLAYER_PICKUP_HEART_SOUND[]		= "resources\\sounds\\pickup_heart.wav";	// player pickup a heart
 const char PLAYER_DAMAGE_SOUND[]			= "resources\\sounds\\damage_player.wav";	// player gets damaged
 const char PLAYER_SELECT_SOUND[]			= "resources\\sounds\\push_button.wav";		// player pushes space or esc
+const char PICKUP_EXPLODE_SOUND[]			= "resources\\sounds\\explosion.wav";		// explosion pickup, well explodes
 
 // PLAYER DEATH
 const int P_DEATH_WIDTH								= 256;			// player death width
