@@ -201,8 +201,6 @@ void Game::run(HWND hwnd)
 		deltaTime = MAX_FRAME_TIME; // limit maximum deltaTime
 	timeStart = timeEnd;
 
-	// update(), ai(), and collisions() are pure virtual functions.
-	// These functions must be provided in the class that inherits from Game.
 	if (!paused)                    // if not paused
 	{
 		update();                   // update all game items
@@ -227,16 +225,9 @@ void Game::run(HWND hwnd)
 	input->clear(inputNS::KEYS_PRESSED);
 }
 
-//=============================================================================
-// The graphics device was lost.
-// Release all reserved video memory so graphics device may be reset.
-//=============================================================================
-void Game::releaseAll()
-{}
+void Game::releaseAll() {
+}
 
-//=============================================================================
-// Recreate all surfaces and reset all entities.
-//=============================================================================
 void Game::resetAll()
 {}
 
