@@ -37,55 +37,55 @@ LRESULT Game::messageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		switch (msg)
 		{
-			case WM_DESTROY:
-			PostQuitMessage(0);        //tell Windows to kill this program
-			return 0;
-			case WM_KEYDOWN: case WM_SYSKEYDOWN:    // key down
-			input->keyDown(wParam);
-			return 0;
-			case WM_KEYUP: case WM_SYSKEYUP:        // key up
-			input->keyUp(wParam);
-			return 0;
-			case WM_CHAR:                           // character entered
-			input->keyIn(wParam);
-			return 0;
-			case WM_MOUSEMOVE:                      // mouse moved
-			input->mouseIn(lParam);
-			return 0;
-			case WM_INPUT:                          // raw mouse data in
-			input->mouseRawIn(lParam);
-			return 0;
-			case WM_LBUTTONDOWN:                    // left mouse button down
-			input->setMouseLButton(true);
-			input->mouseIn(lParam);             // mouse position
-			return 0;
-			case WM_LBUTTONUP:                      // left mouse button up
-			input->setMouseLButton(false);
-			input->mouseIn(lParam);             // mouse position
-			return 0;
-			case WM_MBUTTONDOWN:                    // middle mouse button down
-			input->setMouseMButton(true);
-			input->mouseIn(lParam);             // mouse position
-			return 0;
-			case WM_MBUTTONUP:                      // middle mouse button up
-			input->setMouseMButton(false);
-			input->mouseIn(lParam);             // mouse position
-			return 0;
-			case WM_RBUTTONDOWN:                    // right mouse button down
-			input->setMouseRButton(true);
-			input->mouseIn(lParam);             // mouse position
-			return 0;
-			case WM_RBUTTONUP:                      // right mouse button up
-			input->setMouseRButton(false);
-			input->mouseIn(lParam);             // mouse position
-			return 0;
-			case WM_XBUTTONDOWN: case WM_XBUTTONUP: // mouse X button down/up
-			input->setMouseXButton(wParam);
-			input->mouseIn(lParam);             // mouse position
-			return 0;
-			case WM_DEVICECHANGE:                   // check for controller insert
-			input->checkControllers();
-			return 0;
+		case WM_DESTROY:
+		PostQuitMessage(0);        //tell Windows to kill this program
+		return 0;
+		case WM_KEYDOWN: case WM_SYSKEYDOWN:    // key down
+		input->keyDown(wParam);
+		return 0;
+		case WM_KEYUP: case WM_SYSKEYUP:        // key up
+		input->keyUp(wParam);
+		return 0;
+		case WM_CHAR:                           // character entered
+		input->keyIn(wParam);
+		return 0;
+		case WM_MOUSEMOVE:                      // mouse moved
+		input->mouseIn(lParam);
+		return 0;
+		case WM_INPUT:                          // raw mouse data in
+		input->mouseRawIn(lParam);
+		return 0;
+		case WM_LBUTTONDOWN:                    // left mouse button down
+		input->setMouseLButton(true);
+		input->mouseIn(lParam);             // mouse position
+		return 0;
+		case WM_LBUTTONUP:                      // left mouse button up
+		input->setMouseLButton(false);
+		input->mouseIn(lParam);             // mouse position
+		return 0;
+		case WM_MBUTTONDOWN:                    // middle mouse button down
+		input->setMouseMButton(true);
+		input->mouseIn(lParam);             // mouse position
+		return 0;
+		case WM_MBUTTONUP:                      // middle mouse button up
+		input->setMouseMButton(false);
+		input->mouseIn(lParam);             // mouse position
+		return 0;
+		case WM_RBUTTONDOWN:                    // right mouse button down
+		input->setMouseRButton(true);
+		input->mouseIn(lParam);             // mouse position
+		return 0;
+		case WM_RBUTTONUP:                      // right mouse button up
+		input->setMouseRButton(false);
+		input->mouseIn(lParam);             // mouse position
+		return 0;
+		case WM_XBUTTONDOWN: case WM_XBUTTONUP: // mouse X button down/up
+		input->setMouseXButton(wParam);
+		input->mouseIn(lParam);             // mouse position
+		return 0;
+		case WM_DEVICECHANGE:                   // check for controller insert
+		input->checkControllers();
+		return 0;
 		}
 	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);    // let Windows handle it
@@ -167,8 +167,7 @@ void Game::handleLostGraphicsDevice()
 //=============================================================================
 // Toggle window or fullscreen mode
 //=============================================================================
-void Game::setDisplayMode(graphicsNS::DISPLAY_MODE mode)
-{
+void Game::setDisplayMode(graphicsNS::DISPLAY_MODE mode) {
 	releaseAll();                   // free all user created surfaces
 	graphics->changeDisplayMode(mode);
 	resetAll();                     // recreate surfaces
@@ -177,8 +176,7 @@ void Game::setDisplayMode(graphicsNS::DISPLAY_MODE mode)
 //=============================================================================
 // Call repeatedly by the main message loop in WinMain
 //=============================================================================
-void Game::run(HWND hwnd)
-{
+void Game::run(HWND hwnd) {
 	if (graphics == NULL)            // if graphics not initialized
 		return;
 
@@ -199,21 +197,17 @@ void Game::run(HWND hwnd)
 
 	if (deltaTime > MAX_FRAME_TIME) // if frame rate is very slow
 		deltaTime = MAX_FRAME_TIME; // limit maximum deltaTime
+
 	timeStart = timeEnd;
 
-	if (!paused)                    // if not paused
-	{
-		update();                   // update all game items
-		UpdateEntities();			
-		ai();                       // artificial intelligence
-		collisions();               // handle collisions
-		input->vibrateControllers(deltaTime); // handle controller vibration
-	}
+	update();                   // update all game items
+	UpdateEntities();
+	ai();                       // artificial intelligence
+	collisions();               // handle collisions
+
 	renderGame();                   // draw all game items
 	input->readControllers();       // read state of controllers
 
-	// Clear input
-	// Call this after all key checks are done
 	input->clear(inputNS::KEYS_PRESSED);
 }
 
