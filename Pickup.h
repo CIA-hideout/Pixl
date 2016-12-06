@@ -44,7 +44,7 @@ class Pickup : public Entity{
 public:
 	Pickup();
 
-	virtual void draw();
+	virtual void draw();		
 	virtual bool initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
 	void update(float deltaTime);
 	void spawn();
@@ -55,9 +55,9 @@ public:
 	void setPickUpType(PickupType pickupType);
 	void setPickUpType();
 
-	PickupType getPickupType() { return this->type; }
-	bool getIsDestructor() { return this->isDestructor; }
-	void calculateObstructorDestructorType();
+	PickupType getPickupType() { return this->type; }			// returns the type of pickup (i.e. blackhole, health, stun, freeze)
+	bool getIsDestructor() { return this->isDestructor; }		// returns true for destructor, false for obstructor
+	void calculateObstructorDestructorType();					// calculate the type of pickup
 
 private:
 

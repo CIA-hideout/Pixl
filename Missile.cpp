@@ -6,7 +6,9 @@
 
 #include "Missile.h"
 
-
+/* Create a Missle Object,
+* child of Entity Class
+*/
 Missile::Missile() : Entity() {
 	spriteData.width = missileNS::WIDTH;
 	spriteData.height = missileNS::HEIGHT;
@@ -23,10 +25,19 @@ Missile::Missile() : Entity() {
 	setScale(missileNS::SCALING);
 }
 
+/* 
+ * Initialise Missle, by initalising an entity object
+*/
 bool Missile::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM) {
 	return(Entity::initialize(gamePtr, width, height, ncols, textureM));
 }
 
+/*
+* Update the x and y coordinates,
+* direction of missiles,
+* velocity of missles
+* by following the targeted object
+*/
 void Missile::update(float deltaTime) {
 
 	Entity::update(deltaTime);
@@ -47,6 +58,9 @@ void Missile::update(float deltaTime) {
 
 }
 
+/* 
+ * Draw missile onto the screen
+ */
 void Missile::draw() {
 	Image::draw();
 }

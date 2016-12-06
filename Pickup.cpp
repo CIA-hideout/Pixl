@@ -6,6 +6,9 @@
 
 #include "Pickup.h"
 
+/* Create a Pickup Object,
+ * child of Entity Class
+ */
 Pickup::Pickup() : Entity(){
 	spriteData.width = PickupNS::WIDTH;
 	spriteData.height = PickupNS::HEIGHT;
@@ -23,10 +26,17 @@ Pickup::Pickup() : Entity(){
 	objectType = OBJECT_TYPE_PICKUP;
 }
 
+/* 
+ * Initialise Pickup, by initalising an entity object
+ */
+
 bool Pickup::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM){
 	return(Entity::initialize(gamePtr, width, height, ncols, textureM));
 }
 
+/*
+* Draw the pickup object onto the screen.
+*/
 void Pickup::draw(){
 	Image::draw();
 }
@@ -35,6 +45,9 @@ void Pickup::update(float deltaTime){
 
 }
 
+/*
+ * Spawn the pickup object randomly around the screen
+ */
 void Pickup::spawn(){
 
 	setFrames(startFrame, endFrame);
@@ -75,6 +88,9 @@ void Pickup::spawn(){
 	this->setScale(0.5);
 }
 
+/*
+ * Pickup takes damage, to be removed from screen
+*/
 void Pickup::damage(WEAPON weapon){
 	switch (weapon)
 	{
@@ -84,6 +100,10 @@ void Pickup::damage(WEAPON weapon){
 	}
 }
 
+/*
+ * Set a Pickup Type
+ * Decide if a Pickup is an obstructor (bad) or a destructor (good)
+ */
 void Pickup::setPickUpType(){
 	int number = rand() % 100;
 	if (number >= 80)
@@ -92,12 +112,20 @@ void Pickup::setPickUpType(){
 		isDestructor = true;
 }
 
+/*
+* Set a pickup type to a specific type of pickup instead of random
+* Use for health pickup
+*/
 void Pickup::setPickUpType(PickupType pickupType) {
 	this->type = pickupType;
 	this->isDestructor = getPickupType() == PICKUP_DESTRUCTOR_EXPLOSION || getPickupType() == PICKUP_DESTRUCTOR_FREEZE || getPickupType() == PICKUP_DESTRUCTOR_INVINCIBILITY || getPickupType() == PICKUP_DESTRUCTOR_MISSLES;
 }
 
-//	Calculate the type of Obstrutor or Destructor the pickup is 
+/*
+* Caluclate what kind of Obstrutor or Destructor the pickup is
+* Is the destructor a bomb, or is it a missle
+* Is the obstructor a black hole, or does it stun the player
+*/
 void Pickup::calculateObstructorDestructorType(){
 
 	setPickUpType();
@@ -120,24 +148,6 @@ void Pickup::calculateObstructorDestructorType(){
 		PICKUP_OBSTRUCTOR_BLACKHOLE
 	};
 
-	////	Array containing types of Destructor
-	//PickupType destructorArray[] = {
-	//	PICKUP_DESTRUCTOR_EXPLOSION,
-	//	PICKUP_DESTRUCTOR_EXPLOSION,
-	//	PICKUP_DESTRUCTOR_EXPLOSION,
-
-	//	PICKUP_DESTRUCTOR_MISSLES,
-	//	PICKUP_DESTRUCTOR_MISSLES,
-	//	PICKUP_DESTRUCTOR_MISSLES,
-
-	//	PICKUP_DESTRUCTOR_FREEZE,
-	//	PICKUP_DESTRUCTOR_FREEZE,
-
-	//	PICKUP_DESTRUCTOR_INVINCIBILITY,
-	//	PICKUP_DESTRUCTOR_INVINCIBILITY
-	//};
-
-	//	Array containing types of Destructor
 	PickupType destructorArray[] = {
 		PICKUP_DESTRUCTOR_EXPLOSION,
 		PICKUP_DESTRUCTOR_EXPLOSION,
