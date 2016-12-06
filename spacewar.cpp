@@ -616,6 +616,7 @@ void Spacewar::KillEntities() {
 										 (*iter)->setActive(false);
 										 (*iter)->setVisible(false);
 										 iter = entities.erase(iter);
+										 playerScore += genScore(++combo);
 			} break;
 			case OBJECT_TYPE_PICKUP: {
 										 (*iter)->setActive(false);
@@ -755,7 +756,7 @@ void Spacewar::collisions() {
 
 																										   // locates the target that the missile should go for
 																										   // max 10
-																										   for (int i = 0; i <= 10 && i < tempVect.size(); i++) {
+																										   for (int i = 0; i <= rand() % 10 && i < tempVect.size(); i++) {
 																											   Missile* m = new Missile();
 																											   m->initialize(this, 128, 32, 1, &missileTexture);
 																											   m->setX(player->getX() + m->getWidth() / 2);
@@ -775,12 +776,12 @@ void Spacewar::collisions() {
 																							   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_BLACKHOLE: {
+																											 Blackhole* blackhole = new Blackhole();
+																											 blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
+
 																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																											 pickup_->calculateObstructorDestructorType();
-
-																											 Blackhole* blackhole = new Blackhole();
-																											 blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
 
 																											 addEntity(blackhole);
 																	   } break;
