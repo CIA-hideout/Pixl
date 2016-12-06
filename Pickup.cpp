@@ -145,4 +145,6 @@ void Pickup::calculateObstructorDestructorType(){
 		this->setCurrentFrame(0);
 	else
 		this->setCurrentFrame(1);
+
+	type = PICKUP_DESTRUCTOR_INVINCIBILITY;
 }

@@ -705,7 +705,7 @@ void Spacewar::collisions() {
 																	 if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																		 tri->damage(WEAPON_PLAYER);
 																	 }
-																	 if (!player->hasEffect(EFFECT_INVULNERABLE)) {
+																	 else if (!player->hasEffect(EFFECT_INVULNERABLE)) {
 																		 player->damage(WEAPON_TRIANGLE);
 																		 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
 																		 combo = 0;
