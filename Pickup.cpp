@@ -148,6 +148,8 @@ void Pickup::calculateObstructorDestructorType(){
 		PICKUP_DESTRUCTOR_INVINCIBILITY
 	};
 
+	//	Array containing types of Destructor
+
 	if (isDestructor) {
 		randNumber = rand() % 10; //Get a number from 0 - 9
 		type = destructorArray[randNumber];

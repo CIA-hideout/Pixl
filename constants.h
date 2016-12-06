@@ -88,7 +88,7 @@ const char BLACKHOLE_TEXTURE[]				= "resources\\images\\blackhole.png";
 
 // Pickups
 const char DESTRUCTOR_OBSTRUCTOR_TEXTURE[]	= "resources\\images\\destructor_obstructor.png";
-const char MISSILE_TEXTURE[]				= "resources\\images\\missile.png";
+const char MISSILE_TEXTURE[]				= "resources\\images\\missile_animation_spritesheet.png";
 const char EXPLOSION_TEXTURE[]				= "resources\\images\\explosion.png";
 
 // GUI
