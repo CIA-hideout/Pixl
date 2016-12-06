@@ -97,11 +97,12 @@ const char FONT_TEXTURE_INFO[]				= "resources\\data\\font.dat";
 const char HEART_TEXTURE[] 					= "resources\\images\\sprite_hearts.png";
 
 // Sound 
-const char PLAYER_PICKUP_SOUND[]			= "resources\\sounds\\pickup_2.wav";		// player pick up a pickup
+const char PLAYER_PICKUP_SOUND[]			= "resources\\sounds\\pickup_good.wav";		// player pick up a pickup
 const char PLAYER_PICKUP_HEART_SOUND[]		= "resources\\sounds\\pickup_heart.wav";	// player pickup a heart
 const char PLAYER_DAMAGE_SOUND[]			= "resources\\sounds\\damage_player.wav";	// player gets damaged
 const char PLAYER_SELECT_SOUND[]			= "resources\\sounds\\push_button.wav";		// player pushes space or esc
 const char PICKUP_EXPLODE_SOUND[]			= "resources\\sounds\\explosion.wav";		// explosion pickup, well explodes
+const char PLAYER_DEAD_SOUND[]				= "resources\\sounds\\player_dead.wav";		// player is killed
 
 const char HIGHSCORE_FILE[]					= "resources\\data\\highscore.dat";
 

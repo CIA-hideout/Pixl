@@ -696,6 +696,9 @@ void Spacewar::KillEntities() {
 										 (*iter)->setVisible(false);
 										 iter = entities.erase(iter);
 
+										 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_FILENAME);
+										 printf("You DEAD son\n");
+
 										 FILE* file;
 
 										 if (playerScore > highscore) {
