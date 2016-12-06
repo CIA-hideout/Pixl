@@ -137,7 +137,7 @@ void Spacewar::initialize(HWND hwnd) {
 	}
 
 	FILE* file;
-	file = fopen("highscore.dat", "r");
+	file = fopen(HIGHSCORE_FILE, "r");
 	fscanf(file, "%d", &highscore);
 	fclose(file);
 
@@ -683,7 +683,7 @@ void Spacewar::KillEntities() {
 
 										 if (playerScore > highscore) {
 											 beatenHighScore = true;
-											 file = fopen("highscore.dat", "w");
+											 file = fopen(HIGHSCORE_FILE, "w");
 											 highscore = playerScore;
 											 fprintf(file, "%d", highscore);
 											 fclose(file);

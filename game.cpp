@@ -165,15 +165,6 @@ void Game::handleLostGraphicsDevice()
 }
 
 //=============================================================================
-// Toggle window or fullscreen mode
-//=============================================================================
-void Game::setDisplayMode(graphicsNS::DISPLAY_MODE mode) {
-	releaseAll();                   // free all user created surfaces
-	graphics->changeDisplayMode(mode);
-	resetAll();                     // recreate surfaces
-}
-
-//=============================================================================
 // Call repeatedly by the main message loop in WinMain
 //=============================================================================
 void Game::run(HWND hwnd) {
@@ -220,8 +211,7 @@ void Game::resetAll()
 //=============================================================================
 // Delete all reserved memory
 //=============================================================================
-void Game::deleteAll()
-{
+void Game::deleteAll() {
 	releaseAll();               // call onLostDevice() for every graphics item
 	SAFE_DELETE(graphics);
 	SAFE_DELETE(input);

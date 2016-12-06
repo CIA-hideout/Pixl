@@ -95,6 +95,8 @@ const char PLAYER_DAMAGE_SOUND[]			= "resources\\sounds\\damage_player.wav";	// 
 const char PLAYER_SELECT_SOUND[]			= "resources\\sounds\\push_button.wav";		// player pushes space or esc
 const char PICKUP_EXPLODE_SOUND[]			= "resources\\sounds\\explosion.wav";		// explosion pickup, well explodes
 
+const char HIGHSCORE_FILE[]					= "resources\\data\\highscore.dat";
+
 
 // key mappings
 // In this game simple constants are used for key mappings. If variables were used
