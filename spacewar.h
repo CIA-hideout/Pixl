@@ -30,16 +30,25 @@ class Spacewar : public Game {
 private:
 
 	// game items
+	// Player
 	TextureManager			shipTextures;
 	TextureManager			p_deathTextures;
+	TextureManager			p_invulTextures;
+	TextureManager			p_invinTextures;
+
+	// Enemy
 	TextureManager			triangleTextures;
 	TextureManager			circleTextures;
-	TextureManager			blackHoleTexture;
-	TextureManager			fontTexture;
-	TextureManager			heartTexture;
+
+	// Pickups
 	TextureManager			destructorObstructorTexture;
 	TextureManager			missileTexture;
 	TextureManager			explosionTexture;
+	TextureManager			blackHoleTexture;
+
+	// GUI
+	TextureManager			fontTexture;
+	TextureManager			heartTexture;
 
 	std::vector<Entity*>	entities;
 	std::vector<Entity*>	hearts;
@@ -79,8 +88,6 @@ public:
 	void DrawEntities();
 	int genScore(int combo);								// return Score based on combo
 	double calculateF(Entity* entity, Entity* entity2);		// return Force based 2 entities
-
-	bool isEntityAlive(Entity* entity);						// check if an entity has any health left and returns a boolean
 
 	GameState getGameState() { return this->gameState; }
 	void setGameState(GameState gameState) { this->gameState = gameState; }

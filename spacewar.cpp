@@ -40,6 +40,7 @@ int		currentWave;
 
 bool	waveOver;
 bool	playerIsDead, playerCanPickup;
+bool	playerDefaultTexture;
 
 DWORD	baseTime;
 
@@ -73,21 +74,31 @@ void Spacewar::initialize(HWND hwnd) {
 	freopen("conout$", "w", stdout);
 	freopen("conout$", "w", stderr);
 
+	// Texture Initialization
+	// Player
 	shipTextures.initialize(graphics, PLAYER_TEXTURE);
 	p_deathTextures.initialize(graphics, PLAYER_DEATH_TEXTURE);
+	p_invulTextures.initialize(graphics, PLAYER_INVUL_TEXTURE);
+	p_invinTextures.initialize(graphics, PLAYER_INVIN_TEXTURE);
+
+	// Enemy
 	triangleTextures.initialize(graphics, TRIANGLE_TEXTURE);
 	circleTextures.initialize(graphics, CIRCLE_TEXTURE);
 	blackHoleTexture.initialize(graphics, BLACKHOLE_TEXTURE);
-	heartTexture.initialize(graphics, HEART_TEXTURE);
-	fontTexture.initialize(graphics, FONT_TEXTURE);
+
+	// Pickups
 	missileTexture.initialize(graphics, MISSILE_TEXTURE);
 	destructorObstructorTexture.initialize(graphics, DESTRUCTOR_OBSTRUCTOR_TEXTURE);
 	explosionTexture.initialize(graphics, EXPLOSION_TEXTURE);
 
+	// GUI
+	heartTexture.initialize(graphics, HEART_TEXTURE);
+	fontTexture.initialize(graphics, FONT_TEXTURE);
+	
 	this->setGameState(GAME_STATE_MENU);
 
-	// everything here should just be initialized onced
-
+	// -----------------------------------------------
+	// everything here should just be initialized once
 	timeFont = new Font();
 	timeFont->initialize(this, 2048, 2048, 16, &fontTexture);
 	timeFont->loadTextData(FONT_TEXTURE_INFO);
@@ -149,8 +160,9 @@ void Spacewar::update() {
 								  playerTurnMultiplier = 3.5f;
 
 								  playerIsDead = false;
+								  playerDefaultTexture = true;
 
-								  playerHealth = 10;
+								  playerHealth = 3;
 								  playerMaxHealth = 10;
 
 								  player = new Ship();
@@ -527,12 +539,8 @@ void Spacewar::UpdateEntities() {
 										 }
 									 }
 
-									 if (player->hasEffect(EFFECT_ENLARGED)) {
-										 player->setScale(shipNS::SCALING * 2);
-									 }
-									 else {
-										 player->setScale(shipNS::SCALING);
-									 }
+									 if (playerDefaultTexture)			// Prevents the default texture from animating
+										 player->setCurrentFrame(player->getStartFrame());
 
 									 // iterate through the various effect that the players have
 									 // effects should be applied here
@@ -540,6 +548,15 @@ void Spacewar::UpdateEntities() {
 										 if (iter_->second > 0.0f) {
 											 iter_->second -= deltaTime;
 											 switch (iter_->first) {
+											 case EFFECT_ENLARGED:
+												 {
+																	 if (player->hasEffect(EFFECT_ENLARGED)) {
+																		 player->setScale(shipNS::SCALING * 2);
+																	 }
+																	 else {
+																		 player->setScale(shipNS::SCALING);
+																	 }
+												 }
 											 case EFFECT_STUN: {
 																   if ((*iter)->hasEffect(EFFECT_STUN))
 																	   (*iter)->setVelocity(0, 0);
@@ -552,6 +569,23 @@ void Spacewar::UpdateEntities() {
 																   }
 											 } break;
 											 case EFFECT_INVULNERABLE: {
+																		   if ((*iter)->hasEffect(EFFECT_INVULNERABLE) && (*iter)->getCurrentFrame() == (*iter)->getStartFrame())
+																		   {
+																			   playerDefaultTexture = false;
+																			   (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, P_INVUL_COLS, &p_invulTextures);
+																			   (*iter)->setFrames(P_INVUL_START_FRAME, P_INVUL_END_FRAME);
+																			   (*iter)->setCurrentFrame(P_INVUL_START_FRAME);
+																			   (*iter)->setFrameDelay(P_INVUL_ANIMATION_DELAY);
+																			   (*iter)->setLoop(false);
+																			   (*iter)->setScale(shipNS::SCALING);
+																			   (*iter)->setRect();
+																		   }
+																		   else if (!(*iter)->hasEffect(EFFECT_INVULNERABLE) && (*iter)->getCurrentFrame() == (*iter)->getEndFrame())
+																		   {
+																			   playerDefaultTexture = true;
+																			   (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
+																			   (*iter)->setCurrentFrame(shipNS::player_START_FRAME);
+																		   }
 											 } break;
 											 }
 										 }
@@ -572,7 +606,12 @@ void Spacewar::UpdateEntities() {
 									   else if (dx < 0)
 										   (*iter)->setRadians(PI + atan(dy / dx));
 
-									   if (!playerIsDead) {
+									   (*iter)->setVelocity(
+										   cos((*iter)->getRadians()) * 50,
+										   sin((*iter)->getRadians()) * 50
+										   );
+
+									   /*if (!playerIsDead) {
 										   (*iter)->setVelocity(
 											   cos((*iter)->getRadians()) * 50,
 											   sin((*iter)->getRadians()) * 50
@@ -580,7 +619,7 @@ void Spacewar::UpdateEntities() {
 									   }
 									   else {
 										   (*iter)->setVelocity(0, 0);
-									   }
+									   }*/
 
 									   if (player->hasEffect(EFFECT_FROZEN)) {
 										   (*iter)->setVelocity(0, 0);
@@ -623,10 +662,27 @@ void Spacewar::KillEntities() {
 										 iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_PLAYER: {
-										 (*iter)->setActive(false);
-										 (*iter)->setVisible(false);
-										 iter = entities.erase(iter);
-										 this->setGameState(GAME_STATE_GAMEOVER);
+										 //if (!playerIsDead)						// start death animation
+										 //{
+											// printf("%s", "IM DEAD");
+											// playerIsDead = true;				// set to true for "player is already dead and animated, do not repeat."
+											// player->initialize(this, P_DEATH_WIDTH, P_DEATH_HEIGHT, P_DEATH_COLS, &p_deathTextures);
+											// player->setFrames(P_DEATH_START_FRAME, P_DEATH_END_FRAME);
+											// player->setCurrentFrame(P_DEATH_START_FRAME);
+											// player->setFrameDelay(P_DEATH_ANIMATION_DELAY);
+											// player->setLoop(false);
+											// player->setRadians(deathAngle);
+											// player->setScale(0.5f);
+											// player->setRect();
+										 //}
+										 //else if((*iter)->getCurrentFrame() == (*iter)->getEndFrame())
+										 //{
+											 (*iter)->setActive(false);
+											 (*iter)->setVisible(false);
+											 iter = entities.erase(iter);
+											 this->setGameState(GAME_STATE_GAMEOVER);	 
+										 //}
+										 
 			} break;
 			case OBJECT_TYPE_SQUARES: {
 										  (*iter)->setActive(false);
@@ -645,6 +701,7 @@ void Spacewar::KillEntities() {
 											iter = entities.erase(iter);
 			} break;
 			}
+
 		}
 		else iter++;
 	}
@@ -684,6 +741,7 @@ void Spacewar::collisions() {
 									  switch (entity->getObjectType())
 									  {
 									  case OBJECT_TYPE_BLACKHOLE: {
+																	  if (!player->hasEffect(EFFECT_INVULNERABLE) || ! player->hasEffect((EFFECT_INVINCIBLE)))
 																	  player->damage(WEAPON_BLACKHOLE);
 																	  combo = 0;
 									  }	break;
@@ -692,10 +750,10 @@ void Spacewar::collisions() {
 																   Circle* circle = (Circle*)(*iter);
 																   if (!player->hasEffect(EFFECT_INVULNERABLE)) {
 																	   player->damage(WEAPON_CIRCLE);
-																	   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
+																	   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
 																	   combo = 0;
 																   }
-																   if (player->hasEffect(EFFECT_INVINCIBLE)) {
+																   else if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																	   circle->damage(WEAPON_PLAYER);
 																   }
 									  }	break;
@@ -704,10 +762,10 @@ void Spacewar::collisions() {
 																	 Triangle* tri = (Triangle*)(*iter);
 																	 if (!player->hasEffect(EFFECT_INVULNERABLE)) {
 																		 player->damage(WEAPON_TRIANGLE);
-																		 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
+																		 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
 																		 combo = 0;
 																	 }
-																	 if (player->hasEffect(EFFECT_INVINCIBLE)) {
+																	 else if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																		 tri->damage(WEAPON_PLAYER);
 																	 }
 									  }	break;
@@ -848,13 +906,6 @@ double Spacewar::calculateF(Entity* e1, Entity* e2) {
 		);
 
 	return force;
-}
-
-bool Spacewar::isEntityAlive(Entity *e)
-{
-	if (e->getHealth() > 0)
-		return true;
-	return false;
 }
 
 void PrintEffect(Entity* entity, Font* effectFont) {

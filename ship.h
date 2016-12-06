@@ -17,9 +17,9 @@ namespace shipNS {
 	const float ROTATION_RATE = 0;
 	const float SPEED = 100;					// 100 pixels per second
 	const float MASS = 300.0f;					// mass
-	const int   TEXTURE_COLS = 1;
+	const int   TEXTURE_COLS = 2;
 	const int   player_START_FRAME = 0;			// player starts at frame 0
-	const int   player_END_FRAME = 0;			// player animation frames 0,1,2,3
+	const int   player_END_FRAME = 4;			// player animation frames 0,1,2,3
 	const float	SCALING = 0.5f;
 }
 

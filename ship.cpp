@@ -35,7 +35,9 @@ Ship::Ship() : Entity() {
 }
 
 bool Ship::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM) {
-	return(Entity::initialize(gamePtr, width, height, ncols, textureM));
+	bool error = Entity::initialize(gamePtr, width, height, ncols, textureM);
+	this->setAnimationComplete(true);
+	return error;
 }
 
 void Ship::draw() {
