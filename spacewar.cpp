@@ -809,7 +809,7 @@ void Spacewar::collisions() {
 																	   Pickup* pickup_ = (Pickup*)entity;
 
 																	   switch (pickup_->getPickupType()) {
-																	   case PICKUP_DESTRUCTOR_EXPLOSION: {
+																	   case PICKUP_DESTRUCTOR_EXPLOSION: {	
 																											 Explosion* explosion = new Explosion();
 																											 explosion->initialize(this, explosion->getWidth(), explosion->getHeight(), explosionNS::TEXTURE_COLS, &explosionTexture);
 																											 explosion->setX(pickup_->getX() + pickup_->getWidth() * pickup_->getScale() / 2 - (explosion->getWidth() / 2 * explosion->getScale()));
@@ -857,7 +857,13 @@ void Spacewar::collisions() {
 
 																										   for (int i = 0; i <= minMaxRand(5, 10) && i < tempVect.size(); i++) {
 																											   Missile* m = new Missile();
-																											   m->initialize(this, 128, 32, 1, &missileTexture);
+																											   m->initialize(this, missileNS::WIDTH, missileNS::HEIGHT, missileNS::TEXTURE_COLS, &missileTexture);
+																											   m->setFrames(missileNS::MISSILE_START_FRAME, missileNS::MISSILE_END_FRAME);
+																											   m->setCurrentFrame(missileNS::MISSILE_START_FRAME);
+																											   m->setFrameDelay(missileNS::ANIMATION_DELAY);
+																											   m->setLoop(missileNS::LOOP);
+																											   m->setScale(missileNS::SCALING);
+																											   m->setRect();
 																											   m->setX(player->getX() + m->getWidth() / 2);
 																											   m->setY(player->getY() + m->getHeight() / 2);
 																											   m->setTarget(tempVect[i]);
@@ -865,7 +871,7 @@ void Spacewar::collisions() {
 																										   }
 
 																										   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-
+																										   pickup_->calculateObstructorDestructorType();
 																										   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																										   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																	   } break;
