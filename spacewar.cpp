@@ -690,25 +690,25 @@ void Spacewar::collisions() {
 
 									  case OBJECT_TYPE_CIRCLE: {
 																   Circle* circle = (Circle*)(*iter);
-																   if (!player->hasEffect(EFFECT_INVULNERABLE)) {
+																   if (player->hasEffect(EFFECT_INVINCIBLE)) {
+																	   circle->damage(WEAPON_PLAYER);
+																   }
+																   else if (!player->hasEffect(EFFECT_INVULNERABLE)) {
 																	   player->damage(WEAPON_CIRCLE);
 																	   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
 																	   combo = 0;
-																   }
-																   if (player->hasEffect(EFFECT_INVINCIBLE)) {
-																	   circle->damage(WEAPON_PLAYER);
 																   }
 									  }	break;
 
 									  case OBJECT_TYPE_TRIANGLE: {
 																	 Triangle* tri = (Triangle*)(*iter);
+																	 if (player->hasEffect(EFFECT_INVINCIBLE)) {
+																		 tri->damage(WEAPON_PLAYER);
+																	 }
 																	 if (!player->hasEffect(EFFECT_INVULNERABLE)) {
 																		 player->damage(WEAPON_TRIANGLE);
 																		 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
 																		 combo = 0;
-																	 }
-																	 if (player->hasEffect(EFFECT_INVINCIBLE)) {
-																		 tri->damage(WEAPON_PLAYER);
 																	 }
 									  }	break;
 									  case OBJECT_TYPE_PICKUP: {
