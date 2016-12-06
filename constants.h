@@ -90,6 +90,7 @@ const char BLACKHOLE_TEXTURE[]				= "resources\\images\\blackhole.png";
 const char DESTRUCTOR_OBSTRUCTOR_TEXTURE[]	= "resources\\images\\destructor_obstructor.png";
 const char MISSILE_TEXTURE[]				= "resources\\images\\missile_animation_spritesheet.png";
 const char EXPLOSION_TEXTURE[]				= "resources\\images\\explosion.png";
+const char FREEZE_TEXTURE[]					= "resources\\images\\freeze_animation_spritesheet.png";
 
 // GUI
 const char FONT_TEXTURE[]					= "resources\\images\\font.png";

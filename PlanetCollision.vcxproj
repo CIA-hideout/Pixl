@@ -101,6 +101,7 @@
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Font.cpp" />
+    <ClCompile Include="Freeze.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="image.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="entity.h" />
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="Font.h" />
+    <ClInclude Include="Freeze.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="gameError.h" />
     <ClInclude Include="graphics.h" />

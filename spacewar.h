@@ -18,6 +18,7 @@
 #include "Missile.h"
 #include "Pickup.h"
 #include "Explosion.h"
+#include "Freeze.h"
 
 enum GameState {
 	GAME_STATE_MENU,
@@ -45,6 +46,7 @@ private:
 	TextureManager			missileTexture;
 	TextureManager			explosionTexture;
 	TextureManager			blackHoleTexture;
+	TextureManager			freezeTexture;
 
 	// GUI
 	TextureManager			fontTexture;
