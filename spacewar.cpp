@@ -29,7 +29,6 @@ float	playerTurnMultiplier;
 float	slowedTime, slowRadians;			// Used for slowing down blackhole rotation
 float	deathAngle;							// the angle in radians at the point in time of the player's death
 float	waveBufferTime;
-float	pickupCoolDownTime;
 float	blackholeTimer;
 
 int		playerMaxHealth, playerHealth;
@@ -39,29 +38,19 @@ int		waveTriangleCount, waveCircleCount, waveBossCount;
 int		currentWave;
 
 bool	waveOver;
-bool	playerIsDead, playerCanPickup;
+bool	playerIsDead;
 
 DWORD	baseTime;
 
 std::stringstream ss;
 
-//=============================================================================
-// Constructor
-//=============================================================================
 Spacewar::Spacewar() {
 }
 
-//=============================================================================
-// Destructor
-//=============================================================================
 Spacewar::~Spacewar() {
 	releaseAll();           // call onLostDevice() for every graphics item
 }
 
-//=============================================================================
-// Initializes the game
-// Throws GameError on error
-//=============================================================================
 void Spacewar::initialize(HWND hwnd) {
 	srand(timeGetTime());
 
@@ -85,8 +74,6 @@ void Spacewar::initialize(HWND hwnd) {
 	explosionTexture.initialize(graphics, EXPLOSION_TEXTURE);
 
 	this->setGameState(GAME_STATE_MENU);
-
-	// everything here should just be initialized onced
 
 	timeFont = new Font();
 	timeFont->initialize(this, 2048, 2048, 16, &fontTexture);
@@ -268,7 +255,6 @@ void Spacewar::update() {
 								  if ((*iter)->getTarget()->getActive()) {
 									  if ((*iter)->getObjectType() == OBJECT_TYPE_MISSILE) {
 										  if ((*iter)->collidesWith(*(*iter)->getTarget(), collisionVector)) {
-
 											  switch ((*iter)->getTarget()->getObjectType()) {
 											  case OBJECT_TYPE_TRIANGLE: {
 																			 Triangle* triangle = (Triangle*)((*iter)->getTarget());
@@ -289,7 +275,6 @@ void Spacewar::update() {
 									  }
 								  }
 								  else {
-									  // find a new target. if no new target exists, kill itself
 									  for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
 										  if (
 											  ((*iter_)->getObjectType() == OBJECT_TYPE_CIRCLE ||
@@ -520,13 +505,6 @@ void Spacewar::UpdateEntities() {
 										 (*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
 										 );
 
-									 if (!playerCanPickup) {
-										 pickupCoolDownTime -= deltaTime;
-										 if (pickupCoolDownTime <= 0) {
-											 playerCanPickup = true;
-										 }
-									 }
-
 									 if (player->hasEffect(EFFECT_ENLARGED)) {
 										 player->setScale(shipNS::SCALING * 2);
 									 }
@@ -713,7 +691,7 @@ void Spacewar::collisions() {
 																	 }
 									  }	break;
 									  case OBJECT_TYPE_PICKUP: {
-																   if (playerCanPickup) {
+																   if (!player->hasEffect(EFFECT_CANNOT_PICKUP)) {
 																	   Pickup* pickup_ = (Pickup*)entity;
 																	   switch (pickup_->getPickupType()) {
 																	   case PICKUP_DESTRUCTOR_EXPLOSION: {
@@ -810,8 +788,7 @@ void Spacewar::collisions() {
 																											   player->getEffectTimers()->at(EFFECT_STUN) = 5.0f;
 																	   } break;
 																	   }
-																	   playerCanPickup = false;
-																	   pickupCoolDownTime = 1.0f;
+																	   player->getEffectTimers()->at(EFFECT_CANNOT_PICKUP) = 0.5f;
 																   }
 									  } break;
 									  }
