@@ -551,6 +551,23 @@ void Spacewar::UpdateEntities() {
 																	   (*iter)->setVelocity(0, 0);
 											 } break;
 											 case EFFECT_INVINCIBLE: {
+												 if ((*iter)->hasEffect(EFFECT_INVINCIBLE) && (*iter)->getCurrentFrame() == (*iter)->getStartFrame())
+												 {
+													 playerDefaultTexture = false;
+													 (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, P_INVIN_COLS, &p_invinTextures);
+													 (*iter)->setFrames(P_INVIN_START_FRAME, P_INVIN_END_FRAME);
+													 (*iter)->setCurrentFrame(P_INVIN_START_FRAME);
+													 (*iter)->setFrameDelay(P_INVIN_ANIMATION_DELAY);
+													 (*iter)->setLoop(P_INVIN_LOOP);
+													 (*iter)->setScale(P_INVIN_SCALE);
+													 (*iter)->setRect();
+												 }
+												 else if (!(*iter)->hasEffect(EFFECT_INVINCIBLE) && playerDefaultTexture != true)
+												 {
+													 playerDefaultTexture = true;
+													 (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
+													 (*iter)->setCurrentFrame(shipNS::player_START_FRAME);
+												 }
 											 } break;
 											 case EFFECT_SLOW: {
 																   if ((*iter)->hasEffect(EFFECT_SLOW)) {
@@ -565,11 +582,11 @@ void Spacewar::UpdateEntities() {
 																			   (*iter)->setFrames(P_INVUL_START_FRAME, P_INVUL_END_FRAME);
 																			   (*iter)->setCurrentFrame(P_INVUL_START_FRAME);
 																			   (*iter)->setFrameDelay(P_INVUL_ANIMATION_DELAY);
-																			   (*iter)->setLoop(false);
-																			   (*iter)->setScale(shipNS::SCALING);
+																			   (*iter)->setLoop(P_INVUL_LOOP);
+																			   (*iter)->setScale(P_INVUL_SCALE);
 																			   (*iter)->setRect();
 																		   }
-																		   else if (!(*iter)->hasEffect(EFFECT_INVULNERABLE) && (*iter)->getCurrentFrame() == (*iter)->getEndFrame())
+																		   else if (!(*iter)->hasEffect(EFFECT_INVULNERABLE) && playerDefaultTexture != true)
 																		   {
 																			   playerDefaultTexture = true;
 																			   (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
@@ -745,7 +762,7 @@ void Spacewar::collisions() {
 																   if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																	   circle->damage(WEAPON_PLAYER);
 																   }
-																   else if (!player->hasEffect(EFFECT_INVULNERABLE)) {
+																   else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
 																	   PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 																	   printf("DAMAGE sound is played\n");
 
@@ -761,7 +778,7 @@ void Spacewar::collisions() {
 																	 if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																		 tri->damage(WEAPON_PLAYER);
 																	 }
-																	 else if (!player->hasEffect(EFFECT_INVULNERABLE)) {
+																	 else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
 																		 PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 																		 printf("DAMAGE sound is played\n");
 
