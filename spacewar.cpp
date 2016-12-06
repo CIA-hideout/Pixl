@@ -734,7 +734,7 @@ void Spacewar::collisions() {
 
 																										   // locates the target that the missile should go for
 																										   // max 10
-																										   for (int i = 0; i <= rand() % 10 && i < tempVect.size(); i++) {
+																										   for (int i = 0; i <= minMaxRand(5, 10) && i < tempVect.size(); i++) {
 																											   Missile* m = new Missile();
 																											   m->initialize(this, 128, 32, 1, &missileTexture);
 																											   m->setX(player->getX() + m->getWidth() / 2);
