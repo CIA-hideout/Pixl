@@ -93,7 +93,7 @@ const char EXPLOSION_TEXTURE[]				= "resources\\images\\explosion.png";
 
 // GUI
 const char FONT_TEXTURE[]					= "resources\\images\\font.png";
-const char FONT_TEXTURE_INFO[]				= "resources\\images\\font.dat";
+const char FONT_TEXTURE_INFO[]				= "resources\\data\\font.dat";
 const char HEART_TEXTURE[] 					= "resources\\images\\sprite_hearts.png";
 
 // Sound 
