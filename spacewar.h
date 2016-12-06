@@ -55,7 +55,6 @@ private:
 	std::vector<Missile*>	missiles;
 
 	Ship*					player;
-	Blackhole*				blackhole;
 	Font*					timeFont;
 	Font*					comboFont;
 	Font*					scoreFont;
