@@ -11,10 +11,10 @@
 #include <timeapi.h>
 #include <sstream>
 #include <iomanip>
+#include <fstream>
 
 #define TRIANGLE_COUNT(x) (x * 0.15 * 16)
 #define CIRCLE_COUNT(x) (x * 0.15 * 8)
-#define BOSS_COUNT(x) (x * 0.15 * 1)
 
 // just a few helper functions that does not deserve to be in a class
 double calculateF(Entity* e1, Entity* e2);
@@ -34,12 +34,14 @@ float	blackholeTimer;
 int		playerMaxHealth, playerHealth;
 int		playerScore, playerLevel;
 int		combo, maxCombo;
-int		waveTriangleCount, waveCircleCount, waveBossCount;
 int		currentWave;
 
 bool	waveOver;
 bool	playerIsDead, playerCanPickup;
 bool	playerDefaultTexture;
+bool	beatenHighScore;
+
+int highscore;
 
 DWORD	baseTime;
 
@@ -134,6 +136,11 @@ void Spacewar::initialize(HWND hwnd) {
 		hearts.push_back(heart);
 	}
 
+	FILE* file;
+	file = fopen("highscore.dat", "r");
+	fscanf(file, "%d", &highscore);
+	fclose(file);
+
 	return;
 }
 
@@ -143,6 +150,8 @@ void Spacewar::update() {
 							  if (input->isKeyDown(SPACEBAR)) {
 								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 								  printf("SELECT sound is played\n");
+
+								  beatenHighScore = false;
 
 								  this->setGameState(GAME_STATE_GAME);
 								  this->setIsRunning(true);
@@ -194,9 +203,7 @@ void Spacewar::update() {
 
 								  currentWave = 1;
 								  // wave is over if and only if all enemies are not active
-								  waveTriangleCount = TRIANGLE_COUNT(currentWave);
-								  printf("count: %d\n", waveTriangleCount);
-								  for (int i = 0; i < waveTriangleCount; i++) {
+								  for (int i = 0; i < TRIANGLE_COUNT(currentWave); i++) {
 									  Triangle* triangle = new Triangle();
 									  triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
 									  triangle->setObjectType(OBJECT_TYPE_TRIANGLE);
@@ -205,9 +212,7 @@ void Spacewar::update() {
 									  triangle->spawn();
 									  addEntity(triangle);
 								  }
-
-								  waveCircleCount = CIRCLE_COUNT(currentWave);
-								  for (int i = 0; i <= waveCircleCount; i++) {
+								  for (int i = 0; i <= CIRCLE_COUNT(currentWave); i++) {
 									  Circle* circle = new Circle();
 									  circle->initialize(this, CircleNS::WIDTH, CircleNS::HEIGHT, CircleNS::TEXTURE_COLS, &circleTextures);
 									  circle->setObjectType(OBJECT_TYPE_TRIANGLE);
@@ -216,7 +221,7 @@ void Spacewar::update() {
 									  addEntity(circle);
 								  }
 
-								  combo = maxCombo = 0;
+								  combo = maxCombo = playerScore = 0;
 
 								  waveBufferTime = 1.5f;
 								  baseTime = timeGetTime();
@@ -248,8 +253,7 @@ void Spacewar::update() {
 							  if (isWaveOver(entities)) {
 								  currentWave++;
 								  waveBufferTime = 1.5f;
-								  waveTriangleCount = TRIANGLE_COUNT(currentWave);
-								  for (int i = 0; i < waveTriangleCount; i++) {
+								  for (int i = 0; i < TRIANGLE_COUNT(currentWave); i++) {
 									  Triangle* tri = new Triangle();
 									  tri->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
 									  tri->setObjectType(OBJECT_TYPE_TRIANGLE);
@@ -258,8 +262,7 @@ void Spacewar::update() {
 									  tri->spawn();
 									  addEntity(tri);
 								  }
-								  waveCircleCount = CIRCLE_COUNT(currentWave);
-								  for (int i = 0; i <= waveCircleCount; i++) {
+								  for (int i = 0; i <= CIRCLE_COUNT(currentWave); i++) {
 									  Circle* circle = new Circle();
 									  circle->initialize(this, CircleNS::WIDTH, CircleNS::HEIGHT, CircleNS::TEXTURE_COLS, &circleTextures);
 									  circle->setObjectType(OBJECT_TYPE_TRIANGLE);
@@ -433,6 +436,7 @@ void Spacewar::render() {
 	case GAME_STATE_SETTING: {
 	} break;
 	case GAME_STATE_GAMEOVER: {
+
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Game over") / 2,
 									  GAME_HEIGHT / 3,
@@ -450,6 +454,25 @@ void Spacewar::render() {
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Press esc to return to main menu") / 2,
 									  GAME_HEIGHT / 2, "Press esc to return to main menu");
+
+								  ss.str("");
+
+								  if (beatenHighScore) {
+									  ss << "New highscore!";
+									  menuFont->Print(
+										  GAME_WIDTH / 2 - menuFont->getTotalWidth(ss.str()) / 2,
+										  GAME_HEIGHT / 4,
+										  ss.str()
+										  );
+								  }
+								  else {
+									  ss << "Highscore: " << highscore;
+									  menuFont->Print(
+										  GAME_WIDTH / 2 - menuFont->getTotalWidth(ss.str()) / 2,
+										  GAME_HEIGHT - GAME_HEIGHT / 4,
+										  ss.str()
+										  );
+								  }
 	} break;
 	}
 
@@ -669,27 +692,21 @@ void Spacewar::KillEntities() {
 										 iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_PLAYER: {
-										 //if (!playerIsDead)						// start death animation
-										 //{
-											// printf("%s", "IM DEAD");
-											// playerIsDead = true;				// set to true for "player is already dead and animated, do not repeat."
-											// player->initialize(this, P_DEATH_WIDTH, P_DEATH_HEIGHT, P_DEATH_COLS, &p_deathTextures);
-											// player->setFrames(P_DEATH_START_FRAME, P_DEATH_END_FRAME);
-											// player->setCurrentFrame(P_DEATH_START_FRAME);
-											// player->setFrameDelay(P_DEATH_ANIMATION_DELAY);
-											// player->setLoop(false);
-											// player->setRadians(deathAngle);
-											// player->setScale(0.5f);
-											// player->setRect();
-										 //}
-										 //else if((*iter)->getCurrentFrame() == (*iter)->getEndFrame())
-										 //{
 											 (*iter)->setActive(false);
 											 (*iter)->setVisible(false);
 											 iter = entities.erase(iter);
-											 this->setGameState(GAME_STATE_GAMEOVER);
-										 //}
+											 
+											 FILE* file;
 
+											 if (playerScore > highscore) {
+												 beatenHighScore = true;
+												 file = fopen("highscore.dat", "w");
+												 highscore = playerScore;
+												 fprintf(file, "%d", highscore);
+												 fclose(file);
+											 }
+
+											 this->setGameState(GAME_STATE_GAMEOVER);
 			} break;
 			case OBJECT_TYPE_SQUARES: {
 										  (*iter)->setActive(false);
@@ -800,7 +817,9 @@ void Spacewar::collisions() {
 																											 explosion->setCollisionRadius(explosionNS::WIDTH / 2.0f);
 																											 tempVector.push_back(explosion);
 
-																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																											 // play sound async to the game to avoid 'lag'
+																											 PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
+																											 printf("Pickup EXPLODES!\n");
 
 																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
