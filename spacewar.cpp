@@ -29,7 +29,6 @@ float	playerTurnMultiplier;
 float	slowedTime, slowRadians;			// Used for slowing down blackhole rotation
 float	deathAngle;							// the angle in radians at the point in time of the player's death
 float	waveBufferTime;
-float	pickupCoolDownTime;
 float	blackholeTimer;
 
 int		playerMaxHealth, playerHealth;
@@ -46,23 +45,13 @@ DWORD	baseTime;
 
 std::stringstream ss;
 
-//=============================================================================
-// Constructor
-//=============================================================================
 Spacewar::Spacewar() {
 }
 
-//=============================================================================
-// Destructor
-//=============================================================================
 Spacewar::~Spacewar() {
 	releaseAll();           // call onLostDevice() for every graphics item
 }
 
-//=============================================================================
-// Initializes the game
-// Throws GameError on error
-//=============================================================================
 void Spacewar::initialize(HWND hwnd) {
 	srand(timeGetTime());
 
@@ -151,7 +140,10 @@ void Spacewar::initialize(HWND hwnd) {
 void Spacewar::update() {
 	switch (this->getGameState()) {
 	case GAME_STATE_MENU: {
-							  if (input->isKeyDown(0x20)) {
+							  if (input->isKeyDown(SPACEBAR)) {
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+								  printf("SELECT sound is played\n");
+
 								  this->setGameState(GAME_STATE_GAME);
 								  this->setIsRunning(true);
 
@@ -231,7 +223,10 @@ void Spacewar::update() {
 							  }
 	} break;
 	case GAME_STATE_GAME: {
-							  if (input->isKeyDown(0x1B)) {
+							  if (input->isKeyDown(ESC_KEY)) {
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+								  printf("SELECT sound is played\n");
+
 								  this->setGameState(GAME_STATE_MENU);
 								  this->setIsRunning(false);
 								  entities.clear();
@@ -280,7 +275,6 @@ void Spacewar::update() {
 								  if ((*iter)->getTarget()->getActive()) {
 									  if ((*iter)->getObjectType() == OBJECT_TYPE_MISSILE) {
 										  if ((*iter)->collidesWith(*(*iter)->getTarget(), collisionVector)) {
-
 											  switch ((*iter)->getTarget()->getObjectType()) {
 											  case OBJECT_TYPE_TRIANGLE: {
 																			 Triangle* triangle = (Triangle*)((*iter)->getTarget());
@@ -301,7 +295,6 @@ void Spacewar::update() {
 									  }
 								  }
 								  else {
-									  // find a new target. if no new target exists, kill itself
 									  for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
 										  if (
 											  ((*iter_)->getObjectType() == OBJECT_TYPE_CIRCLE ||
@@ -354,7 +347,10 @@ void Spacewar::update() {
 	case GAME_STATE_SETTING: {
 	} break;
 	case GAME_STATE_GAMEOVER: {
-								  if (input->isKeyDown(0x1B)) {
+								  if (input->isKeyDown(ESC_KEY)) {
+									  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+									  printf("SELECT sound is played\n");
+
 									  this->setGameState(GAME_STATE_MENU);
 									  this->setIsRunning(false);
 									  entities.clear();
@@ -438,9 +434,9 @@ void Spacewar::render() {
 	} break;
 	case GAME_STATE_GAMEOVER: {
 								  menuFont->Print(
-									  GAME_WIDTH / 2 - menuFont->getTotalWidth("You have died") / 2,
+									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Game over") / 2,
 									  GAME_HEIGHT / 3,
-									  "You have died"
+									  "Game over"
 									  );
 
 								  ss.str("");
@@ -531,13 +527,6 @@ void Spacewar::UpdateEntities() {
 										 (*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
 										 (*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
 										 );
-
-									 if (!playerCanPickup) {
-										 pickupCoolDownTime -= deltaTime;
-										 if (pickupCoolDownTime <= 0) {
-											 playerCanPickup = true;
-										 }
-									 }
 
 									 if (playerDefaultTexture)			// Prevents the default texture from animating
 										 player->setCurrentFrame(player->getStartFrame());
@@ -742,17 +731,24 @@ void Spacewar::collisions() {
 									  switch (entity->getObjectType())
 									  {
 									  case OBJECT_TYPE_BLACKHOLE: {
-																	  if (!player->hasEffect(EFFECT_INVULNERABLE) || ! player->hasEffect((EFFECT_INVINCIBLE)))
+																	  if (!player->hasEffect(EFFECT_INVULNERABLE) || ! player->hasEffect((EFFECT_INVINCIBLE))){
+																			PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+																		  printf("DAMAGE sound is played\n");
+																		}
 																	  player->damage(WEAPON_BLACKHOLE);
 																	  combo = 0;
 									  }	break;
 
 									  case OBJECT_TYPE_CIRCLE: {
 																   Circle* circle = (Circle*)(*iter);
+
 																   if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																	   circle->damage(WEAPON_PLAYER);
 																   }
 																   else if (!player->hasEffect(EFFECT_INVULNERABLE)) {
+																	   PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+																	   printf("DAMAGE sound is played\n");
+
 																	   player->damage(WEAPON_CIRCLE);
 																	   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
 																	   combo = 0;
@@ -761,18 +757,23 @@ void Spacewar::collisions() {
 
 									  case OBJECT_TYPE_TRIANGLE: {
 																	 Triangle* tri = (Triangle*)(*iter);
+
 																	 if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																		 tri->damage(WEAPON_PLAYER);
 																	 }
 																	 else if (!player->hasEffect(EFFECT_INVULNERABLE)) {
+																		 PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+																		 printf("DAMAGE sound is played\n");
+
 																		 player->damage(WEAPON_TRIANGLE);
 																		 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
 																		 combo = 0;
 																	 }
 									  }	break;
 									  case OBJECT_TYPE_PICKUP: {
-																   if (playerCanPickup) {
+																   if (!player->hasEffect(EFFECT_CANNOT_PICKUP)) {
 																	   Pickup* pickup_ = (Pickup*)entity;
+
 																	   switch (pickup_->getPickupType()) {
 																	   case PICKUP_DESTRUCTOR_EXPLOSION: {
 																											 Explosion* explosion = new Explosion();
@@ -782,21 +783,27 @@ void Spacewar::collisions() {
 																											 explosion->setCollisionRadius(explosionNS::WIDTH / 2.0f);
 																											 tempVector.push_back(explosion);
 
+																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+
 																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																											 pickup_->calculateObstructorDestructorType();
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_FREEZE: {
+																										  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+
 																										  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																										  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																										  pickup_->calculateObstructorDestructorType();
-																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
+																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 10.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVINCIBILITY: {
+																												 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+
 																												 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																												 pickup_->calculateObstructorDestructorType();
-																												 player->getEffectTimers()->at(EFFECT_INVINCIBLE) = 5.0f;
+																												 player->getEffectTimers()->at(EFFECT_INVINCIBLE) = 10.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_MISSLES: {
 																										   // get the enemies to target first
@@ -812,9 +819,7 @@ void Spacewar::collisions() {
 																											   }
 																										   }
 
-																										   // locates the target that the missile should go for
-																										   // max 10
-																										   for (int i = 0; i <= rand() % 10 && i < tempVect.size(); i++) {
+																										   for (int i = 0; i <= minMaxRand(5, 10) && i < tempVect.size(); i++) {
 																											   Missile* m = new Missile();
 																											   m->initialize(this, 128, 32, 1, &missileTexture);
 																											   m->setX(player->getX() + m->getWidth() / 2);
@@ -822,10 +827,16 @@ void Spacewar::collisions() {
 																											   m->setTarget(tempVect[i]);
 																											   missiles.push_back(m);
 																										   }
+
+																										   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+
 																										   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																										   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																	   } break;
 																	   case PICKUP_HEALTH: {
+																							   PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+																							   printf("I play the HEART sound\n");
+
 																							   player->setHealth(player->getHealth() + 1);
 																							   if (player->getHealth() > 10)
 																								   player->setHealth(10);
@@ -837,39 +848,49 @@ void Spacewar::collisions() {
 																											 Blackhole* blackhole = new Blackhole();
 																											 blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
 
+																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+
 																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
+
 																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																											 pickup_->calculateObstructorDestructorType();
 
 																											 addEntity(blackhole);
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
+																												  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+
 																												  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																												  pickup_->calculateObstructorDestructorType();
 																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
+																												   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+
 																												   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																												   pickup_->calculateObstructorDestructorType();
 																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
+																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+
 																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																											   pickup_->calculateObstructorDestructorType();
 																											   player->getEffectTimers()->at(EFFECT_SLOW) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
+																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+
 																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																											   pickup_->calculateObstructorDestructorType();
 																											   player->getEffectTimers()->at(EFFECT_STUN) = 5.0f;
 																	   } break;
 																	   }
-																	   playerCanPickup = false;
-																	   pickupCoolDownTime = 1.0f;
+																	   player->getEffectTimers()->at(EFFECT_CANNOT_PICKUP) = 0.5f;
 																   }
 									  } break;
 									  }
