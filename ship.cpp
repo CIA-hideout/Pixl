@@ -30,6 +30,7 @@ Ship::Ship() : Entity() {
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_INVINCIBLE, 0.0f));
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_INVERTED, 0.0f));
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_INVULNERABLE, 0.0f));
+	effectTimers.insert(std::pair<EffectType, float>(EFFECT_FROZEN, 0.0f));
 }
 
 bool Ship::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM) {

@@ -46,9 +46,13 @@ public:
 	void spawn();
 	void damage(WEAPON);
 
+	//return effects of pickups in a string format
+	//enum is not supported in console
+	//use for debug purposes
+	void getEffectDebug();
 
 	// SET Methods
-	void setPickupType();
+	void setPickUpType();
 	void setPickUpType(PickupType pickupType);
 
 	//---------------
@@ -56,7 +60,7 @@ public:
 
 	// return `true` if pickup is a destructor
 	// return `false` if otherwise
-	bool getDestructor() { return this->isDestructor; }
+	bool getDestructor() { return this->destructor; }
 
 	// return effect of pickups
 	// Example: return `BLACKHOLE` if it is a blackhole
@@ -65,14 +69,13 @@ public:
 	void calculatePickupType();			// set a random pickup effect
 
 
-
 private:
-	PickupTypes type;
+	PickupType type;
 	bool		destructor;
 
 	//find if it is a pickup which inverts control, grow the player, stun the player,
 	//spawns homing missles
-	void		calculatePickupType();
+	//void		calculatePickupType();
 };
 
 #endif
