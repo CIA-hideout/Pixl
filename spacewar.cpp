@@ -430,200 +430,197 @@ void Spacewar::UpdateEntities() {
 	for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
 		switch ((*iter)->getObjectType()) {
 		case OBJECT_TYPE_PLAYER: {
-			if (!playerIsDead)
-			{
-									 if (input->isKeyDown(VK_UP)) {
-										 (*iter)->setVelocity(
-											 (cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
-											 (sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y)
-											 );
-									 }
+			if (!playerIsDead) {
+				if (input->isKeyDown(VK_UP)) {
+					(*iter)->setVelocity(
+						(cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
+						(sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y)
+						);
+				}
 
-									 if (input->isKeyDown(VK_DOWN)) {
-										 (*iter)->setVelocity(
-											 (cos((*iter)->getRadians()) * -playerAccelerationRate + (*iter)->getVelocity().x),
-											 (sin((*iter)->getRadians()) * -playerAccelerationRate + (*iter)->getVelocity().y)
-											 );
-									 }
+				if (input->isKeyDown(VK_DOWN)) {
+					(*iter)->setVelocity(
+						(cos((*iter)->getRadians()) * -playerAccelerationRate + (*iter)->getVelocity().x),
+						(sin((*iter)->getRadians()) * -playerAccelerationRate + (*iter)->getVelocity().y)
+						);
+				}
 
-									 if (input->isKeyDown(VK_LEFT)) {
-										 if (!(*iter)->hasEffect(EFFECT_INVERTED))
-											 (*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
-										 else
-											 (*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
-									 }
+				if (input->isKeyDown(VK_LEFT)) {
+					if (!(*iter)->hasEffect(EFFECT_INVERTED))
+						(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
+					else
+						(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
+				}
 
-									 if (input->isKeyDown(VK_RIGHT)) {
-										 if (!(*iter)->hasEffect(EFFECT_INVERTED))
-											 (*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
-										 else
-											 (*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
-									 }
+				if (input->isKeyDown(VK_RIGHT)) {
+					if (!(*iter)->hasEffect(EFFECT_INVERTED))
+						(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
+					else
+						(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
+				}
 
-									 if (input->isKeyDown(0x5A)) {
-										 (*iter)->setVelocity(
-											 (*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate * 3,
-											 (*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate * 3);
-									 }
+				if (input->isKeyDown(0x5A)) {
+					(*iter)->setVelocity(
+						(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate * 3,
+						(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate * 3);
+				}
 
-									 (*iter)->setVelocity(
-										 (*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
-										 (*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
-										 );
+				(*iter)->setVelocity(
+					(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
+					(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
+					);
 
-									 if (!playerCanPickup) {			// what for lol???
-										 pickupCoolDownTime -= deltaTime;
-										 if (pickupCoolDownTime <= 0) {
-											 playerCanPickup = true;
-										 }
-									 }
+				if (!playerCanPickup) {			// what for lol???
+					pickupCoolDownTime -= deltaTime;
+					if (pickupCoolDownTime <= 0) {
+						playerCanPickup = true;
+					}
+				}
 
-									 // iterate through the various effect that the players have
-									 // effects should be applied here
-									 for (std::map<EffectType, float>::iterator iter_ = player->getEffectTimers()->begin(); iter_ != player->getEffectTimers()->end(); iter_++) {
-										 if (iter_->second > 0.0f) {
-											 iter_->second -= deltaTime;
-											 switch (iter_->first) {
-											 case EFFECT_STUN: {
-																   if ((*iter)->hasEffect(EFFECT_STUN))
-																	   (*iter)->setVelocity(0, 0);
-											 } break;
-											 case EFFECT_INVINCIBLE: {
-											 } break;
-											 case EFFECT_SLOW: {
-																   if ((*iter)->hasEffect(EFFECT_SLOW)) {
-																	   (*iter)->setVelocity((*iter)->getVelocity().x / speedMultiplier
-																	   , (*iter)->getVelocity().y / speedMultiplier);
-																   }
-											 } break;
-											 case EFFECT_INVULNERABLE: {
-												 if ((*iter)->hasEffect(EFFECT_INVULNERABLE)){
-													 playerInvulnerableTimer -= deltaTime;
-			 										if (playerInvulnerableTimer < 0) {
-			 											(*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
-			 											(*iter)->setFrames(shipNS::player_START_FRAME, shipNS::player_END_FRAME);
-			 											(*iter)->setCurrentFrame(shipNS::player_START_FRAME);
-			 											playerIsInvulnerable = false;
-												 }
-											 } break;
+				// iterate through the various effect that the players have
+				// effects should be applied here
+				for (std::map<EffectType, float>::iterator iter_ = player->getEffectTimers()->begin(); iter_ != player->getEffectTimers()->end(); iter_++) {
+					if (iter_->second > 0.0f) {
+						iter_->second -= deltaTime;
+						switch (iter_->first) {
+						case EFFECT_STUN: {
+							if ((*iter)->hasEffect(EFFECT_STUN))
+								(*iter)->setVelocity(0, 0);
+						} break;
+						case EFFECT_INVINCIBLE: {
+						} break;
+						case EFFECT_SLOW: {
+							if ((*iter)->hasEffect(EFFECT_SLOW)) {
+								(*iter)->setVelocity((*iter)->getVelocity().x / speedMultiplier
+									, (*iter)->getVelocity().y / speedMultiplier);
+							}
+						} break;
+						case EFFECT_INVULNERABLE: {
+							if ((*iter)->hasEffect(EFFECT_INVULNERABLE)) {
+								playerInvulnerableTimer -= deltaTime;
+								if (playerInvulnerableTimer < 0) {
+									(*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
+									(*iter)->setFrames(shipNS::player_START_FRAME, shipNS::player_END_FRAME);
+									(*iter)->setCurrentFrame(shipNS::player_START_FRAME);
+									playerIsInvulnerable = false;
+								}
+							} break;
 
-											 case EFFECT_FROZEN:{
+						case EFFECT_FROZEN:{
 
-											 }break;
+						}break;
 
-											 }
-										 }
-									 }
-								 }
-		} break;
+						}
+						}
+					}
+				}
+			} break;
 		case OBJECT_TYPE_TRIANGLE: {
-									   double dx, dy;
+			double dx, dy;
 
-									   dx = player->getX() - (*iter)->getX();
-									   dy = player->getY() - (*iter)->getY();
+			dx = player->getX() - (*iter)->getX();
+			dy = player->getY() - (*iter)->getY();
 
-									   // 1, 4 quad
-									   if (dx > 0)
-										   (*iter)->setRadians(atan(dy / dx));
-									   // 2, 3 quad
-									   else if (dx < 0)
-										   (*iter)->setRadians(PI + atan(dy / dx));
+			// 1, 4 quad
+			if (dx > 0)
+				(*iter)->setRadians(atan(dy / dx));
+			// 2, 3 quad
+			else if (dx < 0)
+				(*iter)->setRadians(PI + atan(dy / dx));
 
-									   if (!playerIsDead) {
-										   (*iter)->setVelocity(
-											   cos((*iter)->getRadians()) * 50,
-											   sin((*iter)->getRadians()) * 50
-											   );
-									   }
-									   else {
-										   (*iter)->setVelocity(0, 0);
-									   }
+			if (!playerIsDead) {
+				(*iter)->setVelocity(
+					cos((*iter)->getRadians()) * 50,
+					sin((*iter)->getRadians()) * 50
+					);
+			}
+			else {
+				(*iter)->setVelocity(0, 0);
+			}
 
-									   if (player->hasEffect(EFFECT_FROZEN)){
-										   ((*iter)->setVelocity(0,0));
-									   }
+			if (player->hasEffect(EFFECT_FROZEN)) {
+				((*iter)->setVelocity(0, 0));
+			}
 		} break;
 		case OBJECT_TYPE_MISSILE: {
 		} break;
 		case OBJECT_TYPE_BLACKHOLE: {
-										calculateF(*iter, player);
+			calculateF(*iter, player);
 
-										int comparedValue = 0;
+			int comparedValue = 0;
 
-										if (!playerIsDead)
-										{
-											(*iter)->setRadians(timeGetTime());
-											(*iter)->update(deltaTime);
+			if (!playerIsDead) {
+				(*iter)->setRadians(timeGetTime());
+				(*iter)->update(deltaTime);
 
-											slowedTime = timeGetTime() - 50;			// it is 50 "frames" slower
-											slowRadians = timeGetTime();				// set to start where player dies
-										}
-										else
-										{
-											comparedValue = timeGetTime() - slowedTime;
+				slowedTime = timeGetTime() - 50;			// it is 50 "frames" slower
+				slowRadians = timeGetTime();				// set to start where player dies
+			}
+			else {
+				comparedValue = timeGetTime() - slowedTime;
 
-											if (comparedValue >= 50)					// every 50 radians,
-											{
-												slowRadians += 10.0f;					// increase radians by 10 (5x slower)
-												slowedTime = timeGetTime();			// reset slowed time so it is caught up with the current time
-												(*iter)->setRadians(slowRadians);		// rotate circle based on the slowed version of the radians
-											}
-										}
+				if (comparedValue >= 50)					// every 50 radians,
+				{
+					slowRadians += 10.0f;					// increase radians by 10 (5x slower)
+					slowedTime = timeGetTime();			// reset slowed time so it is caught up with the current time
+					(*iter)->setRadians(slowRadians);		// rotate circle based on the slowed version of the radians
+				}
+			}
 		} break;
 
 		case OBJECT_TYPE_PICKUP:
 		{
 
-			Pickup* pickup = (Pickup*) (*iter);
+			Pickup* pickup = (Pickup*)(*iter);
 
 			// Different pickups does different stuff
-			switch (pickup->getPickupType())
-			{
+			switch (pickup->getPickupType()) {
 				// All the Obstructors
 
-				case PICKUP_OBSTRUCTOR_INVERT_CONTROLS:{
+			case PICKUP_OBSTRUCTOR_INVERT_CONTROLS:{
 
-				} break;
-					
-				case PICKUP_OBSTRUCTOR_STUN_PLAYER:{
+			} break;
 
-				} break;
+			case PICKUP_OBSTRUCTOR_STUN_PLAYER:{
 
-				case PICKUP_OBSTRUCTOR_SLOW_PLAYER:{
+			} break;
 
-				}break;
+			case PICKUP_OBSTRUCTOR_SLOW_PLAYER:{
 
-				case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER:{
+			}break;
 
-				}break;
+			case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER:{
 
-				case PICKUP_OBSTRUCTOR_BLACKHOLE:{
+			}break;
 
-				}break;
+			case PICKUP_OBSTRUCTOR_BLACKHOLE:{
+
+			}break;
 
 
 				// All the Desstructors
 
-				case PICKUP_DESTRUCTOR_EXPLOSION:{
+			case PICKUP_DESTRUCTOR_EXPLOSION:{
 
-				}break;
+			}break;
 
-				case PICKUP_DESTRUCTOR_MISSLES:{
+			case PICKUP_DESTRUCTOR_MISSLES:{
 
-				}break;
+			}break;
 
-				case PICKUP_DESTRUCTOR_FREEZE:{
+			case PICKUP_DESTRUCTOR_FREEZE:{
 
-				}break;
+			}break;
 
-				case PICKUP_DESTRUCTOR_INVULNERABILITY:{
+			case PICKUP_DESTRUCTOR_INVULNERABILITY:{
 
-				}break;
+			}break;
 			}
 		}break;
 		}
 
-		(*iter)->update(deltaTime);
+								 (*iter)->update(deltaTime);
+		}
 	}
 }
 
