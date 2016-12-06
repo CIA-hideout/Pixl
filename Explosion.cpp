@@ -6,7 +6,9 @@
 
 #include "Explosion.h"
 
-
+// Create an Explosion object
+// Child of the Entity Class
+// 
 Explosion::Explosion() : Entity() {
 
 	spriteData.width = explosionNS::WIDTH;
