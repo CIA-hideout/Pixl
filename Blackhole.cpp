@@ -1,3 +1,9 @@
+// Module:			Gameplay Programming
+// Assignment 1:	Pixl
+// Student Name:	Elcoms Khang	(S10157558A)
+//					Lin Lue			(S10158175E)
+//					Amos Tan		(S10158017D)
+
 #include "Blackhole.h"
 
 Blackhole::Blackhole() : Entity() {
@@ -29,11 +35,14 @@ void Blackhole::draw() {
 	Image::draw();
 }
 
+// all blackhole does is rotate
 void Blackhole::update(float deltaTime) {
 	aliveTimer -= deltaTime;
 	Entity::update(deltaTime);
 	spriteData.angle += deltaTime * blackholeNS::ROTATION_RATE;
 	setRadians(timeGetTime() / 600.0f);
+	// set health to zero once its lifespan is up
+	// so it can be removed from entities vector
 	if (aliveTimer < 0.0f)
 		setHealth(0);
 }

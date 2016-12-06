@@ -1,9 +1,16 @@
+// Module:			Gameplay Programming
+// Assignment 1:	Pixl
+// Student Name:	Elcoms Khang	(S10157558A)
+//					Lin Lue			(S10158175E)
+//					Amos Tan		(S10158017D)
+
 #ifndef _CIRCLE_H_
 #define _CIRCLE_H_
 
 #include "entity.h"
 #include "constants.h"
 
+// declare circle namespace
 namespace CircleNS {
 	const float		MASS = 300.0f;
 	const float		SCALING = 0.2f;

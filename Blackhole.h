@@ -1,3 +1,9 @@
+// Module:			Gameplay Programming
+// Assignment 1:	Pixl
+// Student Name:	Elcoms Khang	(S10157558A)
+//					Lin Lue			(S10158175E)
+//					Amos Tan		(S10158017D)
+
 #ifndef _BLACK_HOLE_
 #define _BLACK_HOLE_
 
@@ -17,7 +23,6 @@ namespace blackholeNS {
 	const int			BLACKHOLE_START_FRAME = 0;
 	const int			X = GAME_WIDTH / 2 - WIDTH / 2;
 	const int			Y = GAME_HEIGHT / 2 - HEIGHT / 2;
-	
 
 }
 
