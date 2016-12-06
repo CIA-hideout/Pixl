@@ -561,14 +561,14 @@ void Spacewar::UpdateEntities() {
 											 iter_->second -= deltaTime;
 											 switch (iter_->first) {
 											 case EFFECT_ENLARGED:
-												 {
+											 {
 																	 if (player->hasEffect(EFFECT_ENLARGED)) {
 																		 player->setScale(shipNS::SCALING * 2);
 																	 }
 																	 else {
 																		 player->setScale(shipNS::SCALING);
 																	 }
-												 }
+											 }
 											 case EFFECT_STUN: {
 																   if ((*iter)->hasEffect(EFFECT_STUN))
 																	   (*iter)->setVelocity(0, 0);
@@ -625,13 +625,13 @@ void Spacewar::UpdateEntities() {
 
 									   /*if (!playerIsDead) {
 										   (*iter)->setVelocity(
-											   cos((*iter)->getRadians()) * 50,
-											   sin((*iter)->getRadians()) * 50
-											   );
-									   }
-									   else {
+										   cos((*iter)->getRadians()) * 50,
+										   sin((*iter)->getRadians()) * 50
+										   );
+										   }
+										   else {
 										   (*iter)->setVelocity(0, 0);
-									   }*/
+										   }*/
 
 									   if (player->hasEffect(EFFECT_FROZEN)) {
 										   (*iter)->setVelocity(0, 0);
@@ -675,21 +675,21 @@ void Spacewar::KillEntities() {
 										 iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_PLAYER: {
-											 (*iter)->setActive(false);
-											 (*iter)->setVisible(false);
-											 iter = entities.erase(iter);
-											 
-											 FILE* file;
+										 (*iter)->setActive(false);
+										 (*iter)->setVisible(false);
+										 iter = entities.erase(iter);
 
-											 if (playerScore > highscore) {
-												 beatenHighScore = true;
-												 file = fopen("highscore.dat", "w");
-												 highscore = playerScore;
-												 fprintf(file, "%d", highscore);
-												 fclose(file);
-											 }
+										 FILE* file;
 
-											 this->setGameState(GAME_STATE_GAMEOVER);
+										 if (playerScore > highscore) {
+											 beatenHighScore = true;
+											 file = fopen("highscore.dat", "w");
+											 highscore = playerScore;
+											 fprintf(file, "%d", highscore);
+											 fclose(file);
+										 }
+
+										 this->setGameState(GAME_STATE_GAMEOVER);
 			} break;
 			case OBJECT_TYPE_SQUARES: {
 										  (*iter)->setActive(false);
@@ -748,10 +748,10 @@ void Spacewar::collisions() {
 									  switch (entity->getObjectType())
 									  {
 									  case OBJECT_TYPE_BLACKHOLE: {
-																	  if (!player->hasEffect(EFFECT_INVULNERABLE) || ! player->hasEffect((EFFECT_INVINCIBLE))){
-																			PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+																	  if (!player->hasEffect(EFFECT_INVULNERABLE) || !player->hasEffect((EFFECT_INVINCIBLE))){
+																		  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 																		  printf("DAMAGE sound is played\n");
-																		}
+																	  }
 																	  player->damage(WEAPON_BLACKHOLE);
 																	  combo = 0;
 									  }	break;
@@ -849,6 +849,7 @@ void Spacewar::collisions() {
 
 																										   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
+																										   pickup_->calculateObstructorDestructorType();
 																										   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																										   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																	   } break;

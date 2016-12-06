@@ -197,8 +197,6 @@ void Game::run(HWND hwnd)
 		return;
 	}
 
-	if (deltaTime > 0.0)
-		fps = (fps*0.99f) + (0.01f / deltaTime);  // average fps
 	if (deltaTime > MAX_FRAME_TIME) // if frame rate is very slow
 		deltaTime = MAX_FRAME_TIME; // limit maximum deltaTime
 	timeStart = timeEnd;
