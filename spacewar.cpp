@@ -127,7 +127,11 @@ void Spacewar::initialize(HWND hwnd) {
 void Spacewar::update() {
 	switch (this->getGameState()) {
 	case GAME_STATE_MENU: {
-							  if (input->isKeyDown(0x20)) {
+							  if (input->isKeyDown(SPACEBAR)) {
+								  // play sound async to the game to avoid 'lag'
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+								  printf("SELECT sound is played\n");
+
 								  this->setGameState(GAME_STATE_GAME);
 								  this->setIsRunning(true);
 
@@ -206,7 +210,11 @@ void Spacewar::update() {
 							  }
 	} break;
 	case GAME_STATE_GAME: {
-							  if (input->isKeyDown(0x1B)) {
+							  if (input->isKeyDown(ESC_KEY)) {
+								  // play sound async to the game to avoid 'lag'
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+								  printf("SELECT sound is played\n");
+
 								  this->setGameState(GAME_STATE_MENU);
 								  this->setIsRunning(false);
 								  entities.clear();
@@ -327,7 +335,11 @@ void Spacewar::update() {
 	case GAME_STATE_SETTING: {
 	} break;
 	case GAME_STATE_GAMEOVER: {
-								  if (input->isKeyDown(0x1B)) {
+								  if (input->isKeyDown(ESC_KEY)) {
+									  // play sound async to the game to avoid 'lag'
+									  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+									  printf("SELECT sound is played\n");
+
 									  this->setGameState(GAME_STATE_MENU);
 									  this->setIsRunning(false);
 									  entities.clear();
@@ -663,16 +675,26 @@ void Spacewar::collisions() {
 									  switch (entity->getObjectType())
 									  {
 									  case OBJECT_TYPE_BLACKHOLE: {
+																	  // play sound async to the game to avoid 'lag'
+																	  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+																	  printf("DAMAGE sound is played\n");
+
 																	  player->damage(WEAPON_BLACKHOLE);
 																	  combo = 0;
 									  }	break;
 
 									  case OBJECT_TYPE_CIRCLE: {
 																   Circle* circle = (Circle*)(*iter);
+
 																   if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																	   circle->damage(WEAPON_PLAYER);
+
 																   }
 																   else if (!player->hasEffect(EFFECT_INVULNERABLE)) {
+																	   // play sound async to the game to avoid 'lag'
+																	   PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+																	   printf("DAMAGE sound is played\n");
+
 																	   player->damage(WEAPON_CIRCLE);
 																	   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
 																	   combo = 0;
@@ -681,10 +703,15 @@ void Spacewar::collisions() {
 
 									  case OBJECT_TYPE_TRIANGLE: {
 																	 Triangle* tri = (Triangle*)(*iter);
+
 																	 if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																		 tri->damage(WEAPON_PLAYER);
 																	 }
 																	 else if (!player->hasEffect(EFFECT_INVULNERABLE)) {
+																		 // play sound async to the game to avoid 'lag'
+																		 PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+																		 printf("DAMAGE sound is played\n");
+
 																		 player->damage(WEAPON_TRIANGLE);
 																		 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.0f;
 																		 combo = 0;
@@ -694,6 +721,7 @@ void Spacewar::collisions() {
 																   if (!player->hasEffect(EFFECT_CANNOT_PICKUP)) {
 																	   Pickup* pickup_ = (Pickup*)entity;
 
+																	   // play sound async to the game to avoid 'lag'
 																	   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 																	   printf("I play the PICKUP sound\n");
 

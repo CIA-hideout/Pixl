@@ -62,8 +62,9 @@ const char MISSILE_TEXTURE[]				= "resources\\images\\missile.png";
 const char EXPLOSION_TEXTURE[]				= "resources\\images\\explosion.png";
 
 // sound 
-const char PLAYER_PICKUP_SOUND[]			= "resources\\sounds\\pickup.wav";
-const char PLAYER_DAMAGE_SOUND[]			= "resources\\sounds\\damage.wav";
+const char PLAYER_PICKUP_SOUND[]			= "resources\\sounds\\pickup_2.wav";		// player pick up a pickup
+const char PLAYER_DAMAGE_SOUND[]			= "resources\\sounds\\damage_player.wav";	// player gets damaged
+const char PLAYER_SELECT_SOUND[]			= "resources\\sounds\\push_button.wav";		// player pushes space or esc
 
 // PLAYER DEATH
 const int P_DEATH_WIDTH								= 256;			// player death width
@@ -84,6 +85,7 @@ const UCHAR SHIP_ROTATE_LEFT = VK_LEFT;
 const UCHAR SHIP_ROTATE_RIGHT = VK_RIGHT;
 const UCHAR SHIP_ADD_V = VK_UP;
 const UCHAR SHIP_SUBTRACT_V = VK_DOWN;
+const UCHAR SPACEBAR = 0x20;
 
 // weapon types
 enum WEAPON {
