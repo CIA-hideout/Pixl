@@ -34,9 +34,9 @@ void Circle::update(float deltaTime){
 	spriteData.y += deltaTime * velocity.y;         // move ship along Y
 
 	// Bounce off walls
-	if (spriteData.x > GAME_WIDTH - CircleNS::WIDTH)    // if hit right screen edge
+	if (spriteData.x > GAME_WIDTH - CircleNS::WIDTH * this->getScale())    // if hit right screen edge
 	{
-		spriteData.x = GAME_WIDTH - CircleNS::WIDTH;    // position at right screen edge
+		spriteData.x = GAME_WIDTH - CircleNS::WIDTH * this->getScale();    // position at right screen edge
 		velocity.x = -velocity.x;                   // reverse X direction
 	}
 	else if (spriteData.x < 0)                    // else if hit left screen edge
@@ -44,9 +44,9 @@ void Circle::update(float deltaTime){
 		spriteData.x = 0;                           // position at left screen edge
 		velocity.x = -velocity.x;                   // reverse X direction
 	}
-	if (spriteData.y > GAME_HEIGHT - CircleNS::HEIGHT)  // if hit bottom screen edge
+	if (spriteData.y > GAME_HEIGHT - CircleNS::HEIGHT * this->getScale())  // if hit bottom screen edge
 	{
-		spriteData.y = GAME_HEIGHT - CircleNS::HEIGHT;  // position at bottom screen edge
+		spriteData.y = GAME_HEIGHT - CircleNS::HEIGHT * this->getScale();  // position at bottom screen edge
 		velocity.y = -velocity.y;                   // reverse Y direction
 	}
 	else if (spriteData.y < 0)                    // else if hit top screen edge
@@ -69,31 +69,44 @@ void Circle::spawn(){
 
 	switch (side) {
 		// left
-		case 0: {
-					this->setX(0 - rand() % GAME_WIDTH);
-					this->setY(rand() % GAME_HEIGHT);
-		} break;
-			// top
-		case 1: {
-					this->setX(rand() % GAME_WIDTH);
-					this->setY(-(rand() % GAME_HEIGHT));
-		} break;
-			// right
-		case 2: {
-					this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
-					this->setY(rand() % GAME_HEIGHT);
-		} break;
-			// bottom
-		case 3: {
-					this->setX(rand() % GAME_WIDTH);
-					this->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
-		} break;
+	case 0: {
+				this->setX(0 - rand() % GAME_WIDTH);
+				this->setY(rand() % GAME_HEIGHT);
+	} break;
+		// top
+	case 1: {
+				this->setX(rand() % GAME_WIDTH);
+				this->setY(-(rand() % GAME_HEIGHT));
+	} break;
+		// right
+	case 2: {
+				this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
+				this->setY(rand() % GAME_HEIGHT);
+	} break;
+		// bottom
+	case 3: {
+				this->setX(rand() % GAME_WIDTH);
+				this->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
+	} break;
 	}
 
 	this->setX(rand() % GAME_WIDTH);
 	this->setY(rand() % GAME_HEIGHT);
 }
 
-void Circle::damage(WEAPON){
+void Circle::damage(WEAPON weapon){
+	switch (weapon) {
+	case WEAPON_MISSILE: {
+							 this->setHealth(0);
+	} break;
+	case WEAPON_EXPLOSION: {
+							   this->setHealth(0);
+	} break;
+	case WEAPON_PLAYER: {
+							this->setHealth(0);
+	} break;
+	}
 
+	if (this->getHealth() < 0)
+		this->setHealth(0);
 }

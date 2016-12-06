@@ -33,8 +33,8 @@ void Missile::update(float deltaTime) {
 		this->setRadians(PI + atan(dy / dx));
 	}
 
-	this->velocity.x = cos(this->getRadians()) * 100;
-	this->velocity.y = sin(this->getRadians()) * 100;
+	this->velocity.x = cos(this->getRadians()) * 250;
+	this->velocity.y = sin(this->getRadians()) * 250;
 
 	spriteData.x += deltaTime * velocity.x;
 	spriteData.y += deltaTime * velocity.y;

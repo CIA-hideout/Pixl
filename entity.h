@@ -1,9 +1,9 @@
 // Programming 2D Games
-// Copyright (c) 2011 by:
+// Copyright (c) 2011 by: 
 // Charles Kelly
 // Chapter 6 entity.h v1.0
 
-#ifndef _ENTITY_H               // Prevent multiple definitions if this
+#ifndef _ENTITY_H               // Prevent multiple definitions if this 
 #define _ENTITY_H               // file is included in more than one place
 #define WIN32_LEAN_AND_MEAN
 
@@ -33,10 +33,11 @@ enum ObjectType {
 enum EffectType {
 	EFFECT_SLOW,
 	EFFECT_STUN,
-	EFFECT_FROZEN,
 	EFFECT_INVINCIBLE,
 	EFFECT_INVERTED,
-	EFFECT_INVULNERABLE
+	EFFECT_INVULNERABLE,
+	EFFECT_FROZEN,
+	EFFECT_ENLARGED
 };
 
 class Entity : public Image {
@@ -73,7 +74,7 @@ protected:
 
 	// --- The following functions are protected because they are not intended to be
 	// --- called from outside the class.
-	// Circular collision detection
+	// Circular collision detection 
 	// Pre: &ent = Other entity
 	// Post: &collisionVector contains collision vector
 	virtual bool collideCircle(Entity &ent, VECTOR2 &collisionVector);
