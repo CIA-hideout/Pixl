@@ -212,14 +212,6 @@ void Game::run(HWND hwnd)
 	renderGame();                   // draw all game items
 	input->readControllers();       // read state of controllers
 
-	// if Alt+Enter toggle fullscreen/window
-	if (input->isKeyDown(ALT_KEY) && input->wasKeyPressed(ENTER_KEY))
-		setDisplayMode(graphicsNS::TOGGLE); // toggle fullscreen/window
-
-	// if Esc key, set window mode
-	if (input->isKeyDown(ESC_KEY))
-		setDisplayMode(graphicsNS::WINDOW); // set window mode
-
 	// Clear input
 	// Call this after all key checks are done
 	input->clear(inputNS::KEYS_PRESSED);
