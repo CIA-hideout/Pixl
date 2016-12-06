@@ -73,9 +73,9 @@ void Pickup::spawn(){
 void Pickup::damage(WEAPON weapon){
 	switch (weapon)
 	{
-	case OBJECT_TYPE_PLAYER: {
-								 // this->setHealth(0);
-	}	break;
+		case OBJECT_TYPE_PLAYER: {
+									 // this->setHealth(0);
+		}	break;
 	}
 }
 
@@ -92,14 +92,47 @@ void Pickup::setPickUpType(){ 			// Calculate whether is an Obstructor or Destru
 
 void Pickup::setPickUpType(PickupType pickupType) {
 	this->type = pickupType;
-	this->isDestructor = getPickupType() == PICKUP_DESTRUCTOR_EXPLOSION || getPickupType() == PICKUP_DESTRUCTOR_FREEZE || getPickupType() == PICKUP_DESTRUCTOR_INVULNERABILITY || getPickupType() == PICKUP_DESTRUCTOR_MISSLES;
+	this->destructor = getPickupType() == PICKUP_DESTRUCTOR_EXPLOSION || getPickupType() == PICKUP_DESTRUCTOR_FREEZE || getPickupType() == PICKUP_DESTRUCTOR_INVULNERABILITY || getPickupType() == PICKUP_DESTRUCTOR_MISSLES;
 }
 
 /* ========================================	*/
 /*			Private Methods					*/
 /* ========================================	*/
 //	Calculate the type of Obstrutor or Destructor the pickup is
-void Pickup::calculateObstructorDestructorType(){
+
+//	return effects of pickups in a string format
+//	enum is not supported in console
+//	use for debug purposes
+void Pickup::getEffectDebug()
+{
+	switch (type) {
+	case PICKUP_OBSTRUCTOR_INVERT_CONTROLS:	printf("PICKUP_OBSTRUCTOR_INVERT_CONTROLS\n");
+		break;
+	case PICKUP_OBSTRUCTOR_STUN_PLAYER:		printf("PICKUP_OBSTRUCTOR_STUN_PLAYER\n");
+		break;
+	case PICKUP_OBSTRUCTOR_SLOW_PLAYER:		printf("PICKUP_OBSTRUCTOR_SLOW_PLAYER\n");
+		break;
+	case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER:	printf("PICKUP_OBSTRUCTOR_ENLARGE_PLAYER\n");
+		break;
+	case PICKUP_OBSTRUCTOR_BLACKHOLE:		printf("OBSTRUCTOR_BLACKHOLE\n");
+		break;
+	case PICKUP_DESTRUCTOR_EXPLOSION:		printf("PICKUP_DESTRUCTOR_EXPLOSION\n");
+		break;
+	case PICKUP_DESTRUCTOR_MISSLES:			printf("PICKUP_DESTRUCTOR_MISSLES\n");
+		break;
+	case PICKUP_DESTRUCTOR_FREEZE:			printf("PICKUP_DESTRUCTOR_FREEZE\n");
+		break;
+	case PICKUP_DESTRUCTOR_INVULNERABILITY:	printf("PICKUP_DESTRUCTOR_INVULNERABILITY\n");
+		break;
+	case PICKUP_HEALTH:						printf("PICKUP_HEALTH\n");
+		break;
+	default:							printf("NO PICKUPS\n");
+	}
+}
+
+
+//	Calculate the type of Obstrutor or Destructor the pickup is
+void Pickup::calculatePickupType(){
 
 	setPickUpType();
 	int randNumber;
@@ -138,7 +171,7 @@ void Pickup::calculateObstructorDestructorType(){
 		PICKUP_DESTRUCTOR_INVULNERABILITY
 	};
 
-	if (this->isDestructor())
+	if (this->destructor())
 	{
 		randNumber = rand() % 10;	//Get a number from 0 - 9
 		type = destructorArray[randNumber];
@@ -149,7 +182,7 @@ void Pickup::calculateObstructorDestructorType(){
 		type = obstructorArray[randNumber];
 	}
 
-	if (isDestructor)
+	if (destructor)
 		this->setCurrentFrame(0);
 	else
 		this->setCurrentFrame(1);
