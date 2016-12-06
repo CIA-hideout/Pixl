@@ -48,33 +48,52 @@ const float MAX_FRAME_TIME = 1.0f / MIN_FRAME_RATE; // maximum time used in calc
 const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
-// graphic images
+// player
+const int P_DEATH_WIDTH = 256;						// player death width
+const int P_DEATH_HEIGHT = 256;						// player death height
+const int P_DEATH_COLS = 8;							// player death columns
+const int P_DEATH_START_FRAME = 0;					// player death start frame number
+const int P_DEATH_END_FRAME = 25;					// player death end frame number
+const float P_DEATH_SCALE = 0.5f;					// player starting scale
+const float P_DEATH_ANIMATION_DELAY = 0.42f;		// player invul animation time between frames
+const int P_INVUL_COLS = 4;							// player invul columns
+const int P_INVUL_START_FRAME = 0;					// player invul start frame number
+const int P_INVUL_END_FRAME = 8;					// player invul end frame number
+const float P_INVUL_SCALE = 0.5f;					// player invul starting scale
+const float P_INVUL_ANIMATION_DELAY = 0.3f;			// player invul animation time between frames
+
+
+//=================================
+//		RESOURCE FILE PATHS
+//=================================
+
+// Player
 const char PLAYER_TEXTURE[]					= "resources\\images\\player.png";
 const char PLAYER_DEATH_TEXTURE[]			= "resources\\images\\player_death_animation.png";
+const char PLAYER_INVUL_TEXTURE[]			= "resources\\images\\player_invul_animation_spritesheet.png";
+const char PLAYER_INVIN_TEXTURE[]			= "resources\\images\\player_invin_animation_spritesheet.png";
+
+// Enemy
 const char TRIANGLE_TEXTURE[]				= "resources\\images\\triangle.png";
+const char CIRCLE_TEXTURE[]					= "resources\\images\\circle.png";
 const char BLACKHOLE_TEXTURE[]				= "resources\\images\\blackhole.png";
-const char FONT_TEXTURE[]					= "resources\\images\\font.png";
-const char FONT_TEXTURE_INFO[]				= "resources\\images\\font.dat";
-const char HEART_TEXTURE[] 					= "resources\\images\\sprite_hearts.png";
-const char CIRCLE_TEXTURE[] 				= "resources\\images\\circle.png";
+
+// Pickups
 const char DESTRUCTOR_OBSTRUCTOR_TEXTURE[]	= "resources\\images\\destructor_obstructor.png";
 const char MISSILE_TEXTURE[]				= "resources\\images\\missile.png";
 const char EXPLOSION_TEXTURE[]				= "resources\\images\\explosion.png";
 
-// sound 
+// GUI
+const char FONT_TEXTURE[]					= "resources\\images\\font.png";
+const char FONT_TEXTURE_INFO[]				= "resources\\images\\font.dat";
+const char HEART_TEXTURE[] 					= "resources\\images\\sprite_hearts.png";
+
+// Sound 
 const char PLAYER_PICKUP_SOUND[]			= "resources\\sounds\\pickup_2.wav";		// player pick up a pickup
 const char PLAYER_PICKUP_HEART_SOUND[]		= "resources\\sounds\\pickup_heart.wav";	// player pickup a heart
 const char PLAYER_DAMAGE_SOUND[]			= "resources\\sounds\\damage_player.wav";	// player gets damaged
 const char PLAYER_SELECT_SOUND[]			= "resources\\sounds\\push_button.wav";		// player pushes space or esc
 
-// PLAYER DEATH
-const int P_DEATH_WIDTH								= 256;			// player death width
-const int P_DEATH_HEIGHT							= 256;			// player death height
-const int P_DEATH_COLS								= 8;			// player death columns
-const int P_DEATH_START_FRAME					= 0;			// player death start frame number
-const int P_DEATH_END_FRAME						= 25;			// player death end frame number
-const float P_DEATH_SCALE							= 0.5f;			// player starting scale
-const float P_DEATH_ANIMATION_DELAY		= 0.42f;		// player death animation time between frames
 
 // key mappings
 // In this game simple constants are used for key mappings. If variables were used
