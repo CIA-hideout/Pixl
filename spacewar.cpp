@@ -693,24 +693,40 @@ void Spacewar::KillEntities() {
 										 iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_PLAYER: {
-										 (*iter)->setActive(false);
-										 (*iter)->setVisible(false);
-										 iter = entities.erase(iter);
+				if (playerIsDead && (*iter)->getCurrentFrame() == (*iter)->getEndFrame())
+				{
+					(*iter)->setActive(false);
+					(*iter)->setVisible(false);
+					iter = entities.erase(iter);
+					FILE* file;
 
-										 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_FILENAME);
-										 printf("You DEAD son\n");
+					if (playerScore > highscore) {
+						beatenHighScore = true;
+						file = fopen(HIGHSCORE_FILE, "w");
+						highscore = playerScore;
+						fprintf(file, "%d", highscore);
+						fclose(file);
+					}
 
-										 FILE* file;
+					this->setGameState(GAME_STATE_GAMEOVER);
+				}
+				else if (!playerIsDead && (*iter)->getCurrentFrame() == (*iter)->getStartFrame())
+				{
+					playerIsDead = true;				// set to true for "player is already dead and animated, do not repeat."
+					(*iter)->initialize(this, P_DEATH_WIDTH, P_DEATH_HEIGHT, P_DEATH_COLS, &p_deathTextures);
+					(*iter)->setFrames(P_DEATH_START_FRAME, P_DEATH_END_FRAME);
+					(*iter)->setCurrentFrame(P_DEATH_START_FRAME);
+					(*iter)->setFrameDelay(P_DEATH_ANIMATION_DELAY);
+					(*iter)->setLoop(false);
+					(*iter)->setRadians(deathAngle);
+					(*iter)->setScale(0.5f);
+					(*iter)->setRect();
+					PlaySound(PLAYER_DEAD_SOUND, NULL, SND_FILENAME);
+					//printf("You DEAD son\n");
 
-										 if (playerScore > highscore) {
-											 beatenHighScore = true;
-											 file = fopen(HIGHSCORE_FILE, "w");
-											 highscore = playerScore;
-											 fprintf(file, "%d", highscore);
-											 fclose(file);
-										 }
-
-										 this->setGameState(GAME_STATE_GAMEOVER);
+				}
+				(*iter)->update(deltaTime);
+				printf("%d\n", (*iter)->getCurrentFrame());
 			} break;
 			case OBJECT_TYPE_SQUARES: {
 										  (*iter)->setActive(false);
