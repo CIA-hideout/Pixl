@@ -49,18 +49,26 @@ const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
 // player
-const int P_DEATH_WIDTH = 256;						// player death width
-const int P_DEATH_HEIGHT = 256;						// player death height
-const int P_DEATH_COLS = 8;							// player death columns
-const int P_DEATH_START_FRAME = 0;					// player death start frame number
-const int P_DEATH_END_FRAME = 25;					// player death end frame number
-const float P_DEATH_SCALE = 0.5f;					// player starting scale
-const float P_DEATH_ANIMATION_DELAY = 0.42f;		// player invul animation time between frames
-const int P_INVUL_COLS = 4;							// player invul columns
-const int P_INVUL_START_FRAME = 0;					// player invul start frame number
-const int P_INVUL_END_FRAME = 8;					// player invul end frame number
-const float P_INVUL_SCALE = 0.5f;					// player invul starting scale
-const float P_INVUL_ANIMATION_DELAY = 0.3f;			// player invul animation time between frames
+const int P_DEATH_WIDTH					= 256;						// player death width
+const int P_DEATH_HEIGHT				= 256;						// player death height
+const int P_DEATH_COLS					= 8;						// player death columns
+const int P_DEATH_START_FRAME			= 0;						// player death start frame number
+const int P_DEATH_END_FRAME				= 25;						// player death end frame number
+const float P_DEATH_SCALE				= 0.5f;						// player starting scale
+const float P_DEATH_ANIMATION_DELAY		= 0.42f;					// player death animation time between frames
+const bool P_DEATH_LOOP					= false;					// player death animation loop
+const int P_INVUL_COLS					= 4;						// player invul columns
+const int P_INVUL_START_FRAME			= 0;						// player invul start frame number
+const int P_INVUL_END_FRAME				= 8;						// player invul end frame number
+const float P_INVUL_SCALE				= 0.5f;						// player invul starting scale
+const float P_INVUL_ANIMATION_DELAY		= 0.1f;						// player invul animation time between frames
+const bool P_INVUL_LOOP					= true;						// player invul animation loop	
+const int P_INVIN_COLS					= 2;						// player invin columns
+const int P_INVIN_START_FRAME			= 0;						// player invin start frame number
+const int P_INVIN_END_FRAME				= 4;						// player invin end frame number
+const float P_INVIN_SCALE				= 0.5f;						// player invin starting scale
+const float P_INVIN_ANIMATION_DELAY		= 0.1f;						// player invin animation time between frames
+const bool P_INVIN_LOOP					= true;						// Player invin animation loop
 
 
 //=================================
