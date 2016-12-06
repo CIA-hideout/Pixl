@@ -24,6 +24,7 @@ namespace PickupNS {
 	const int		Y = GAME_HEIGHT / 2 - HEIGHT / 2;
 }
 
+// declare what type of pickups are available in PickupType
 enum PickupType{
 	
 	PICKUP_OBSTRUCTOR_INVERT_CONTROLS,

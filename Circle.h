@@ -10,6 +10,7 @@
 #include "entity.h"
 #include "constants.h"
 
+// declare circle namespace
 namespace CircleNS {
 	const float		MASS = 300.0f;
 	const float		SCALING = 0.2f;
