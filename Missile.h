@@ -13,7 +13,7 @@ namespace missileNS {
 	const int   MISSILE_END_FRAME = 3;
 	const float SPEED = 100;
 	const float MASS = 100.0f;
-	const float	SCALING = 0.5f;
+	const float	SCALING = 0.25f;
 	const float ANIMATION_DELAY = 0.1f;
 	const bool LOOP = true;
 	const ObjectType OBJECT_TYPE = OBJECT_TYPE_MISSILE;

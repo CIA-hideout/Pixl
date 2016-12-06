@@ -7,7 +7,7 @@
 namespace blackholeNS {
 
 	const float			MASS = 9999999999999.0f;
-	const float			SCALING = 1.0f;
+	const float			SCALING = 0.5f;
 	const float			SPEED = 0;
 	const float			ROTATION_RATE = (float)PI / 4;
 	const int			WIDTH = 128;
