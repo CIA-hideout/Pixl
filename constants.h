@@ -63,6 +63,7 @@ const char EXPLOSION_TEXTURE[]				= "resources\\images\\explosion.png";
 
 // sound 
 const char PLAYER_PICKUP_SOUND[]			= "resources\\sounds\\pickup_2.wav";		// player pick up a pickup
+const char PLAYER_PICKUP_HEART_SOUND[]		= "resources\\sounds\\pickup_heart.wav";	// player pickup a heart
 const char PLAYER_DAMAGE_SOUND[]			= "resources\\sounds\\damage_player.wav";	// player gets damaged
 const char PLAYER_SELECT_SOUND[]			= "resources\\sounds\\push_button.wav";		// player pushes space or esc
 
