@@ -432,7 +432,7 @@ void Spacewar::render() {
 									  );
 
 								  ss.str("");
-								  ss << "score: " << playerScore << " Highest combo: " << maxCombo;
+								  ss << "score: " << playerScore << " Highest combo: " << maxCombo << " wave: " << currentWave;
 
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth(ss.str()) / 2,
