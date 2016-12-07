@@ -58,7 +58,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	Game::initialize(hwnd);
 
-	//AllocConsole();		// Console for debugging
+	AllocConsole();		// Console for debugging
 
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
