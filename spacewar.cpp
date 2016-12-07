@@ -742,6 +742,12 @@ void Spacewar::KillEntities() {
 				(*iter)->setVisible(false);
 				iter = entities.erase(iter);
 			} break;
+
+			case OBJECT_TYPE_FREEZE: {
+				(*iter)->setActive(false);
+				(*iter)->setVisible(false);
+				iter = entities.erase(iter);
+			} break;
 			}
 		}
 		else iter++;
@@ -847,14 +853,26 @@ void Spacewar::collisions() {
 							pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 							pickup_->calculateObstructorDestructorType();
 						} break;
+
 						case PICKUP_DESTRUCTOR_FREEZE: {
 							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+
+							Freeze* freeze = new Freeze();
+							freeze->initialize(this, freezeNS::WIDTH, freezeNS::HEIGHT, freezeNS::TEXTURE_COLS, &freezeTexture);
+							freeze->setFrames(freezeNS::START_FRAME, freezeNS::END_FRAME);
+							freeze->setCurrentFrame(freezeNS::START_FRAME);
+							freeze->setX(GAME_WIDTH / 2 - freezeNS::WIDTH / 2 * freezeNS::SCALING);
+							freeze->setY(GAME_HEIGHT / 2 - freezeNS::HEIGHT / 2 * freezeNS::SCALING);
+							freeze->setFrameDelay(freezeNS::ANIMATION_DELAY);
+							freeze->setRect();
+							tempVector.push_back(freeze);
 
 							pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 							pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 							pickup_->calculateObstructorDestructorType();
 							player->getEffectTimers()->at(EFFECT_FROZEN) = 10.0f;
 						} break;
+
 						case PICKUP_DESTRUCTOR_INVINCIBILITY: {
 							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 

@@ -5,7 +5,7 @@
 
 namespace freezeNS {
 	const float	SCALING = 3.0f;
-	const float ANIMATION_DELAY = 0.05f;
+	const float ANIMATION_DELAY = 0.1f;
 	const int	WIDTH = 128;
 	const int	HEIGHT = 128;
 	const int	TEXTURE_COLS = 4;
