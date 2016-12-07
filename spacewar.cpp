@@ -58,7 +58,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	Game::initialize(hwnd);
 
-	//AllocConsole();		// Console for debugging
+	AllocConsole();		// Console for debugging
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
 	freopen("conout$", "w", stderr);
@@ -216,6 +216,7 @@ void Spacewar::update() {
 								  }
 
 								  // Enemies (Initialize first wave)
+								  currentWave = 1;
 								  for (int i = 0; i < TRIANGLE_COUNT(currentWave); i++) {
 									  Triangle* triangle = new Triangle();
 									  triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
@@ -234,7 +235,6 @@ void Spacewar::update() {
 									  addEntity(circle);
 								  }
 
-								  currentWave = 1;
 								  waveBufferTime = 1.5f;			// time pause in between new waves
 								  baseTime = timeGetTime();
 							  }
@@ -842,7 +842,8 @@ void Spacewar::collisions() {
 																		  printf("DAMAGE sound is played\n");
 																	  }
 																	  player->damage(WEAPON_BLACKHOLE);
-																	  combo = 0;
+																	  player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
+									  								  combo = 0;
 									  }	break;
 
 									  case OBJECT_TYPE_CIRCLE: {
@@ -982,6 +983,8 @@ void Spacewar::collisions() {
 																											 // blackhole that is stored in the entities vector will have effect on the gravity. will be killed when the timer reaches 0
 																											 Blackhole* blackhole = new Blackhole();
 																											 blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
+																											 blackhole->setX(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
+																											 blackhole->setY(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
 
 																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
