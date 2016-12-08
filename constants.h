@@ -119,7 +119,7 @@ const char HIGHSCORE_FILE[]					= "resources\\data\\highscore.dat";
 // it would be possible to save and restore key mappings from a data file.
 const UCHAR ESC_KEY = VK_ESCAPE;       // escape key
 const UCHAR ALT_KEY = VK_MENU;         // Alt key
-const UCHAR ENTER_KEY = VK_RETURN;       // Enter key
+const UCHAR ENTER = VK_RETURN;       // Enter key
 const UCHAR SHIP_ROTATE_LEFT = VK_LEFT;
 const UCHAR SHIP_ROTATE_RIGHT = VK_RIGHT;
 const UCHAR SHIP_ADD_V = VK_UP;

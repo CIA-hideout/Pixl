@@ -7,7 +7,7 @@
 #include "Blackhole.h"
 
 Blackhole::Blackhole() : Entity() {
-	aliveTimer = 10.0f;
+	aliveTimer = 5.0f;
 	collisionType = entityNS::CIRCLE;
 	currentFrame = startFrame;
 	endFrame = blackholeNS::BLACKHOLE_END_FRAME;

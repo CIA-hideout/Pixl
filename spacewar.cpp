@@ -157,7 +157,7 @@ void Spacewar::update() {
 									// Code to run in the main menu							
 									// Start the game state if the spacebar is pressed
 									// Variables that may have be changed in the previous state(s) will be set to 0/original values again
-							  if (input->isKeyDown(SPACEBAR)) {
+							  if (input->isKeyDown(ENTER) || input->isKeyDown(SPACEBAR)){
 								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 
 								  beatenHighScore = false;
@@ -420,9 +420,16 @@ void Spacewar::render() {
 								  GAME_HEIGHT / 3,
 								  "P i x l ."
 								  );
-							  menuFont->Print(
+							  /*menuFont->Print(
 								  GAME_WIDTH / 2 - menuFont->getTotalWidth("Press space to start") / 2,
-								  GAME_HEIGHT / 2, "Press space to start");
+								  GAME_HEIGHT / 2, "Press space to start");*/
+
+							  if ((timeGetTime() % 500) < 250)
+							  {
+								  menuFont->Print(
+									  GAME_WIDTH / 2 - menuFont->getTotalWidth("[INSERT COIN]") / 2,
+									  GAME_HEIGHT / 2, "[INSERT COIN]");
+							  }
 	} break;
 	case GAME_STATE_GAME: {
 								//=================================================
@@ -839,11 +846,10 @@ void Spacewar::collisions() {
 									  case OBJECT_TYPE_BLACKHOLE: {
 																	// Plays sound and kills player if blackhole is touched when player is not invulnerable or invincible
 																	  if (!player->hasEffect(EFFECT_INVULNERABLE) || !player->hasEffect((EFFECT_INVINCIBLE))){
-
-																		  player->damage(WEAPON_BLACKHOLE);
 																	  	  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 																		  printf("DAMAGE sound is played\n");
 																		  player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
+																		  player->damage(WEAPON_BLACKHOLE);
 																		  combo = 0;
 																	  }
 									  }	break;
