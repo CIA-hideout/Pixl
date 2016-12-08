@@ -58,7 +58,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	Game::initialize(hwnd);
 
-	AllocConsole();		// Console for debugging
+	//AllocConsole();		// Console for debugging
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
 	freopen("conout$", "w", stderr);
@@ -839,12 +839,13 @@ void Spacewar::collisions() {
 									  case OBJECT_TYPE_BLACKHOLE: {
 																	// Plays sound and kills player if blackhole is touched when player is not invulnerable or invincible
 																	  if (!player->hasEffect(EFFECT_INVULNERABLE) || !player->hasEffect((EFFECT_INVINCIBLE))){
-																		  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+
+																		  player->damage(WEAPON_BLACKHOLE);
+																	  	  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 																		  printf("DAMAGE sound is played\n");
+																		  player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
+																		  combo = 0;
 																	  }
-																	  player->damage(WEAPON_BLACKHOLE);
-																	  player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
-									  								  combo = 0;
 									  }	break;
 
 									  case OBJECT_TYPE_CIRCLE: {
