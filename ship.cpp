@@ -98,7 +98,7 @@ void Ship::damage(WEAPON weapon) {
 						  this->setHealth(this->getHealth() - 2);
 	} break;
 	case WEAPON_BLACKHOLE: {
-							   this->setHealth(1);
+							   this->setHealth(0);
 	} break;
 	}
 
