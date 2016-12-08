@@ -234,7 +234,6 @@ void Spacewar::update() {
 									  circle->spawn();
 									  addEntity(circle);
 								  }
-
 								  waveBufferTime = 1.5f;			// time pause in between new waves
 								  baseTime = timeGetTime();
 							  }
@@ -244,13 +243,6 @@ void Spacewar::update() {
 								//					GAMEPLAY
 								//=================================================
 								// Code to run when gameplay is ongoing
-								// Pressing ESC Key returns player to Main Menu
-							  if (input->isKeyDown(ESC_KEY)) {			
-								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
-
-								  this->setGameState(GAME_STATE_MENU);
-								  entities.clear();
-							  }
 
 							  // buffer time for the first wave
 							  if (waveBufferTime > 0.0f) {
@@ -366,6 +358,15 @@ void Spacewar::update() {
 							  // update combo as the game progresses
 							  if (combo > maxCombo)
 								  maxCombo = combo;
+
+
+							  // Pressing ESC Key returns player to Main Menu
+							  if (input->isKeyDown(ESC_KEY)) {
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+
+								  entities.clear();
+								  this->setGameState(GAME_STATE_MENU);
+							  }
 
 							  // cleanup entities with no health
 							  KillEntities();
