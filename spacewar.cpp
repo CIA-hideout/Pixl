@@ -58,7 +58,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	Game::initialize(hwnd);
 
-	//AllocConsole();		// Console for debugging
+	AllocConsole();		// Console for debugging
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
 	freopen("conout$", "w", stderr);
@@ -693,22 +693,47 @@ void Spacewar::UpdateEntities() {
 										 player->setVelocity(0, 0);
 		} break;
 		case OBJECT_TYPE_TRIANGLE: {
+									   Triangle* t = (Triangle*) *iter;
 									   double dx, dy;			// For tracking the player
 
 									   dx = player->getX() - (*iter)->getX();
 									   dy = player->getY() - (*iter)->getY();
 
-									   // 1, 4 quad
-									   if (dx > 0)
-										   (*iter)->setRadians(atan(dy / dx));
-									   // 2, 3 quad
-									   else if (dx < 0)
-										   (*iter)->setRadians(PI + atan(dy / dx));
+										// Increases triangle's speed as time goes on
+									   if (!player->hasEffect(EFFECT_FROZEN))
+									   {
+										   if (timeGetTime() % 250 == 0)
+											   t->setAcceleration(t->getAcceleration() + 0.1f);
+									   }
 
-									   (*iter)->setVelocity(
-										   cos((*iter)->getRadians()) * 50,
-										   sin((*iter)->getRadians()) * 50
-										   );
+									   if (player->hasEffect(EFFECT_INVINCIBLE))
+									   {
+										   // 2, 3 quad
+										   if (dx > 0)
+											   (*iter)->setRadians(PI + atan(dy / dx));
+										   // 1, 4 quad
+										   else if (dx < 0)
+											   (*iter)->setRadians(atan(dy / dx));
+
+										   (*iter)->setVelocity(
+											   cos((*iter)->getRadians()) * 50 / t->getAcceleration(),
+											   sin((*iter)->getRadians()) * 50 / t->getAcceleration()
+											   );
+									   }
+									   else
+									   {
+										   // 1, 4 quad
+										   if (dx > 0)
+											   (*iter)->setRadians(atan(dy / dx));
+										   // 2, 3 quad
+										   else if (dx < 0)
+											   (*iter)->setRadians(PI + atan(dy / dx));
+
+										   (*iter)->setVelocity(
+											   cos((*iter)->getRadians()) * 50 * t->getAcceleration(),
+											   sin((*iter)->getRadians()) * 50 * t->getAcceleration()
+											   );
+									   }
 
 									   // Freeze triangle if player has frozen effect
 									   if (player->hasEffect(EFFECT_FROZEN)) {
