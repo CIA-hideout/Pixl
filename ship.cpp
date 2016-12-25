@@ -17,15 +17,15 @@
 Ship::Ship() : Entity() {
 	spriteData.width = shipNS::WIDTH;
 	spriteData.height = shipNS::HEIGHT;
-	spriteData.scale = shipNS::SCALING;
+	spriteData.scale = player_SCALING;
 	spriteData.x = shipNS::X;
 	spriteData.y = shipNS::Y;
 	spriteData.rect.bottom = shipNS::HEIGHT;
 	spriteData.rect.right = shipNS::WIDTH;
 	velocity.x = 0;
 	velocity.y = 0;
-	startFrame = shipNS::player_START_FRAME;
-	endFrame = shipNS::player_END_FRAME;
+	startFrame = player_START_FRAME;
+	endFrame = player_END_FRAME;
 	currentFrame = startFrame;
 	radius = shipNS::WIDTH / 2.0;
 	mass = shipNS::MASS;

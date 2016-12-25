@@ -55,6 +55,9 @@ const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
 // player
+const int player_START_FRAME			= 0;						// player starts at frame 0
+const int player_END_FRAME				= 3;						// player animation frames 0,1,2,3
+const float	player_SCALING				= 0.5f;						// player sprite scaling
 const int P_DEATH_WIDTH					= 256;						// player death width
 const int P_DEATH_HEIGHT				= 256;						// player death height
 const int P_DEATH_COLS					= 8;						// player death columns
@@ -64,14 +67,14 @@ const float P_DEATH_SCALE				= 0.5f;						// player starting scale
 const float P_DEATH_ANIMATION_DELAY		= 0.42f;					// player death animation time between frames
 const bool P_DEATH_LOOP					= false;					// player death animation loop
 const int P_INVUL_COLS					= 4;						// player invul columns
-const int P_INVUL_START_FRAME			= 0;						// player invul start frame number
-const int P_INVUL_END_FRAME				= 8;						// player invul end frame number
+const int P_INVUL_START_FRAME			= 8;						// player invul start frame number
+const int P_INVUL_END_FRAME				= 15;						// player invul end frame number
 const float P_INVUL_SCALE				= 0.5f;						// player invul starting scale
 const float P_INVUL_ANIMATION_DELAY		= 0.1f;						// player invul animation time between frames
 const bool P_INVUL_LOOP					= true;						// player invul animation loop	
-const int P_INVIN_COLS					= 2;						// player invin columns
-const int P_INVIN_START_FRAME			= 0;						// player invin start frame number
-const int P_INVIN_END_FRAME				= 4;						// player invin end frame number
+const int P_INVIN_COLS					= 4;						// player invin columns
+const int P_INVIN_START_FRAME			= 3;						// player invin start frame number
+const int P_INVIN_END_FRAME				= 7;						// player invin end frame number
 const float P_INVIN_SCALE				= 0.5f;						// player invin starting scale
 const float P_INVIN_ANIMATION_DELAY		= 0.1f;						// player invin animation time between frames
 const bool P_INVIN_LOOP					= true;						// Player invin animation loop
@@ -84,8 +87,6 @@ const bool P_INVIN_LOOP					= true;						// Player invin animation loop
 // Player
 const char PLAYER_TEXTURE[]					= "resources\\images\\player.png";
 const char PLAYER_DEATH_TEXTURE[]			= "resources\\images\\player_death_animation.png";
-const char PLAYER_INVUL_TEXTURE[]			= "resources\\images\\player_invul_animation_spritesheet.png";
-const char PLAYER_INVIN_TEXTURE[]			= "resources\\images\\player_invin_animation_spritesheet.png";
 
 // Enemy
 const char TRIANGLE_TEXTURE[]				= "resources\\images\\triangle.png";

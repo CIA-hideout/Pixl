@@ -51,19 +51,21 @@ public:
 	void spawn();
 	void damage(WEAPON);
 
-
-	// GET and SET Methods
+	// SET Methods
 	void setPickUpType(PickupType pickupType);
 	void setPickUpType();
-
+	
+	// GET Methods
 	PickupType getPickupType() { return this->type; }			// returns the type of pickup (i.e. blackhole, health, stun, freeze)
 	bool getIsDestructor() { return this->isDestructor; }		// returns true for destructor, false for obstructor
-	void calculateObstructorDestructorType();					// calculate the type of pickup
 
 private:
 
 	PickupType type;
 	boolean		isDestructor;
+
+protected:
+	void calculateObstructorDestructorType();					// calculate the type of pickup
 };
 
 #endif

@@ -450,3 +450,92 @@ void Entity::gravityForce(Entity *ent, float deltaTime)
     // Add gravity vector to moving velocity vector to change direction
     velocity += gravityV;
 }
+
+//================================================================================
+// switch-case method
+// sets the player's properties (or any other entity) according to its EffectType
+//================================================================================
+void Entity::triggerEffect(EffectType effect)
+{
+	switch (effect) {
+	case EFFECT_ENLARGED:
+	{
+		if (this->hasEffect(EFFECT_ENLARGED)) {
+			this->setScale(player_SCALING * 2);
+		}
+		else {
+			this->setScale(player_SCALING);
+		}
+	}
+
+	case EFFECT_STUN: {
+		if (this->hasEffect(EFFECT_STUN))
+			this->setVelocity(0, 0);
+	} break;
+
+	case EFFECT_INVINCIBLE: {
+
+		if (this->hasEffect(EFFECT_INVINCIBLE))
+		{
+			// if the frames are not invincible, set the correct frames
+			// else do nothing
+			if (this->getCurrentFrame() < P_INVIN_START_FRAME || this->getCurrentFrame() > P_INVIN_END_FRAME)
+			{
+				this->setFrames(P_INVIN_START_FRAME, P_INVIN_END_FRAME);
+				this->setCurrentFrame(P_INVIN_START_FRAME);
+				this->setFrameDelay(P_INVIN_ANIMATION_DELAY);
+				this->setLoop(P_INVIN_LOOP);
+				this->setScale(P_INVIN_SCALE);
+			}
+		}
+		else // no longer invincible
+		{
+			//	if the frames are not back to default, set the correct frames
+			// else do nothing
+			if (this->getCurrentFrame() > P_INVIN_START_FRAME || this->getCurrentFrame() < P_INVIN_END_FRAME)
+			{
+				this->setFrames(player_START_FRAME, player_END_FRAME);
+				this->setCurrentFrame(player_START_FRAME);
+				this->setScale(player_SCALING);
+			}
+		}
+
+	} break;
+
+	case EFFECT_SLOW: {
+		if (this->hasEffect(EFFECT_SLOW)) {
+			this->setVelocity(this->getVelocity().x / 1.05, this->getVelocity().y / 1.05);
+		}
+	} break;
+
+	case EFFECT_INVULNERABLE: {
+
+		if (this->hasEffect(EFFECT_INVULNERABLE))
+		{
+			// if the frames are not invulnerable, set the correct frames
+			// else do nothing
+			if (this->getCurrentFrame() < P_INVUL_START_FRAME || this->getCurrentFrame() > P_INVUL_END_FRAME)
+			{
+				this->setFrames(P_INVUL_START_FRAME, P_INVUL_END_FRAME);
+				this->setCurrentFrame(P_INVUL_START_FRAME);
+				this->setFrameDelay(P_INVUL_ANIMATION_DELAY);
+				this->setLoop(P_INVUL_LOOP);
+				this->setScale(P_INVUL_SCALE);
+			}
+		}
+		else // no longer invulnerable
+		{
+			//	if the frames are not back to default, set the correct frames
+			// else do nothing
+			if (this->getCurrentFrame() > P_INVUL_START_FRAME || this->getCurrentFrame() < P_INVUL_END_FRAME)
+			{
+				this->setFrames(player_START_FRAME, player_END_FRAME);
+				this->setCurrentFrame(player_START_FRAME);
+				this->setScale(player_SCALING);
+			}
+		}
+
+	} break;
+
+	}
+}

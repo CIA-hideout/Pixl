@@ -217,6 +217,9 @@ public:
 
 	// returns effect true if timer for effect > 0.0f
 	bool hasEffect(EffectType effectType) { return this->effectTimers.at(effectType) > 0.0f; }
+
+	// start the effect for the entity specified
+	void triggerEffect(EffectType effect);
 };
 
 #endif

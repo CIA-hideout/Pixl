@@ -23,15 +23,14 @@ namespace shipNS {
 	const float ROTATION_RATE = 0;
 	const float SPEED = 100;					// 100 pixels per second
 	const float MASS = 300.0f;					// mass
-	const int   TEXTURE_COLS = 2;
-	const int   player_START_FRAME = 0;			// player starts at frame 0
-	const int   player_END_FRAME = 4;			// player animation frames 0,1,2,3
-	const float	SCALING = 0.5f;
+	const int   TEXTURE_COLS = 4;
 }
 
 // inherits from Entity class
 class Ship : public Entity {
 public:
+	bool	playerDefaultTexture;				// true/false based on whether player has their starting texture or changed
+	
 	// constructor
 	Ship();
 
@@ -40,7 +39,12 @@ public:
 	virtual bool initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
 	void update(float deltaTime);
 	void damage(WEAPON);
-	void effect(Pickup* pickUp);
+
+	// GET functions
+	bool getPlayerDefaultTexture(){ return playerDefaultTexture; };
+
+	// SET functions
+	void setPlayerDefaultTexture(bool PDT){ playerDefaultTexture = PDT; };
 };
 #endif
 

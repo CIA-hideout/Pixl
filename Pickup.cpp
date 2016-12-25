@@ -50,42 +50,16 @@ void Pickup::update(float deltaTime){
  */
 void Pickup::spawn(){
 
-	setFrames(startFrame, endFrame);
-	setCollisionRadius(getHeight() / 2);
-	setVelocity(0, 0);						// powerups don't move;
-	setObjectType(OBJECT_TYPE_CIRCLE);
-	setScale(0.2f);
+	if (this->getPickupType() != PICKUP_HEALTH)
+		calculateObstructorDestructorType();
 
-	//spawn randomly in window
-	int side = rand() % 4;
+	// generate a random value for x and y
+	int randX = (rand() % ((GAME_WIDTH - 2 * this->getWidth()) - this->getWidth() + 1) + this->getWidth());
+	int randY = (rand() % ((GAME_HEIGHT - 2 * this->getHeight()) - this->getHeight() + 1) + this->getHeight());
 
-	switch (side) {
-		// left
-	case 0: {
-				this->setX(0 - rand() % GAME_WIDTH);
-				this->setY(rand() % GAME_HEIGHT);
-	} break;
-		// top
-	case 1: {
-				this->setX(rand() % GAME_WIDTH);
-				this->setY(-(rand() % GAME_HEIGHT));
-	} break;
-		// right
-	case 2: {
-				this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
-				this->setY(rand() % GAME_HEIGHT);
-	} break;
-		// bottom
-	case 3: {
-				this->setX(rand() % GAME_WIDTH);
-				this->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
-	} break;
-	}
-
-	this->setX(rand() % GAME_WIDTH);
-	this->setY(rand() % GAME_HEIGHT);
-
-	this->setScale(0.5);
+	// spawn randomly in window
+	this->setX(randX);
+	this->setY(randY);
 }
 
 /*
