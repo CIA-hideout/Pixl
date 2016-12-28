@@ -11,7 +11,7 @@
 #include "constants.h"
 
 namespace TriangleNS {
-
+	const float			ACCELERATION = 1.0f;
 	const float			MASS = 300.0f;
 	const float			SCALING = 0.2f;
 	const float			SPEED = 100;
@@ -28,7 +28,12 @@ namespace TriangleNS {
 class Triangle : public Entity {
 public:
 
+	float acceleration;
+
 	Triangle();
+
+	float getAcceleration();
+	void setAcceleration(float acceleration);
 
 	virtual void draw();
 	virtual bool initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);

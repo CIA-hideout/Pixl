@@ -22,6 +22,7 @@ Triangle::Triangle() : Entity() {
 	radius = TriangleNS::WIDTH / 2.0f;
 	mass = TriangleNS::MASS;
 	collisionType = entityNS::CIRCLE;
+	acceleration = TriangleNS::ACCELERATION;
 }
 
 bool Triangle::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM) {
@@ -32,11 +33,32 @@ void Triangle::draw() {
 	Image::draw();
 }
 
+float Triangle::getAcceleration(){ return this->acceleration; }
+void Triangle::setAcceleration(float acc){ this->acceleration = acc; }
+
+
 void Triangle::update(float deltaTime) {
 	Entity::update(deltaTime);
 	spriteData.angle += deltaTime * TriangleNS::ROTATION_RATE;
 	spriteData.x += deltaTime * velocity.x;
 	spriteData.y += deltaTime * velocity.y;
+
+	if (spriteData.x > GAME_WIDTH - TriangleNS::WIDTH * this->getScale()) {
+		spriteData.x = GAME_WIDTH - TriangleNS::WIDTH * this->getScale();
+		velocity.x = -velocity.x;
+	}
+	else if (spriteData.x < 0) {
+		spriteData.x = 0;
+		velocity.x = -velocity.x;
+	}
+	if (spriteData.y > GAME_HEIGHT - TriangleNS::HEIGHT  * this->getScale()) {
+		spriteData.y = GAME_HEIGHT - TriangleNS::HEIGHT  * this->getScale();
+		velocity.y = -velocity.y;
+	}
+	else if (spriteData.y < 0) {
+		spriteData.y = 0;
+		velocity.y = -velocity.y;
+	}
 }
 
 // To spawn a triangle outside the border
