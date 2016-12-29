@@ -262,6 +262,7 @@ void Spacewar::update() {
 							  // check if the current wave is over; spawns new stuff if true
 							  if (isWaveOver(entities)) {
 								  currentWave++;
+								  waveBufferTime = 1.5f;
 								  for (int i = 0; i < TRIANGLE_COUNT(currentWave); i++) {
 									  Triangle* tri = new Triangle();
 									  tri->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
