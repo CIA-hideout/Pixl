@@ -18,7 +18,7 @@
 
 // just a few helper functions that does not deserve to be in a class
 void PrintEffect(Entity* entity, Font* effectFont);					// prints the effect that the player has
-bool isWaveOver(std::vector<Entity*> entities);						// function to check if the wave is over based on 
+bool isWaveOver(std::vector<Entity*> entities);						// function to check if the wave is over based on
 bool isTargeted(std::vector<Missile*> missiles, Entity* entity);	// checks if an entitiy is targeted by a missile
 int minMaxRand(int min, int max);									// generate a random integer based on minimum/maximum value
 
@@ -46,8 +46,7 @@ DWORD	baseTime;
 
 std::stringstream ss;
 
-Spacewar::Spacewar() {
-}
+Spacewar::Spacewar() {}
 
 Spacewar::~Spacewar() {
 	releaseAll();           // call onLostDevice() for every graphics item
@@ -58,7 +57,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	Game::initialize(hwnd);
 
-	//AllocConsole();		// Console for debugging
+	AllocConsole();		// Console for debugging
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
 	freopen("conout$", "w", stderr);
@@ -86,6 +85,12 @@ void Spacewar::initialize(HWND hwnd) {
 	// GUI
 	heartTexture.initialize(graphics, HEART_TEXTURE);
 	fontTexture.initialize(graphics, FONT_TEXTURE);
+	controlTexture.initialize(graphics, CONTROL_TEXTURE);
+
+	controlSprite = new Entity();
+	controlSprite->initialize(this, 410, 243, 1, &controlTexture);
+	controlSprite->setX(GAME_WIDTH / 2 - controlSprite->getScale() * controlSprite->getWidth() / 2);
+	controlSprite->setY(GAME_HEIGHT / 2 - controlSprite->getScale() * controlSprite->getHeight() / 2);
 
 	this->setGameState(GAME_STATE_MENU);
 
@@ -151,13 +156,14 @@ void Spacewar::initialize(HWND hwnd) {
 void Spacewar::update() {
 	switch (this->getGameState()) {
 	case GAME_STATE_MENU: {
-									//=================================================
-									//					   MENU
-									//=================================================
-									// Code to run in the main menu							
-									// Start the game state if the spacebar is pressed
-									// Variables that may have be changed in the previous state(s) will be set to 0/original values again
-							  if (input->isKeyDown(SPACEBAR)) {
+							  //=================================================
+							  //					   MENU
+							  //=================================================
+							  // Code to run in the main menu
+							  // Start the game state if the spacebar is pressed
+							  // Variables that may have be changed in the previous state(s) will be set to 0/original values again
+							  // s
+							  if (input->isKeyDown(0x53)) {
 								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 
 								  beatenHighScore = false;
@@ -237,12 +243,22 @@ void Spacewar::update() {
 								  waveBufferTime = 1.5f;			// time pause in between new waves
 								  baseTime = timeGetTime();
 							  }
+
+							  // c
+							  else if (input->isKeyDown(0x43)) {
+								  this->setGameState(GAME_STATE_CREDITS);
+							  }
+
+							  // i
+							  else if (input->isKeyDown(0x49)) {
+								  this->setGameState(GAME_STATE_INSTRUCTION);
+							  }
 	} break;
-	case GAME_STATE_GAME: {	
-								//=================================================
-								//					GAMEPLAY
-								//=================================================
-								// Code to run when gameplay is ongoing
+	case GAME_STATE_GAME: {
+							  //=================================================
+							  //					GAMEPLAY
+							  //=================================================
+							  // Code to run when gameplay is ongoing
 
 							  // buffer time for the first wave
 							  if (waveBufferTime > 0.0f) {
@@ -360,7 +376,6 @@ void Spacewar::update() {
 							  if (combo > maxCombo)
 								  maxCombo = combo;
 
-
 							  // Pressing ESC Key returns player to Main Menu
 							  if (input->isKeyDown(ESC_KEY)) {
 								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
@@ -375,61 +390,76 @@ void Spacewar::update() {
 	case GAME_STATE_SETTING: {
 	} break;
 	case GAME_STATE_GAMEOVER: {
-									//=================================================
-									//					END SCREEN
-									//=================================================
-									// Code to run after the player dies and the score is shown
-									// Press ESC Key to return to Main Menu
+								  //=================================================
+								  //					END SCREEN
+								  //=================================================
+								  // Code to run after the player dies and the score is shown
+								  // Press ESC Key to return to Main Menu
 								  if (input->isKeyDown(ESC_KEY)) {
 									  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 									  printf("SELECT sound is played\n");
 
-			this->setGameState(GAME_STATE_MENU);
+									  this->setGameState(GAME_STATE_MENU);
 
 									  // clean up all entities
 									  entities.clear();
 								  }
 	} break;
-	}
-}
-
-
-void Spacewar::ai() {			// No AI implemented yet
-	switch (this->getGameState()) {
-	case GAME_STATE_MENU: {
+	case GAME_STATE_CREDITS: {
+								 if (input->isKeyDown(VK_ESCAPE)) {
+									 this->setGameState(GAME_STATE_MENU);
+								 }
 	} break;
-	case GAME_STATE_GAME: {
-	} break;
-	case GAME_STATE_SETTING: {
-	} break;
-	case GAME_STATE_GAMEOVER: {
+	case GAME_STATE_INSTRUCTION: {
+									 if (input->isKeyDown(VK_ESCAPE)) {
+										 this->setGameState(GAME_STATE_MENU);
+									 }
 	} break;
 	}
 }
+
+void Spacewar::ai() {}
 
 void Spacewar::render() {
 	graphics->spriteBegin();
 
 	switch (this->getGameState()) {
 	case GAME_STATE_MENU: {
-								//=================================================
-								//					  MENU
-								//=================================================
-								// displays GUI for the main menu
+							  //=================================================
+							  //					  MENU
+							  //=================================================
+							  // displays GUI for the main menu
 							  menuFont->Print(
 								  GAME_WIDTH / 2 - menuFont->getTotalWidth("P i x l .") / 2,
 								  GAME_HEIGHT / 3,
-								  "P i x l ."
-								  );
-							  menuFont->Print(
-								  GAME_WIDTH / 2 - menuFont->getTotalWidth("Press space to start") / 2,
-								  GAME_HEIGHT / 2, "Press space to start");
+								  "P i x l .");
+							  //menuFont->Print(
+							  // GAME_WIDTH / 2 - menuFont->getTotalWidth("[S]tart") / 2,
+							  // GAME_HEIGHT / 2, "[S]tart");
+
+							  int offsetY = 0;
+							  for (int i = 0; i < MENU_OPTIONS.size(); i++) {
+								  menuFont->Print(GAME_WIDTH / 2 - menuFont->getTotalWidth(MENU_OPTIONS[i]) / 2, GAME_HEIGHT / 2 + offsetY, MENU_OPTIONS[i]);
+								  offsetY += menuFont->getHeight() * menuFont->getScale();
+							  }
+	} break;
+	case GAME_STATE_CREDITS: {
+								 int offsetY = 0;
+								 menuFont->Print(GAME_WIDTH / 2 - menuFont->getTotalWidth("CREDITS:") / 2, GAME_HEIGHT / 4, "Credits:");
+								 for (int i = 0; i < CREDITS.size(); i++) {
+									 menuFont->Print(GAME_WIDTH / 2 - menuFont->getTotalWidth(CREDITS[i]) / 2, GAME_HEIGHT / 3 + offsetY, CREDITS[i]);
+									 offsetY += menuFont->getHeight() * menuFont->getScale();
+								 }
+	} break;
+	case GAME_STATE_INSTRUCTION: {
+									 printf("ayy");
+									 controlSprite->draw();
 	} break;
 	case GAME_STATE_GAME: {
-								//=================================================
-								//					GAMEPLAY
-								//=================================================
-								// Code to draw textures for entites and GUI during gameplay
+							  //=================================================
+							  //					GAMEPLAY
+							  //=================================================
+							  // Code to draw textures for entites and GUI during gameplay
 							  if (waveBufferTime > 0.0f) {
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth("wave" + std::to_string(currentWave)) / 2,
@@ -476,10 +506,10 @@ void Spacewar::render() {
 	case GAME_STATE_SETTING: {
 	} break;
 	case GAME_STATE_GAMEOVER: {
-									//=================================================
-									//					END SCREEN
-									//=================================================
-									// displays GUI for the game over screen; includes score, combo, wave, etc.
+								  //=================================================
+								  //					END SCREEN
+								  //=================================================
+								  // displays GUI for the game over screen; includes score, combo, wave, etc.
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Game over") / 2,
 									  GAME_HEIGHT / 3,
@@ -569,9 +599,8 @@ void Spacewar::UpdateEntities() {
 		// Update each entity based on their object types
 		switch ((*iter)->getObjectType()) {
 		case OBJECT_TYPE_PLAYER: {
-
-										//					Key Inputs
-										//=================================================
+									 //					Key Inputs
+									 //=================================================
 									 if (input->isKeyDown(VK_UP)) {
 										 (*iter)->setVelocity(
 											 (cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
@@ -728,69 +757,69 @@ void Spacewar::KillEntities() {
 			// will be kept simple to prevent modifying the iterator while deleting an item
 			switch ((*iter)->getObjectType()) {
 			case OBJECT_TYPE_BLACKHOLE: {
-				(*iter)->setActive(false);
-				(*iter)->setVisible(false);
-				iter = entities.erase(iter);
+											(*iter)->setActive(false);
+											(*iter)->setVisible(false);
+											iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_BOSS: {
-				(*iter)->setActive(false);
-				(*iter)->setVisible(false);
-				iter = entities.erase(iter);
+									   (*iter)->setActive(false);
+									   (*iter)->setVisible(false);
+									   iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_CIRCLE: {
-				(*iter)->setActive(false);
-				(*iter)->setVisible(false);
-				iter = entities.erase(iter);
-				playerScore += genScore(++combo);
+										 (*iter)->setActive(false);
+										 (*iter)->setVisible(false);
+										 iter = entities.erase(iter);
+										 playerScore += genScore(++combo);
 			} break;
 			case OBJECT_TYPE_PICKUP: {
-				(*iter)->setActive(false);
-				(*iter)->setVisible(false);
-				iter = entities.erase(iter);
+										 (*iter)->setActive(false);
+										 (*iter)->setVisible(false);
+										 iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_PLAYER: {
-				(*iter)->setActive(false);
-				(*iter)->setVisible(false);
-				iter = entities.erase(iter);
+										 (*iter)->setActive(false);
+										 (*iter)->setVisible(false);
+										 iter = entities.erase(iter);
 
-				PlaySound(PLAYER_DEAD_SOUND, NULL, SND_FILENAME);
-				printf("You DEAD son\n");
+										 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_FILENAME);
+										 printf("You DEAD son\n");
 
-				FILE* file;
+										 FILE* file;
 
-				// if beaten highscore then write it to file
-				// expensive IO opration only happens once in the game loop
-				// there shouldn't be much impact
-				if (playerScore > highscore) {
-					beatenHighScore = true;
-					file = fopen(HIGHSCORE_FILE, "w");
-					highscore = playerScore;
-					fprintf(file, "%d", highscore);
-					fclose(file);
-				}
+										 // if beaten highscore then write it to file
+										 // expensive IO opration only happens once in the game loop
+										 // there shouldn't be much impact
+										 if (playerScore > highscore) {
+											 beatenHighScore = true;
+											 file = fopen(HIGHSCORE_FILE, "w");
+											 highscore = playerScore;
+											 fprintf(file, "%d", highscore);
+											 fclose(file);
+										 }
 
-				this->setGameState(GAME_STATE_GAMEOVER);
+										 this->setGameState(GAME_STATE_GAMEOVER);
 			} break;
 			case OBJECT_TYPE_SQUARES: {
-				(*iter)->setActive(false);
-				(*iter)->setVisible(false);
-				iter = entities.erase(iter);
+										  (*iter)->setActive(false);
+										  (*iter)->setVisible(false);
+										  iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_TRIANGLE: {
-				(*iter)->setActive(false);
-				(*iter)->setVisible(false);
-				iter = entities.erase(iter);
-				playerScore += genScore(++combo);
+										   (*iter)->setActive(false);
+										   (*iter)->setVisible(false);
+										   iter = entities.erase(iter);
+										   playerScore += genScore(++combo);
 			} break;
 			case OBJECT_TYPE_EXPLOSION: {
-				(*iter)->setActive(false);
-				(*iter)->setVisible(false);
-				iter = entities.erase(iter);
+											(*iter)->setActive(false);
+											(*iter)->setVisible(false);
+											iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_FREEZE: {
-				(*iter)->setActive(false);
-				(*iter)->setVisible(false);
-				iter = entities.erase(iter);
+										 (*iter)->setActive(false);
+										 (*iter)->setVisible(false);
+										 iter = entities.erase(iter);
 			} break;
 			}
 		}
@@ -821,7 +850,6 @@ int Spacewar::genScore(int combo) {
 
 // a place where collision calculations takes place
 void Spacewar::collisions() {
-
 	// temp vector created to store entries that will be appended to entities after the iteration
 	std::vector<Entity*> tempVector;
 	switch (this->getGameState()) {
@@ -838,11 +866,10 @@ void Spacewar::collisions() {
 									  switch (entity->getObjectType())
 									  {
 									  case OBJECT_TYPE_BLACKHOLE: {
-																	// Plays sound and kills player if blackhole is touched when player is not invulnerable or invincible
+																	  // Plays sound and kills player if blackhole is touched when player is not invulnerable or invincible
 																	  if (!player->hasEffect(EFFECT_INVULNERABLE) || !player->hasEffect((EFFECT_INVINCIBLE))){
-
 																		  player->damage(WEAPON_BLACKHOLE);
-																	  	  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+																		  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 																		  printf("DAMAGE sound is played\n");
 																		  player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
 																		  combo = 0;
@@ -850,10 +877,9 @@ void Spacewar::collisions() {
 									  }	break;
 
 									  case OBJECT_TYPE_CIRCLE: {
-																	
 																   Circle* circle = (Circle*)(*iter);
 
-																	// Damages circle if player is invincible
+																   // Damages circle if player is invincible
 																   if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																	   circle->damage(WEAPON_PLAYER);
 																   }
@@ -888,11 +914,11 @@ void Spacewar::collisions() {
 																	 }
 									  }	break;
 									  case OBJECT_TYPE_PICKUP: {
-																	  //				  Pickup Effects
-																	  //=================================================
-																	  // run the following code when player touches a pickup
-																	  
-																	  // pickup cooldown
+																   //				  Pickup Effects
+																   //=================================================
+																   // run the following code when player touches a pickup
+
+																   // pickup cooldown
 																   if (!player->hasEffect(EFFECT_CANNOT_PICKUP)) {
 																	   Pickup* pickup_ = (Pickup*)entity;
 
@@ -1051,17 +1077,16 @@ void Spacewar::collisions() {
 }
 
 double Spacewar::calculateF(Entity* e1, Entity* e2) {
-	
 	// based on the formula GM1M2/R^2
 	//================================
 
 	double deltaX = e1->getX() + e1->getWidth() / 2 * e1->getScale() - e2->getX() - e2->getWidth() * e2->getScale() / 2;
 	double deltaY = e1->getY() + e1->getHeight() / 2 * e1->getScale() - e2->getY() - e2->getHeight() * e2->getScale() / 2;
 	double distance = sqrt(pow(deltaX, 2) + pow(deltaY, 2));
-	
+
 	// force
 	double force = G * e2->getMass() * e1->getMass() / pow(distance, 2);
-	
+
 	// deltaV
 	double A1 = force / e1->getMass();
 	double A2 = force / e2->getMass();
@@ -1080,7 +1105,6 @@ double Spacewar::calculateF(Entity* e1, Entity* e2) {
 }
 
 void PrintEffect(Entity* entity, Font* effectFont) {
-
 	//	  Displays each pickup status on the GUI
 	// ============================================
 
@@ -1090,39 +1114,39 @@ void PrintEffect(Entity* entity, Font* effectFont) {
 			ss.str("");
 			switch ((*iter).first) {
 			case EFFECT_INVERTED: {
-				ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Inverted";
-				effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
-				dy += effectFont->getHeight() * effectFont->getScale();
+									  ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Inverted";
+									  effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
+									  dy += effectFont->getHeight() * effectFont->getScale();
 			} break;
 			case EFFECT_SLOW: {
-				ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Slowed";
-				effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
-				dy += effectFont->getHeight() * effectFont->getScale();
+								  ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Slowed";
+								  effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
+								  dy += effectFont->getHeight() * effectFont->getScale();
 			} break;
 			case EFFECT_STUN: {
-				ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Stunned";
-				effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
-				dy += effectFont->getHeight() * effectFont->getScale();
+								  ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Stunned";
+								  effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
+								  dy += effectFont->getHeight() * effectFont->getScale();
 			} break;
 			case EFFECT_INVULNERABLE: {
-				ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Invulnerable";
-				effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
-				dy += effectFont->getHeight() * effectFont->getScale();
+										  ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Invulnerable";
+										  effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
+										  dy += effectFont->getHeight() * effectFont->getScale();
 			} break;
 			case EFFECT_FROZEN: {
-				ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Frozen";
-				effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
-				dy += effectFont->getHeight() * effectFont->getScale();
+									ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Frozen";
+									effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
+									dy += effectFont->getHeight() * effectFont->getScale();
 			} break;
 			case EFFECT_ENLARGED: {
-				ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Enlarged";
-				effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
-				dy += effectFont->getHeight() * effectFont->getScale();
+									  ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Enlarged";
+									  effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
+									  dy += effectFont->getHeight() * effectFont->getScale();
 			} break;
 			case EFFECT_INVINCIBLE: {
-				ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Invincible";
-				effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
-				dy += effectFont->getHeight() * effectFont->getScale();
+										ss << std::fixed << std::setprecision(1) << (float)((*iter).second) << " Invincible";
+										effectFont->Print(GAME_WIDTH - 20 - effectFont->getTotalWidth(ss.str()), dy, ss.str());
+										dy += effectFont->getHeight() * effectFont->getScale();
 			} break;
 			}
 		}

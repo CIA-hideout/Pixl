@@ -19,6 +19,8 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <mmsystem.h>
+#include <string>
+#include <vector>
 
 //-----------------------------------------------
 // Useful macros
@@ -53,6 +55,9 @@ const float MIN_FRAME_TIME = 1.0f / FRAME_RATE;   // minimum desired time for 1 
 const float MAX_FRAME_TIME = 1.0f / MIN_FRAME_RATE; // maximum time used in calculations
 const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
+
+const std::vector<std::string> CREDITS = {"-TEAM-", "Amos Tan", "Elcoms Khang", "Lin Lue", "-IN CHARGE-", "Tan Teck Jin Andrew", "Lee Ching Yun"};
+const std::vector<std::string> MENU_OPTIONS = { "[S]tart", "[C]redits", "[I]nstructions" };
 
 // player
 const int P_DEATH_WIDTH					= 256;						// player death width
@@ -102,6 +107,7 @@ const char FREEZE_TEXTURE[]					= "resources\\images\\freeze_animation_spriteshe
 const char FONT_TEXTURE[]					= "resources\\images\\font.png";
 const char FONT_TEXTURE_INFO[]				= "resources\\data\\font.dat";
 const char HEART_TEXTURE[] 					= "resources\\images\\sprite_hearts.png";
+const char CONTROL_TEXTURE[]				= "resources\\images\\controls.png";
 
 // Sound 
 const char PLAYER_PICKUP_SOUND[]			= "resources\\sounds\\pickup_good.wav";		// player pick up a pickup
