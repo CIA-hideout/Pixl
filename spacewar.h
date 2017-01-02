@@ -13,6 +13,8 @@
 #define _SPACEWAR_H           
 #define WIN32_LEAN_AND_MEAN
 
+#include <algorithm>
+#include <functional>
 #include "game.h"
 #include "textureManager.h"
 #include "image.h"
@@ -33,7 +35,8 @@ enum GameState {
 	GAME_STATE_GAMEOVER,
 	GAME_STATE_INSTRUCTION,
 	GAME_STATE_CREDITS,
-	GAME_STATE_HIGHSCORE
+	GAME_STATE_HIGHSCORE,
+	GAME_STATE_NEW_HIGHSCORE
 };
 
 class Spacewar : public Game {
@@ -41,27 +44,27 @@ private:
 
 	// game items
 	// Player
-	TextureManager			shipTextures;
-	TextureManager			p_deathTextures;
-	TextureManager			p_invulTextures;
-	TextureManager			p_invinTextures;
+	TextureManager				shipTextures;
+	TextureManager				p_deathTextures;
+	TextureManager				p_invulTextures;
+	TextureManager				p_invinTextures;
 
 	// Enemy
-	TextureManager			triangleTextures;
-	TextureManager			circleTextures;
+	TextureManager				triangleTextures;
+	TextureManager				circleTextures;
 
 	// Pickups
-	TextureManager			destructorObstructorTexture;
-	TextureManager			missileTexture;
-	TextureManager			explosionTexture;
-	TextureManager			blackHoleTexture;
-	TextureManager			freezeTexture;
+	TextureManager				destructorObstructorTexture;
+	TextureManager				missileTexture;
+	TextureManager				explosionTexture;
+	TextureManager				blackHoleTexture;
+	TextureManager				freezeTexture;
 
 	// GUI
-	TextureManager			fontTexture;
-	TextureManager			heartTexture;
-	std::vector<Entity*>	hearts;
-	TextureManager			controlTexture;
+	TextureManager				fontTexture;
+	TextureManager				heartTexture;
+	std::vector<Entity*>		hearts;
+	TextureManager				controlTexture;
 
 	// vectors to store the entities
 	// entities includes most thing in the game, such as dynamically
@@ -73,23 +76,32 @@ private:
 	std::vector<Missile*>	missiles;
 
 	// Fonts
-	Font*					timeFont;
-	Font*					comboFont;
-	Font*					scoreFont;
-	Font*					menuFont;
-	Font*					effectFont;
+	Font*						timeFont;
+	Font*						comboFont;
+	Font*						scoreFont;
+	Font*						menuFont;
+	Font*						effectFont;
 
 	// since we know that there will be one pickup dedicated to health,
 	// it will be easier to store the pointer here for easy referencing
 	// the same applies for player
-	Pickup*					healthPickup;
-	Ship*					player;
-	Entity*					controlSprite;
+	Pickup*						healthPickup;
+	Ship*						player;
+	Entity*						controlSprite;
+	Entity*						selectBox;
 
 	// state of the game
-	GameState				gameState;
+	GameState					gameState;
 	// controls the game state
-	bool					isRunning;
+	bool						isRunning;
+
+	std::map<int, std::string>	highscores;
+	std::vector<int>			scoreVect;
+	std::vector<Entity*>		kbdSprite;
+	std::vector<int>			alphaVect;
+
+	std::map<UCHAR, bool>		inputMap;
+	std::vector<int>			textVect;
 
 public:
 	// Constructor
@@ -118,6 +130,8 @@ public:
 
 	// remove entites from the entities vector to prevent unncessary overhead of iterating dead stuff
 	void KillEntities();
+
+	void ParseScore(std::string fileName);
 };
 
 #endif

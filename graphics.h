@@ -22,6 +22,12 @@
 #include <d3dx9.h>
 #include "constants.h"
 #include "gameError.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <timeapi.h>
+#include <sstream>
+#include <iomanip>
+#include <fstream>
 
 // DirectX pointer types
 #define LP_TEXTURE  LPDIRECT3DTEXTURE9

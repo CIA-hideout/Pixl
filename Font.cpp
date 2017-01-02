@@ -79,6 +79,23 @@ void Font::Print(int x, int y, std::string text) {
 	}
 }
 
+void Font::Print_(int x, int y, std::string text) {
+	int fx = x;
+	int fy = y;
+
+	for (int i = 0; i < text.length(); i++) {
+
+		// char can be cast to int
+		int frame = (int)text[i] - '!' + 1;
+		setCurrentFrame(frame);
+		setX(fx);
+		setY(fy);
+		draw();
+		fx += getWidth() * getScale();
+
+	}
+}
+
 int Font::getTotalWidth(std::string text) {
 
 	int fx = 0;
@@ -88,6 +105,17 @@ int Font::getTotalWidth(std::string text) {
 		int frame = (int)text[i] - '!' + 1;
 		fx += widths[frame] * getScale();
 
+	}
+
+	return fx;
+}
+
+int Font::getTotalWidth_(std::string text) {
+
+	int fx = 0;
+
+	for (int i = 0; i < text.length(); i++) {
+		fx += this->getWidth() * getScale();
 	}
 
 	return fx;

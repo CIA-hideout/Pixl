@@ -57,7 +57,7 @@ const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
 const std::vector<std::string> CREDITS = {"-TEAM-", "Amos Tan", "Elcoms Khang", "Lin Lue", "-IN CHARGE-", "Tan Teck Jin Andrew", "Lee Ching Yun"};
-const std::vector<std::string> MENU_OPTIONS = { "[S]tart", "[C]redits", "[I]nstructions" };
+const std::vector<std::string> MENU_OPTIONS = { "[S]tart", "[I]nstructions", "[H]ighscore", "[C]redits" };
 
 // player
 const int P_DEATH_WIDTH					= 256;						// player death width
@@ -108,6 +108,7 @@ const char FONT_TEXTURE[]					= "resources\\images\\font.png";
 const char FONT_TEXTURE_INFO[]				= "resources\\data\\font.dat";
 const char HEART_TEXTURE[] 					= "resources\\images\\sprite_hearts.png";
 const char CONTROL_TEXTURE[]				= "resources\\images\\controls.png";
+const char SELECT_BOX_TEXTURE[]				= "resources\\images\\select_box.png";
 
 // Sound 
 const char PLAYER_PICKUP_SOUND[]			= "resources\\sounds\\pickup_good.wav";		// player pick up a pickup

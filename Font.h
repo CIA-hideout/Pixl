@@ -16,11 +16,13 @@ public:
 
 	bool loadTextData(std::string fileName);		// text data (widths) is stored in dat files
 	void Print(int x, int y, std::string text);		// prints the text on screen give the coordinates
+	void Print_(int x, int y, std::string text);		// prints the text on screen give the coordinates
 	virtual void draw();
 	virtual bool initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
 	void update(float deltaTime);
 
 	int getTotalWidth(std::string text);
+	int getTotalWidth_(std::string text);
 
 private:
 

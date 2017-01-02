@@ -5,12 +5,6 @@
 //					Amos Tan		(S10158017D)
 
 #include "spaceWar.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <timeapi.h>
-#include <sstream>
-#include <iomanip>
-#include <fstream>
 
 // calculates the number of enemies
 #define TRIANGLE_COUNT(x) (x * 0.15 * 16)
@@ -42,9 +36,13 @@ bool	playerIsDead, playerCanPickup;
 bool	playerDefaultTexture;										// true/false based on whether player has their starting texture or changed
 bool	beatenHighScore;
 
+int		cursorPos, cursorPosCount;									// a number from 0 - 31
+int		kbdStartPosX, kbdStartPosY = 50;
+
 DWORD	baseTime;
 
 std::stringstream ss;
+std::string scoreStr;
 
 Spacewar::Spacewar() {}
 
@@ -144,16 +142,56 @@ void Spacewar::initialize(HWND hwnd) {
 		hearts.push_back(heart);
 	}
 
-	// read file to obtain highscore
-	FILE* file;
-	file = fopen(HIGHSCORE_FILE, "r");
-	fscanf(file, "%d", &highscore);
-	fclose(file);
+	ParseScore(HIGHSCORE_FILE);
+
+	for (std::map<int, std::string>::iterator iter = this->highscores.begin(); iter != this->highscores.end(); iter++) {
+		scoreVect.push_back(iter->first);
+	}
+	std::sort(scoreVect.begin(), scoreVect.end(), std::greater<int>());
+
+	inputMap.insert(std::pair<UCHAR, bool>(VK_LEFT, false));
+	inputMap.insert(std::pair<UCHAR, bool>(VK_RIGHT, false));
+	inputMap.insert(std::pair<UCHAR, bool>(VK_UP, false));
+	inputMap.insert(std::pair<UCHAR, bool>(VK_DOWN, false));
+	inputMap.insert(std::pair<UCHAR, bool>(VK_ESCAPE, false));
+	inputMap.insert(std::pair<UCHAR, bool>(VK_RETURN, false));
+	inputMap.insert(std::pair<UCHAR, bool>(0x5A, false));		// z
+	inputMap.insert(std::pair<UCHAR, bool>(0x48, false));		// h
+	inputMap.insert(std::pair<UCHAR, bool>(0x49, false));		// i
+	inputMap.insert(std::pair<UCHAR, bool>(0x43, false));		// c
+
+	kbdStartPosX = GAME_WIDTH / 2 - menuFont->getTotalWidth_("ABCDEFGH") / 2;
+	kbdStartPosY = GAME_HEIGHT / 2;
+
+	TextureManager* selectBoxTexture = new TextureManager();
+	selectBoxTexture->initialize(graphics, SELECT_BOX_TEXTURE);
+	selectBox = new Entity();
+	selectBox->initialize(this, 128, 128, 1, selectBoxTexture);
+	selectBox->setScale(0.5f);
+	selectBox->setX(kbdStartPosX);
+	selectBox->setY(kbdStartPosY);
+
+	alphaVect = std::vector<int>();
+
+	for (int i = 'A'; i <= '`'; i++) {
+		alphaVect.push_back(i);
+	}
+
+	textVect = std::vector<int>();
 
 	return;
 }
 
 void Spacewar::update() {
+	//for (std::map<UCHAR, bool>::iterator iter = inputMap.begin(); iter != inputMap.end(); iter++) {
+	//	if (input->isKeyDown(iter->first)) {
+	//		iter->second = true;
+	//	}
+	//	else {
+	//		iter->second = false;
+	//	}
+	//}
+
 	switch (this->getGameState()) {
 	case GAME_STATE_MENU: {
 							  //=================================================
@@ -164,10 +202,12 @@ void Spacewar::update() {
 							  // Variables that may have be changed in the previous state(s) will be set to 0/original values again
 							  // s
 							  if (input->isKeyDown(0x53)) {
-								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+								  // PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+
+								  entities.clear();
 
 								  beatenHighScore = false;
-								  playerHealth = 3;
+								  playerHealth = 1;
 								  playerMaxHealth = 10;
 								  playerIsDead = false;
 								  playerDefaultTexture = true;
@@ -252,6 +292,12 @@ void Spacewar::update() {
 							  // i
 							  else if (input->isKeyDown(0x49)) {
 								  this->setGameState(GAME_STATE_INSTRUCTION);
+							  }
+
+							  // h
+							  else if (input->isKeyDown(0x48)) {
+								  this->setGameState(GAME_STATE_HIGHSCORE);
+								  cursorPos = 0;
 							  }
 	} break;
 	case GAME_STATE_GAME: {
@@ -378,9 +424,8 @@ void Spacewar::update() {
 
 							  // Pressing ESC Key returns player to Main Menu
 							  if (input->isKeyDown(ESC_KEY)) {
-								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+								  // PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 
-								  entities.clear();
 								  this->setGameState(GAME_STATE_MENU);
 							  }
 
@@ -396,13 +441,22 @@ void Spacewar::update() {
 								  // Code to run after the player dies and the score is shown
 								  // Press ESC Key to return to Main Menu
 								  if (input->isKeyDown(ESC_KEY)) {
-									  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
-									  printf("SELECT sound is played\n");
+									  // PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 
 									  this->setGameState(GAME_STATE_MENU);
+								  }
 
-									  // clean up all entities
-									  entities.clear();
+								  // only compare with the top 10
+
+								  if (scoreVect.size() < 10) {
+									  this->setGameState(GAME_STATE_NEW_HIGHSCORE);
+								  }
+								  else {
+									  for (int i = 0; i < scoreVect.size(); i++) {
+										  if (playerScore > scoreVect[i]) {
+											  this->setGameState(GAME_STATE_NEW_HIGHSCORE);
+										  }
+									  }
 								  }
 	} break;
 	case GAME_STATE_CREDITS: {
@@ -415,6 +469,106 @@ void Spacewar::update() {
 										 this->setGameState(GAME_STATE_MENU);
 									 }
 	} break;
+	case GAME_STATE_HIGHSCORE: {
+								   if (input->isKeyDown(VK_ESCAPE)) {
+									   this->setGameState(GAME_STATE_MENU);
+								   }
+	} break;
+	case GAME_STATE_NEW_HIGHSCORE:{
+									  // r
+									  if (input->isKeyDown(VK_RIGHT)) {
+										  if (inputMap.at(VK_RIGHT) == false) {
+											  cursorPos++;
+											  inputMap.at(VK_RIGHT) = true;
+										  }
+									  }
+									  else {
+										  inputMap.at(VK_RIGHT) = false;
+									  }
+
+									  // l
+									  if (input->isKeyDown(VK_LEFT)) {
+										  if (inputMap.at(VK_LEFT) == false) {
+											  cursorPos--;
+											  inputMap.at(VK_LEFT) = true;
+										  }
+									  }
+									  else {
+										  inputMap.at(VK_LEFT) = false;
+									  }
+
+									  // u
+									  if (input->isKeyDown(VK_UP)) {
+										  if (inputMap.at(VK_UP) == false) {
+											  cursorPos -= 8;
+											  inputMap.at(VK_UP) = true;
+										  }
+									  }
+									  else {
+										  inputMap.at(VK_UP) = false;
+									  }
+
+									  // d
+									  if (input->isKeyDown(VK_DOWN)) {
+										  if (inputMap.at(VK_DOWN) == false) {
+											  cursorPos += 8;
+											  inputMap.at(VK_DOWN) = true;
+										  }
+									  }
+									  else {
+										  inputMap.at(VK_DOWN) = false;
+									  }
+
+									  if (cursorPos < 0) {
+										  cursorPos = cursorPos + 32;
+									  }
+
+									  cursorPos %= 32;
+
+									  // z
+									  if (input->isKeyDown(0x5A)) {
+										  if (inputMap.at(0x5A) == false) {
+											  // the current selected item will be added
+											  // backspace
+											  if (alphaVect[cursorPos] == (int)'_') {
+												  if (!textVect.empty()) {
+													  textVect.pop_back();
+												  }
+											  }
+											  // return
+											  else if (alphaVect[cursorPos] == (int)'`') {
+												  if (textVect.size() == 3) {
+													  std::string scoreStr_(textVect.begin(), textVect.end());
+													  highscores.insert(std::pair<int, std::string>(playerScore, scoreStr_));
+
+													  highscores.insert(std::pair<int, std::string>(playerScore, scoreStr_));
+													  scoreVect.push_back(playerScore);
+
+													  std::ofstream ofile;
+													  ofile.open(HIGHSCORE_FILE, std::ios_base::app);
+													  ofile << "\n" << scoreStr_ << ";" << playerScore;
+													  ofile.close();
+
+													  textVect.clear();
+													  setGameState(GAME_STATE_HIGHSCORE);
+												  }
+											  }
+											  else {
+												  if (textVect.size() < 3)
+													  textVect.push_back(alphaVect[cursorPos]);
+											  }
+											  inputMap.at(0x5A) = true;
+										  }
+									  }
+									  else {
+										  inputMap.at(0x5A) = false;
+									  }
+
+									  printf("cursor pos: %d\n", cursorPos);
+
+									  selectBox->setX(kbdStartPosX + cursorPos % 8 * 128 * menuFont->getScale());
+									  selectBox->setY(kbdStartPosY + ((cursorPos - (cursorPos % 8)) / 8) % 4 * 128 * menuFont->getScale());
+	};
 	}
 }
 
@@ -452,7 +606,6 @@ void Spacewar::render() {
 								 }
 	} break;
 	case GAME_STATE_INSTRUCTION: {
-									 printf("ayy");
 									 controlSprite->draw();
 	} break;
 	case GAME_STATE_GAME: {
@@ -506,10 +659,6 @@ void Spacewar::render() {
 	case GAME_STATE_SETTING: {
 	} break;
 	case GAME_STATE_GAMEOVER: {
-								  //=================================================
-								  //					END SCREEN
-								  //=================================================
-								  // displays GUI for the game over screen; includes score, combo, wave, etc.
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Game over") / 2,
 									  GAME_HEIGHT / 3,
@@ -548,6 +697,86 @@ void Spacewar::render() {
 										  ss.str()
 										  );
 								  }
+	} break;
+	case GAME_STATE_HIGHSCORE: {
+								   menuFont->Print(
+									   GAME_WIDTH / 2 - menuFont->getTotalWidth("Highscores") / 2,
+									   GAME_HEIGHT / 7,
+									   "Highscores"
+									   );
+
+								   ss.str("");
+
+								   int offsetY = GAME_HEIGHT / 5;
+								   int colCount = GAME_WIDTH / 8;
+								   int colName = GAME_WIDTH / 5;
+								   int colScore = GAME_WIDTH - GAME_WIDTH / 8;
+
+								   std::sort(scoreVect.begin(), scoreVect.end(), std::greater<int>());
+
+								   for (int i = 0; i < scoreVect.size() && i < 10; i++) {
+									   ss << i + 1;
+									   menuFont->Print(colCount, offsetY, ss.str());
+									   ss.str("");
+
+									   menuFont->Print(colName, offsetY, highscores.at(scoreVect[i]));
+
+									   ss << scoreVect[i];
+									   menuFont->Print(colScore - menuFont->getTotalWidth(ss.str()), offsetY, ss.str());
+									   ss.str("");
+
+									   offsetY += menuFont->getScale() * menuFont->getHeight();
+								   }
+
+								   menuFont->Print(
+									   GAME_WIDTH / 2 - menuFont->getTotalWidth("Press ESC to return to main menu") / 2,
+									   GAME_HEIGHT - GAME_HEIGHT / 9,
+									   "Press ESC to return to main menu"
+									   );
+
+	} break;
+	case GAME_STATE_NEW_HIGHSCORE: {
+									   ss.str("");
+									   ss << "score: " << playerScore << " Highest combo: " << maxCombo << " wave: " << currentWave;
+
+									   menuFont->Print(
+										   GAME_WIDTH / 2 - menuFont->getTotalWidth(ss.str()) / 2,
+										   GAME_HEIGHT / 5,
+										   ss.str()
+										   );
+
+									   menuFont->Print_(
+										   GAME_WIDTH / 2 - menuFont->getTotalWidth_("New Highscore!") / 2,
+										   GAME_HEIGHT / 4,
+										   "New Highscore!");
+
+									   int alphaOffset = (int)'A';
+									   int offsetX = kbdStartPosX;
+									   int offsetY = kbdStartPosY;
+									   int count = 1;
+									   std::stringstream ss;
+									   std::string character;
+									   for (int i = alphaOffset; i <= (int)'`'; i++) {
+										   ss << (char)i;
+										   ss >> character;
+										   ss.clear();
+										   menuFont->Print_(offsetX, offsetY, character);
+										   offsetX += menuFont->getTotalWidth_(character);
+										   if (count % 8 == 0) {
+											   offsetY += menuFont->getHeight() * menuFont->getScale();
+											   offsetX = kbdStartPosX;
+										   }
+										   count++;
+									   }
+									   // make the last character the '>' key
+									   selectBox->draw();
+
+									   std::string scoreStr(textVect.begin(), textVect.end());
+									   menuFont->Print_(
+										   GAME_WIDTH / 2 - menuFont->getTotalWidth_(scoreStr) / 2,
+										   GAME_HEIGHT / 3,
+										   scoreStr
+										   );
 	} break;
 	}
 
@@ -782,21 +1011,7 @@ void Spacewar::KillEntities() {
 										 (*iter)->setVisible(false);
 										 iter = entities.erase(iter);
 
-										 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_FILENAME);
-										 printf("You DEAD son\n");
-
-										 FILE* file;
-
-										 // if beaten highscore then write it to file
-										 // expensive IO opration only happens once in the game loop
-										 // there shouldn't be much impact
-										 if (playerScore > highscore) {
-											 beatenHighScore = true;
-											 file = fopen(HIGHSCORE_FILE, "w");
-											 highscore = playerScore;
-											 fprintf(file, "%d", highscore);
-											 fclose(file);
-										 }
+										 // PlaySound(PLAYER_DEAD_SOUND, NULL, SND_FILENAME);
 
 										 this->setGameState(GAME_STATE_GAMEOVER);
 			} break;
@@ -869,8 +1084,7 @@ void Spacewar::collisions() {
 																	  // Plays sound and kills player if blackhole is touched when player is not invulnerable or invincible
 																	  if (!player->hasEffect(EFFECT_INVULNERABLE) || !player->hasEffect((EFFECT_INVINCIBLE))){
 																		  player->damage(WEAPON_BLACKHOLE);
-																		  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
-																		  printf("DAMAGE sound is played\n");
+																		  // PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 																		  player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
 																		  combo = 0;
 																	  }
@@ -886,8 +1100,7 @@ void Spacewar::collisions() {
 
 																   // Plays sound and damages player if circle is touched when player is not invulnerable or invincible
 																   else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
-																	   PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
-																	   printf("DAMAGE sound is played\n");
+																	   // PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 
 																	   player->damage(WEAPON_CIRCLE);
 																	   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
@@ -905,8 +1118,7 @@ void Spacewar::collisions() {
 
 																	 // Plays sound and damages player if triangle is touched when player is not invulnerable or invincible
 																	 else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
-																		 PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
-																		 printf("DAMAGE sound is played\n");
+																		 // PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 
 																		 player->damage(WEAPON_TRIANGLE);
 																		 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
@@ -933,15 +1145,14 @@ void Spacewar::collisions() {
 																											 tempVector.push_back(explosion);
 
 																											 // play sound async to the game to avoid 'lag'
-																											 PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
-																											 printf("Pickup EXPLODES!\n");
+																											 // PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
 
 																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																											 pickup_->calculateObstructorDestructorType();
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_FREEZE: {
-																										  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																										  // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 																										  Freeze* freeze = new Freeze();
 																										  freeze->initialize(this, freezeNS::WIDTH, freezeNS::HEIGHT, freezeNS::TEXTURE_COLS, &freezeTexture);
 																										  freeze->setFrames(freezeNS::START_FRAME, freezeNS::END_FRAME);
@@ -957,7 +1168,7 @@ void Spacewar::collisions() {
 																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 10.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVINCIBILITY: {
-																												 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																												 // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																												 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
@@ -989,7 +1200,7 @@ void Spacewar::collisions() {
 																											   missiles.push_back(m);
 																										   }
 
-																										   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																										   // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																										   pickup_->calculateObstructorDestructorType();
 																										   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
@@ -997,8 +1208,7 @@ void Spacewar::collisions() {
 																	   } break;
 																	   case PICKUP_HEALTH: {
 																							   // no need to reset heart type since there will always be one in a game
-																							   PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
-																							   printf("I play the HEART sound\n");
+																							   // PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
 
 																							   player->setHealth(player->getHealth() + 1);
 																							   if (player->getHealth() > 10)
@@ -1015,7 +1225,7 @@ void Spacewar::collisions() {
 																											 blackhole->setX(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
 																											 blackhole->setY(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
 
-																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																											 // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 
@@ -1025,7 +1235,7 @@ void Spacewar::collisions() {
 																											 addEntity(blackhole);
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
-																												  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																												  // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																												  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
@@ -1033,7 +1243,7 @@ void Spacewar::collisions() {
 																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
-																												   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																												   // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																												   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
@@ -1041,7 +1251,7 @@ void Spacewar::collisions() {
 																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
-																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																											   // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
@@ -1049,7 +1259,7 @@ void Spacewar::collisions() {
 																											   player->getEffectTimers()->at(EFFECT_SLOW) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
-																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																											   // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
@@ -1102,6 +1312,25 @@ double Spacewar::calculateF(Entity* e1, Entity* e2) {
 		);
 
 	return force;
+}
+
+void Spacewar::ParseScore(std::string fileName) {
+	std::string delimiter = ";";
+	std::ifstream infile(fileName);
+	for (std::string line; std::getline(infile, line);) {
+		std::string	name;
+		int			score;
+
+		std::string s;
+
+		std::istringstream str_(line);
+		while (std::getline(str_, s, ';')) {
+			name = s.c_str();
+			std::getline(str_, s, ';');
+			score = std::stoi(s);
+			this->highscores.insert(std::pair<int, std::string>(score, name));
+		}
+	}
 }
 
 void PrintEffect(Entity* entity, Font* effectFont) {
