@@ -55,7 +55,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	Game::initialize(hwnd);
 
-	AllocConsole();		// Console for debugging
+	// AllocConsole();		// Console for debugging
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
 	freopen("conout$", "w", stderr);
@@ -86,7 +86,7 @@ void Spacewar::initialize(HWND hwnd) {
 	controlTexture.initialize(graphics, CONTROL_TEXTURE);
 
 	controlSprite = new Entity();
-	controlSprite->initialize(this, 410, 243, 1, &controlTexture);
+	controlSprite->initialize(this, 533, 413, 1, &controlTexture);
 	controlSprite->setX(GAME_WIDTH / 2 - controlSprite->getScale() * controlSprite->getWidth() / 2);
 	controlSprite->setY(GAME_HEIGHT / 2 - controlSprite->getScale() * controlSprite->getHeight() / 2);
 
@@ -207,7 +207,7 @@ void Spacewar::update() {
 								  entities.clear();
 
 								  beatenHighScore = false;
-								  playerHealth = 1;
+								  playerHealth = 5;
 								  playerMaxHealth = 10;
 								  playerIsDead = false;
 								  playerDefaultTexture = true;
@@ -453,7 +453,7 @@ void Spacewar::update() {
 								  }
 								  else {
 									  for (int i = 0; i < scoreVect.size(); i++) {
-										  if (playerScore > scoreVect[i]) {
+										  if (playerScore > scoreVect[i] && playerScore > 0) {
 											  this->setGameState(GAME_STATE_NEW_HIGHSCORE);
 										  }
 									  }

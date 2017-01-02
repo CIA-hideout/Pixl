@@ -126,7 +126,6 @@
     <ClInclude Include="graphics.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="input.h" />
-    <ClInclude Include="json.hpp" />
     <ClInclude Include="Missile.h" />
     <ClInclude Include="Pickup.h" />
     <ClInclude Include="ship.h" />
