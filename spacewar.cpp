@@ -55,7 +55,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	Game::initialize(hwnd);
 
-	AllocConsole();		// Console for debugging
+	//AllocConsole();		// Console for debugging
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
 	freopen("conout$", "w", stderr);
@@ -202,7 +202,7 @@ void Spacewar::update() {
 							  // Variables that may have be changed in the previous state(s) will be set to 0/original values again
 							  // s
 							  if (input->isKeyDown(0x53)) {
-								  // PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 
 								  entities.clear();
 
@@ -286,16 +286,19 @@ void Spacewar::update() {
 
 							  // c
 							  else if (input->isKeyDown(0x43)) {
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 								  this->setGameState(GAME_STATE_CREDITS);
 							  }
 
 							  // i
 							  else if (input->isKeyDown(0x49)) {
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 								  this->setGameState(GAME_STATE_INSTRUCTION);
 							  }
 
 							  // h
 							  else if (input->isKeyDown(0x48)) {
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 								  this->setGameState(GAME_STATE_HIGHSCORE);
 								  cursorPos = 0;
 							  }
@@ -424,7 +427,7 @@ void Spacewar::update() {
 
 							  // Pressing ESC Key returns player to Main Menu
 							  if (input->isKeyDown(ESC_KEY)) {
-								  // PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 
 								  this->setGameState(GAME_STATE_MENU);
 							  }
@@ -441,7 +444,7 @@ void Spacewar::update() {
 								  // Code to run after the player dies and the score is shown
 								  // Press ESC Key to return to Main Menu
 								  if (input->isKeyDown(ESC_KEY)) {
-									  // PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+									  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 
 									  this->setGameState(GAME_STATE_MENU);
 								  }
@@ -461,16 +464,19 @@ void Spacewar::update() {
 	} break;
 	case GAME_STATE_CREDITS: {
 								 if (input->isKeyDown(VK_ESCAPE)) {
+									 PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 									 this->setGameState(GAME_STATE_MENU);
 								 }
 	} break;
 	case GAME_STATE_INSTRUCTION: {
 									 if (input->isKeyDown(VK_ESCAPE)) {
+										 PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 										 this->setGameState(GAME_STATE_MENU);
 									 }
 	} break;
 	case GAME_STATE_HIGHSCORE: {
 								   if (input->isKeyDown(VK_ESCAPE)) {
+									   PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
 									   this->setGameState(GAME_STATE_MENU);
 								   }
 	} break;
@@ -1011,7 +1017,7 @@ void Spacewar::KillEntities() {
 										 (*iter)->setVisible(false);
 										 iter = entities.erase(iter);
 
-										 // PlaySound(PLAYER_DEAD_SOUND, NULL, SND_FILENAME);
+										 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_FILENAME);
 
 										 this->setGameState(GAME_STATE_GAMEOVER);
 			} break;
@@ -1084,7 +1090,7 @@ void Spacewar::collisions() {
 																	  // Plays sound and kills player if blackhole is touched when player is not invulnerable or invincible
 																	  if (!player->hasEffect(EFFECT_INVULNERABLE) || !player->hasEffect((EFFECT_INVINCIBLE))){
 																		  player->damage(WEAPON_BLACKHOLE);
-																		  // PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+																		  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 																		  player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
 																		  combo = 0;
 																	  }
@@ -1100,7 +1106,7 @@ void Spacewar::collisions() {
 
 																   // Plays sound and damages player if circle is touched when player is not invulnerable or invincible
 																   else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
-																	   // PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+																	   PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 
 																	   player->damage(WEAPON_CIRCLE);
 																	   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
@@ -1118,7 +1124,7 @@ void Spacewar::collisions() {
 
 																	 // Plays sound and damages player if triangle is touched when player is not invulnerable or invincible
 																	 else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
-																		 // PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+																		 PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 
 																		 player->damage(WEAPON_TRIANGLE);
 																		 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
@@ -1145,14 +1151,14 @@ void Spacewar::collisions() {
 																											 tempVector.push_back(explosion);
 
 																											 // play sound async to the game to avoid 'lag'
-																											 // PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
+																											 PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
 
 																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																											 pickup_->calculateObstructorDestructorType();
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_FREEZE: {
-																										  // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																										  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 																										  Freeze* freeze = new Freeze();
 																										  freeze->initialize(this, freezeNS::WIDTH, freezeNS::HEIGHT, freezeNS::TEXTURE_COLS, &freezeTexture);
 																										  freeze->setFrames(freezeNS::START_FRAME, freezeNS::END_FRAME);
@@ -1168,7 +1174,7 @@ void Spacewar::collisions() {
 																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 10.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVINCIBILITY: {
-																												 // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																												 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																												 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
@@ -1200,7 +1206,7 @@ void Spacewar::collisions() {
 																											   missiles.push_back(m);
 																										   }
 
-																										   // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																										   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																										   pickup_->calculateObstructorDestructorType();
 																										   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
@@ -1208,7 +1214,7 @@ void Spacewar::collisions() {
 																	   } break;
 																	   case PICKUP_HEALTH: {
 																							   // no need to reset heart type since there will always be one in a game
-																							   // PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+																							   PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
 
 																							   player->setHealth(player->getHealth() + 1);
 																							   if (player->getHealth() > 10)
@@ -1225,7 +1231,7 @@ void Spacewar::collisions() {
 																											 blackhole->setX(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
 																											 blackhole->setY(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
 
-																											 // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 
@@ -1235,7 +1241,7 @@ void Spacewar::collisions() {
 																											 addEntity(blackhole);
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
-																												  // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																												  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																												  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
@@ -1243,7 +1249,7 @@ void Spacewar::collisions() {
 																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
-																												   // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																												   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																												   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
@@ -1251,7 +1257,7 @@ void Spacewar::collisions() {
 																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
-																											   // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
@@ -1259,7 +1265,7 @@ void Spacewar::collisions() {
 																											   player->getEffectTimers()->at(EFFECT_SLOW) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
-																											   // PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
