@@ -33,7 +33,7 @@ enum GameState {
 	GAME_STATE_GAME,
 	GAME_STATE_SETTING,
 	GAME_STATE_GAMEOVER,
-	GAME_STATE_INSTRUCTION,
+	GAME_STATE_INSTRUCTIONS,
 	GAME_STATE_CREDITS,
 	GAME_STATE_HIGHSCORE,
 	GAME_STATE_NEW_HIGHSCORE
@@ -64,7 +64,7 @@ private:
 	TextureManager				fontTexture;
 	TextureManager				heartTexture;
 	std::vector<Entity*>		hearts;
-	TextureManager				controlTexture;
+	TextureManager				instructionsTexture;
 
 	// vectors to store the entities
 	// entities includes most thing in the game, such as dynamically
@@ -87,7 +87,7 @@ private:
 	// the same applies for player
 	Pickup*						healthPickup;
 	Ship*						player;
-	Entity*						controlSprite;
+	Entity*						instructions;
 	Entity*						selectBox;
 
 	// state of the game

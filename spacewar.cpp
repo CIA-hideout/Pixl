@@ -35,6 +35,7 @@ bool	waveOver;
 bool	playerIsDead, playerCanPickup;
 bool	playerDefaultTexture;										// true/false based on whether player has their starting texture or changed
 bool	beatenHighScore;
+bool	isKeyPressed;													// true/false based on whether player is on the how to play instructions page
 
 int		cursorPos, cursorPosCount;									// a number from 0 - 31
 int		kbdStartPosX, kbdStartPosY = 50;
@@ -83,12 +84,16 @@ void Spacewar::initialize(HWND hwnd) {
 	// GUI
 	heartTexture.initialize(graphics, HEART_TEXTURE);
 	fontTexture.initialize(graphics, FONT_TEXTURE);
-	controlTexture.initialize(graphics, CONTROL_TEXTURE);
+	instructionsTexture.initialize(graphics, INSTRUCTIONS_TEXTURE);
 
-	controlSprite = new Entity();
-	controlSprite->initialize(this, 410, 243, 1, &controlTexture);
-	controlSprite->setX(GAME_WIDTH / 2 - controlSprite->getScale() * controlSprite->getWidth() / 2);
-	controlSprite->setY(GAME_HEIGHT / 2 - controlSprite->getScale() * controlSprite->getHeight() / 2);
+	instructions = new Entity();
+	instructions->initialize(this, INSTRUCTIONS_WIDTH, INSTRUCTIONS_HEIGHT, INSTRUCTIONS_COLS, &instructionsTexture);
+	instructions->setLoop(false);
+	instructions->setFrames(INSTRUCTIONS_CONTROLS_START_FRAME, INSTRUCTIONS_CONTROLS_END_FRAME);
+	instructions->setCurrentFrame(INSTRUCTIONS_CONTROLS_START_FRAME);
+	instructions->setX(GAME_WIDTH / 2 - instructions->getScale() * instructions->getWidth() / 2);
+	instructions->setY(GAME_HEIGHT / 2 - instructions->getScale() * instructions->getHeight() / 2);
+	bool isKeyPressed = false;
 
 	this->setGameState(GAME_STATE_MENU);
 
@@ -291,7 +296,7 @@ void Spacewar::update() {
 
 							  // i
 							  else if (input->isKeyDown(0x49)) {
-								  this->setGameState(GAME_STATE_INSTRUCTION);
+								  this->setGameState(GAME_STATE_INSTRUCTIONS);
 							  }
 
 							  // h
@@ -464,10 +469,46 @@ void Spacewar::update() {
 									 this->setGameState(GAME_STATE_MENU);
 								 }
 	} break;
-	case GAME_STATE_INSTRUCTION: {
-									 if (input->isKeyDown(VK_ESCAPE)) {
-										 this->setGameState(GAME_STATE_MENU);
-									 }
+	case GAME_STATE_INSTRUCTIONS: {
+		if (input->isKeyDown(VK_ESCAPE)) {
+			this->setGameState(GAME_STATE_MENU);
+		}
+		else if (instructions->getCurrentFrame() == 0 && input->isKeyDown(VK_RIGHT) && !isKeyPressed)
+		{
+			instructions->setFrames(INSTRUCTIONS_HOW_START_FRAME, INSTRUCTIONS_HOW_END_FRAME);
+			instructions->setCurrentFrame(INSTRUCTIONS_HOW_START_FRAME);
+			instructions->setLoop(false);
+			isKeyPressed = true;
+		}
+		else if (instructions->getCurrentFrame() == 1 && input->isKeyDown(VK_LEFT) && !isKeyPressed)
+		{
+			instructions->setFrames(INSTRUCTIONS_CONTROLS_START_FRAME, INSTRUCTIONS_CONTROLS_END_FRAME);
+			instructions->setCurrentFrame(INSTRUCTIONS_CONTROLS_START_FRAME);
+			instructions->setLoop(false);
+			isKeyPressed = true;
+		}
+		else if (instructions->getCurrentFrame() == 1 && input->isKeyDown(VK_RIGHT) && !isKeyPressed)
+		{
+			instructions->setFrames(INSTRUCTIONS_GOODLUCK_START_FRAME, INSTRUCTIONS_GOODLUCK_END_FRAME);
+			instructions->setCurrentFrame(INSTRUCTIONS_GOODLUCK_START_FRAME);
+			instructions->setFrameDelay(INSTRUCTIONS_ANIMATION_DELAY);
+			instructions->setLoop(true);
+			isKeyPressed = true;
+		}
+		else if (instructions->getCurrentFrame() == 2 && input->isKeyDown(VK_LEFT) && !isKeyPressed)
+		{
+			instructions->setFrames(INSTRUCTIONS_HOW_START_FRAME, INSTRUCTIONS_HOW_END_FRAME);
+			instructions->setCurrentFrame(INSTRUCTIONS_HOW_START_FRAME);
+			instructions->setLoop(false);
+			isKeyPressed = true;
+		}
+
+		if (timeGetTime() % 1000 <= 50)
+		{
+			isKeyPressed = false;
+		}
+
+		instructions->update(deltaTime);
 	} break;
 	case GAME_STATE_HIGHSCORE: {
 								   if (input->isKeyDown(VK_ESCAPE)) {
@@ -525,7 +566,7 @@ void Spacewar::update() {
 
 									  cursorPos %= 32;
 
-									  // z
+									  // select a character at the position of the cursor
 									  if (input->isKeyDown(0x5A)) {
 										  if (inputMap.at(0x5A) == false) {
 											  // the current selected item will be added
@@ -605,8 +646,8 @@ void Spacewar::render() {
 									 offsetY += menuFont->getHeight() * menuFont->getScale();
 								 }
 	} break;
-	case GAME_STATE_INSTRUCTION: {
-									 controlSprite->draw();
+	case GAME_STATE_INSTRUCTIONS: {
+									 instructions->draw();
 	} break;
 	case GAME_STATE_GAME: {
 							  //=================================================
@@ -749,6 +790,11 @@ void Spacewar::render() {
 										   GAME_WIDTH / 2 - menuFont->getTotalWidth_("New Highscore!") / 2,
 										   GAME_HEIGHT / 4,
 										   "New Highscore!");
+
+									   menuFont->Print(
+										   GAME_WIDTH / 2 - menuFont->getTotalWidth("Press the <z> key to select an alphabet") / 2,
+										   GAME_HEIGHT / 2.5,
+										   "Press the <z> key to select an alphabet");
 
 									   int alphaOffset = (int)'A';
 									   int offsetX = kbdStartPosX;
