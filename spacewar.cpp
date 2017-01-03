@@ -1281,6 +1281,7 @@ void Spacewar::collisions() {
 																							   if (player->getHealth() > 10)
 																								   player->setHealth(10);
 																							   playerScore += genScore(++combo);
+<<<<<<< HEAD
 																							   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																							   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));*/
 																	   } break;
@@ -1294,6 +1295,7 @@ void Spacewar::collisions() {
 																		   //playerScore += genScore(++combo);
 																		   pickup_->setHealth(0);
 																		   pickup_->respawnPickup();
+
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_BLACKHOLE: {
 																											 // blackhole is a environmental effect.
