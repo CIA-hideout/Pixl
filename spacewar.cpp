@@ -1221,7 +1221,7 @@ void Spacewar::collisions() {
 																										  freeze->setRect();
 																										  tempVector.push_back(freeze);
 																										  pickup_->respawnPickup();
-																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 10.0f;
+																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVINCIBILITY: {
 																												 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
@@ -1267,7 +1267,6 @@ void Spacewar::collisions() {
 																								   player->setHealth(10);
 																							   playerScore += genScore(++combo);
 
-																							   //Sleep((rand() % 11) * 1000);	// set random time from 0 to 10 secs to spawn hearts
 																							   pickup_->respawnPickup();
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_BLACKHOLE: {
@@ -1287,25 +1286,25 @@ void Spacewar::collisions() {
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
 																												  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 																												  pickup_->respawnPickup();
-																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 5.0f;
+																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
 																												   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																												   pickup_->respawnPickup();
-																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 5.0f;
+																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																											   pickup_->respawnPickup();
-																											   player->getEffectTimers()->at(EFFECT_SLOW) = 5.0f;
+																											   player->getEffectTimers()->at(EFFECT_SLOW) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																											   pickup_->respawnPickup();
-																											   player->getEffectTimers()->at(EFFECT_STUN) = 5.0f;
+																											   player->getEffectTimers()->at(EFFECT_STUN) = 10.0f;
 																	   } break;
 																	   }
 
