@@ -1073,7 +1073,7 @@ void Spacewar::KillEntities() {
 										 (*iter)->setVisible(false);
 										 iter = entities.erase(iter);
 
-										 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_FILENAME);
+										 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_ASYNC);
 
 										 this->setGameState(GAME_STATE_GAMEOVER);
 			} break;
