@@ -252,8 +252,7 @@ void Spacewar::update() {
 								  healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
 								  healthPickup->setPickUpType(PICKUP_HEALTH);
 								  healthPickup->setCurrentFrame(0);
-								  healthPickup->setX(minMaxRand(healthPickup->getWidth(), GAME_WIDTH - 2 * healthPickup->getWidth()));
-								  healthPickup->setY(minMaxRand(healthPickup->getHeight(), GAME_HEIGHT - 2 * healthPickup->getHeight()));
+								  healthPickup->setNewLocation();
 
 								  addEntity(healthPickup);
 
@@ -266,8 +265,7 @@ void Spacewar::update() {
 										  pickup->setCurrentFrame(0);
 									  else
 										  pickup->setCurrentFrame(1);
-									  pickup->setX(minMaxRand(pickup->getWidth(), GAME_WIDTH - 2 * pickup->getWidth()));
-									  pickup->setY(minMaxRand(pickup->getHeight(), GAME_HEIGHT - 2 * pickup->getHeight()));
+									  pickup->setNewLocation();
 
 									  addEntity(pickup);
 								  }
@@ -1209,9 +1207,7 @@ void Spacewar::collisions() {
 																											 // play sound async to the game to avoid 'lag'
 																											 PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
 
-																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																											 pickup_->calculateObstructorDestructorType();
+																											 pickup_->respawnPickup();
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_FREEZE: {
 																										  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
@@ -1224,17 +1220,13 @@ void Spacewar::collisions() {
 																										  freeze->setFrameDelay(freezeNS::ANIMATION_DELAY);
 																										  freeze->setRect();
 																										  tempVector.push_back(freeze);
-																										  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																										  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																										  pickup_->calculateObstructorDestructorType();
+																										  pickup_->respawnPickup();
 																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 10.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVINCIBILITY: {
 																												 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																												 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																												 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																												 pickup_->calculateObstructorDestructorType();
+																												 pickup_->respawnPickup();
 																												 player->getEffectTimers()->at(EFFECT_INVINCIBLE) = 10.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_MISSLES: {
@@ -1264,9 +1256,7 @@ void Spacewar::collisions() {
 
 																										   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																										   pickup_->calculateObstructorDestructorType();
-																										   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																										   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
+																										   pickup_->respawnPickup();
 																	   } break;
 																	   case PICKUP_HEALTH: {
 																							   // no need to reset heart type since there will always be one in a game
@@ -1276,8 +1266,9 @@ void Spacewar::collisions() {
 																							   if (player->getHealth() > 10)
 																								   player->setHealth(10);
 																							   playerScore += genScore(++combo);
-																							   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																							   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
+
+																							   //Sleep((rand() % 11) * 1000);	// set random time from 0 to 10 secs to spawn hearts
+																							   pickup_->respawnPickup();
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_BLACKHOLE: {
 																											 // blackhole is a environmental effect.
@@ -1289,43 +1280,32 @@ void Spacewar::collisions() {
 
 																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-
-																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																											 pickup_->calculateObstructorDestructorType();
+																											 pickup_->respawnPickup();
 
 																											 addEntity(blackhole);
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
 																												  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																												  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																												  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																												  pickup_->calculateObstructorDestructorType();
+																												  pickup_->respawnPickup();
 																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
 																												   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																												   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																												   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																												   pickup_->calculateObstructorDestructorType();
+																												   pickup_->respawnPickup();
 																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																											   pickup_->calculateObstructorDestructorType();
+																											   pickup_->respawnPickup();
 																											   player->getEffectTimers()->at(EFFECT_SLOW) = 5.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																											   pickup_->calculateObstructorDestructorType();
+																											   pickup_->respawnPickup();
 																											   player->getEffectTimers()->at(EFFECT_STUN) = 5.0f;
 																	   } break;
 																	   }
