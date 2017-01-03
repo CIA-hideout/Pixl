@@ -57,7 +57,7 @@ const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
 const std::vector<std::string> CREDITS = {"-TEAM-", "Amos Tan", "Elcoms Khang", "Lin Lue", "-IN CHARGE-", "Tan Teck Jin Andrew", "Lee Ching Yun"};
-const std::vector<std::string> MENU_OPTIONS = { "[S]tart", "[I]nstructions", "[H]ighscore", "[C]redits" };
+const std::vector<std::string> MENU_OPTIONS = { "[S] tart", "[I] nstructions", "[H] ighscore", "[C] redits" };
 
 // player
 const int P_DEATH_WIDTH					= 256;						// player death width
