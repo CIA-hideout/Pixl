@@ -205,6 +205,12 @@ void Spacewar::update() {
 							  // Code to run in the main menu
 							  // Start the game state if the spacebar is pressed
 							  // Variables that may have be changed in the previous state(s) will be set to 0/original values again
+							  
+							  // reset instructions to page 1
+							  instructions->setFrames(INSTRUCTIONS_CONTROLS_START_FRAME, INSTRUCTIONS_CONTROLS_END_FRAME);
+							  instructions->setCurrentFrame(INSTRUCTIONS_CONTROLS_START_FRAME);
+							  instructions->setLoop(false);
+
 							  // s
 							  if (input->isKeyDown(0x53)) {
 								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
