@@ -218,7 +218,7 @@ void Spacewar::update() {
 								  entities.clear();
 
 								  beatenHighScore = false;
-								  playerHealth = 5;
+								  playerHealth = 3;
 								  playerMaxHealth = 10;
 								  playerIsDead = false;
 								  playerDefaultTexture = true;
