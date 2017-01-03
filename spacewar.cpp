@@ -248,13 +248,13 @@ void Spacewar::update() {
 								  this->addEntity(player);
 
 								  // Health Pickup
-								  healthPickup = new Pickup();
+								  /*healthPickup = new Pickup();
 								  healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
 								  healthPickup->setPickUpType(PICKUP_HEALTH);
 								  healthPickup->setCurrentFrame(0);
 								  healthPickup->setNewLocation();
 
-								  addEntity(healthPickup);
+								  addEntity(healthPickup);*/
 
 								  // Other Pickups (Obstructor/Destructors)
 								  for (int i = 0; i < 3; i++) {
@@ -1260,14 +1260,41 @@ void Spacewar::collisions() {
 																	   } break;
 																	   case PICKUP_HEALTH: {
 																							   // no need to reset heart type since there will always be one in a game
-																							   PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+																							   //PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
 
-																							   player->setHealth(player->getHealth() + 1);
+																							   // create a new heart pickup
+																							   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																							   healthPickup = new Pickup();
+																							   healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
+																							   healthPickup->setPickUpType(PICKUP_HEART);
+																							   healthPickup->setCurrentFrame(0);
+																							   healthPickup->setX(minMaxRand(healthPickup->getWidth(), GAME_WIDTH - 2 * healthPickup->getWidth()));
+																							   healthPickup->setY(minMaxRand(healthPickup->getHeight(), GAME_HEIGHT - 2 * healthPickup->getHeight()));
+
+																							   addEntity(healthPickup);
+
+																							   pickup_->calculateObstructorDestructorType();
+																							   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
+																							   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
+
+																							   /*player->setHealth(player->getHealth() + 1);
 																							   if (player->getHealth() > 10)
 																								   player->setHealth(10);
 																							   playerScore += genScore(++combo);
-
 																							   pickup_->respawnPickup();
+																							   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
+																							   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));*/
+																	   } break;
+																	   case PICKUP_HEART:{
+																		   PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+
+																		   // increase player health by 1
+																		   player->setHealth(player->getHealth() + 1);
+																		   if (player->getHealth() > 10)
+																			   player->setHealth(10);
+																		   //playerScore += genScore(++combo);
+
+																		   pickup_->setHealth(0);
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_BLACKHOLE: {
 																											 // blackhole is a environmental effect.
