@@ -182,3 +182,21 @@ void Pickup::calculateObstructorDestructorType(){
 	else
 		this->setCurrentFrame(1);
 }
+
+void Pickup::setNewLocation()
+{
+	setX(minMaxRand_Pickup(getWidth(), GAME_WIDTH - 2 * getWidth()));
+	setY(minMaxRand_Pickup(getHeight(), GAME_HEIGHT - 2 * getHeight()));
+}
+
+void Pickup::respawnPickup()
+{
+	if (type != PICKUP_HEALTH)
+		calculateObstructorDestructorType();
+
+	setNewLocation();
+}
+
+int Pickup::minMaxRand_Pickup(int min, int max) {
+	return rand() % (max - min + 1) + min;
+}
