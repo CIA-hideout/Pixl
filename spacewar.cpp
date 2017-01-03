@@ -205,7 +205,7 @@ void Spacewar::update() {
 							  // Code to run in the main menu
 							  // Start the game state if the spacebar is pressed
 							  // Variables that may have be changed in the previous state(s) will be set to 0/original values again
-							  
+
 							  // reset instructions to page 1
 							  instructions->setFrames(INSTRUCTIONS_CONTROLS_START_FRAME, INSTRUCTIONS_CONTROLS_END_FRAME);
 							  instructions->setCurrentFrame(INSTRUCTIONS_CONTROLS_START_FRAME);
@@ -1221,7 +1221,7 @@ void Spacewar::collisions() {
 																										  freeze->setRect();
 																										  tempVector.push_back(freeze);
 																										  pickup_->respawnPickup();
-																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 10.0f;
+																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVINCIBILITY: {
 																												 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
@@ -1261,7 +1261,7 @@ void Spacewar::collisions() {
 																	   case PICKUP_HEALTH: {
 																							   // no need to reset heart type since there will always be one in a game
 																							   //PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
-																							   
+
 																							   // create a new heart pickup
 																							   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 																							   healthPickup = new Pickup();
@@ -1292,8 +1292,8 @@ void Spacewar::collisions() {
 																		   if (player->getHealth() > 10)
 																			   player->setHealth(10);
 																		   //playerScore += genScore(++combo);
-
 																		   pickup_->setHealth(0);
+																		   pickup_->respawnPickup();
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_BLACKHOLE: {
 																											 // blackhole is a environmental effect.
@@ -1313,25 +1313,25 @@ void Spacewar::collisions() {
 																												  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																												  pickup_->respawnPickup();
-																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 5.0f;
+																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
 																												   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																												   pickup_->respawnPickup();
-																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 5.0f;
+																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																											   pickup_->respawnPickup();
-																											   player->getEffectTimers()->at(EFFECT_SLOW) = 5.0f;
+																											   player->getEffectTimers()->at(EFFECT_SLOW) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
 																											   pickup_->respawnPickup();
-																											   player->getEffectTimers()->at(EFFECT_STUN) = 5.0f;
+																											   player->getEffectTimers()->at(EFFECT_STUN) = 10.0f;
 																	   } break;
 																	   }
 
