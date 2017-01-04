@@ -162,13 +162,14 @@ void Pickup::calculateObstructorDestructorType(){
 		PICKUP_DESTRUCTOR_INVINCIBILITY,
 		PICKUP_DESTRUCTOR_INVINCIBILITY,
 
+		PICKUP_HEALTH,
 		PICKUP_HEALTH
 	};
 
 	//	Array containing types of Destructor
 
 	if (isDestructor) {
-		randNumber = rand() % 10; //Get a number from 0 - 9
+		randNumber = rand() % 11; //Get a number from 0 - 9
 		type = destructorArray[randNumber];
 	}
 	else // is an obstructor
