@@ -53,7 +53,7 @@ void Pickup::spawn(){
 	setFrames(startFrame, endFrame);
 	setCollisionRadius(getHeight() / 2);
 	setVelocity(0, 0);						// powerups don't move;
-	setObjectType(OBJECT_TYPE_CIRCLE);
+	setObjectType(OBJECT_TYPE_PICKUP);
 	setScale(0.2f);
 
 	//spawn randomly in window
@@ -94,8 +94,8 @@ void Pickup::spawn(){
 void Pickup::damage(WEAPON weapon){
 	switch (weapon)
 	{
-	case OBJECT_TYPE_PLAYER: {
-								 // this->setHealth(0);
+	case WEAPON_PLAYER: {
+								 this->setHealth(0);
 	}	break;
 	}
 }
@@ -169,12 +169,12 @@ void Pickup::calculateObstructorDestructorType(){
 	//	Array containing types of Destructor
 
 	if (isDestructor) {
-		randNumber = rand() % 11; //Get a number from 0 - 9
+		randNumber = rand() % 11; //Get a number from 0 - 11
 		type = destructorArray[randNumber];
 	}
 	else // is an obstructor
 	{
-		randNumber = rand() % 9;	//Get a number from 0 - 8
+		randNumber = rand() % 9;	//Get a number from 0 - 9
 		type = obstructorArray[randNumber];
 	}
 
@@ -192,8 +192,7 @@ void Pickup::setNewLocation()
 
 void Pickup::respawnPickup()
 {
-	if (type != PICKUP_HEALTH)
-		calculateObstructorDestructorType();
+	calculateObstructorDestructorType();
 
 	setNewLocation();
 }
