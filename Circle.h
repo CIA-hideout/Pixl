@@ -35,6 +35,15 @@ public:
 	void update(float deltaTime);
 	void spawn();
 	void damage(WEAPON);
+
+	// Freeze Circle
+	void freeze();
+	void unfreeze();
+
+private:
+	float velocity_x = 0.0f;
+	float velocity_y = 0.0f;
+	bool isFrozen = false;
 };
 
 #endif
