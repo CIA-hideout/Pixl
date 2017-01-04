@@ -33,7 +33,6 @@ public:
 
 	virtual void draw();
 	virtual bool initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
-	void spawn();
 	void update(float deltaTime);
 	void damage(WEAPON);
 

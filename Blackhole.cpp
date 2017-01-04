@@ -31,10 +31,6 @@ bool Blackhole::initialize(Game *gamePtr, int width, int height, int ncols, Text
 	return(Entity::initialize(gamePtr, width, height, ncols, textureM));
 }
 
-void Blackhole::spawn() {
-	
-}
-
 
 void Blackhole::draw() {
 	Image::draw();
