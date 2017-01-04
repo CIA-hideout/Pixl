@@ -31,7 +31,7 @@ Pickup::Pickup() : Entity(){
  */
 
 bool Pickup::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM){
-	return(Entity::initialize(gamePtr, width, height, ncols, textureM));
+	return (Entity::initialize(gamePtr, width, height, ncols, textureM));
 }
 
 /*
@@ -42,7 +42,7 @@ void Pickup::draw(){
 }
 
 void Pickup::update(float deltaTime){
-
+	Entity::update(deltaTime);
 }
 
 /*
