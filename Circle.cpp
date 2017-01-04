@@ -76,6 +76,7 @@ void Circle::spawn(){
 	setVelocity(100, 200);
 	setObjectType(OBJECT_TYPE_CIRCLE);
 	setScale(0.2f);
+	setHealth(1);
 
 	// random spawn on border
 

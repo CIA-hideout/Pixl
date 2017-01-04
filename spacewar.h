@@ -132,6 +132,8 @@ public:
 	void KillEntities();
 
 	void ParseScore(std::string fileName);
+
+	int minMaxRand(int min, int max) { return rand() % (max - min + 1) + min;}
 };
 
 #endif
