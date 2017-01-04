@@ -450,3 +450,9 @@ void Entity::gravityForce(Entity *ent, float deltaTime)
     // Add gravity vector to moving velocity vector to change direction
     velocity += gravityV;
 }
+
+void Entity::setNewLocation()
+{
+	setX(minMaxRand_Entity(getWidth(), GAME_WIDTH - 2 * getWidth()));
+	setY(minMaxRand_Entity(getHeight(), GAME_HEIGHT - 2 * getHeight()));
+}

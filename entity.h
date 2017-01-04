@@ -217,6 +217,17 @@ public:
 
 	// returns effect true if timer for effect > 0.0f
 	bool hasEffect(EffectType effectType) { return this->effectTimers.at(effectType) > 0.0f; }
+
+	// randomly set location of entity
+	void setNewLocation();
+
+	// freeze entity
+	void freeze(){ setVelocity(0, 0); }
+
+	// randomly setLocation;
+	int minMaxRand_Entity(int min, int max) {
+		return rand() % (max - min + 1) + min;
+	}
 };
 
 #endif

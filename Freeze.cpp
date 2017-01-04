@@ -34,3 +34,16 @@ void Freeze::update(float deltaTime) {
 		setHealth(0);
 	}
 }
+
+void Freeze::setNewLocation() {
+	setX(GAME_WIDTH / 2 - freezeNS::WIDTH / 2 * freezeNS::SCALING);
+	setY(GAME_HEIGHT / 2 - freezeNS::WIDTH / 2 * freezeNS::SCALING);
+}
+
+void Freeze::spawn() {
+	setFrames(freezeNS::START_FRAME, freezeNS::END_FRAME);
+	setCurrentFrame(freezeNS::START_FRAME);
+	setNewLocation();
+	setFrameDelay(freezeNS::ANIMATION_DELAY);
+	setRect();
+}

@@ -14,7 +14,6 @@
 void PrintEffect(Entity* entity, Font* effectFont);					// prints the effect that the player has
 bool isWaveOver(std::vector<Entity*> entities);						// function to check if the wave is over based on
 bool isTargeted(std::vector<Missile*> missiles, Entity* entity);	// checks if an entitiy is targeted by a missile
-int minMaxRand(int min, int max);									// generate a random integer based on minimum/maximum value
 
 // values that will be used constantly so a might as well make them global
 
@@ -275,17 +274,12 @@ void Spacewar::update() {
 			for (int i = 0; i < TRIANGLE_COUNT(currentWave); i++) {
 				Triangle* triangle = new Triangle();
 				triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
-				triangle->setObjectType(OBJECT_TYPE_TRIANGLE);
-				triangle->setActive(true);
-				triangle->setHealth(1);
 				triangle->spawn();
 				addEntity(triangle);
 			}
 			for (int i = 0; i <= CIRCLE_COUNT(currentWave); i++) {
 				Circle* circle = new Circle();
 				circle->initialize(this, CircleNS::WIDTH, CircleNS::HEIGHT, CircleNS::TEXTURE_COLS, &circleTextures);
-				circle->setObjectType(OBJECT_TYPE_TRIANGLE);
-				circle->setHealth(1);
 				circle->spawn();
 				addEntity(circle);
 			}
@@ -340,9 +334,6 @@ void Spacewar::update() {
 			for (int i = 0; i < TRIANGLE_COUNT(currentWave); i++) {
 				Triangle* tri = new Triangle();
 				tri->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
-				tri->setObjectType(OBJECT_TYPE_TRIANGLE);
-				tri->setActive(true);
-				tri->setHealth(1);
 				tri->spawn();
 				addEntity(tri);
 			}
@@ -979,51 +970,37 @@ void Spacewar::UpdateEntities() {
 										}
 					} break;
 					case EFFECT_INVULNERABLE: {
-												if ((*iter)->hasEffect(EFFECT_INVULNERABLE) && (*iter)->getCurrentFrame() == (*iter)->getStartFrame())
-												{
-													playerDefaultTexture = false;
-													(*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, P_INVUL_COLS, &p_invulTextures);
-													(*iter)->setFrames(P_INVUL_START_FRAME, P_INVUL_END_FRAME);
-													(*iter)->setCurrentFrame(P_INVUL_START_FRAME);
-													(*iter)->setFrameDelay(P_INVUL_ANIMATION_DELAY);
-													(*iter)->setLoop(P_INVUL_LOOP);
-													(*iter)->setScale(P_INVUL_SCALE);
-													(*iter)->setRect();
-												}
-												else if (!(*iter)->hasEffect(EFFECT_INVULNERABLE) && playerDefaultTexture != true)
-												{
-													playerDefaultTexture = true;
-													(*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
-													(*iter)->setCurrentFrame(shipNS::player_START_FRAME);
-												}
+						if ((*iter)->hasEffect(EFFECT_INVULNERABLE) && (*iter)->getCurrentFrame() == (*iter)->getStartFrame())
+						{
+							playerDefaultTexture = false;
+							(*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, P_INVUL_COLS, &p_invulTextures);
+							(*iter)->setFrames(P_INVUL_START_FRAME, P_INVUL_END_FRAME);
+							(*iter)->setCurrentFrame(P_INVUL_START_FRAME);
+							(*iter)->setFrameDelay(P_INVUL_ANIMATION_DELAY);
+							(*iter)->setLoop(P_INVUL_LOOP);
+							(*iter)->setScale(P_INVUL_SCALE);
+							(*iter)->setRect();
+						}
+						else if (!(*iter)->hasEffect(EFFECT_INVULNERABLE) && playerDefaultTexture != true)
+						{
+							playerDefaultTexture = true;
+							(*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
+							(*iter)->setCurrentFrame(shipNS::player_START_FRAME);
+						}
 					} break;
 					}
 				}
 			}
 			if (player->hasEffect(EFFECT_STUN))
-				player->setVelocity(0, 0);
+				player->freeze();
 		} break;
 		case OBJECT_TYPE_TRIANGLE: {
-			double dx, dy;			// For tracking the player
-
-			dx = player->getX() - (*iter)->getX();
-			dy = player->getY() - (*iter)->getY();
-
-			// 1, 4 quad
-			if (dx > 0)
-				(*iter)->setRadians(atan(dy / dx));
-			// 2, 3 quad
-			else if (dx < 0)
-				(*iter)->setRadians(PI + atan(dy / dx));
-
-			(*iter)->setVelocity(
-				cos((*iter)->getRadians()) * 50,
-				sin((*iter)->getRadians()) * 50
-				);
+			Triangle *triangle = (Triangle*) *iter;
+			triangle->trackingPlayer(player);
 
 			// Freeze triangle if player has frozen effect
 			if (player->hasEffect(EFFECT_FROZEN)) {
-				(*iter)->setVelocity(0, 0);
+				(triangle)->freeze();
 			}
 		} break;
 
@@ -1148,8 +1125,6 @@ void Spacewar::collisions() {
 		for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); ++iter) {
 			Entity* entity = *iter;
 
-
-
 			// run the following code when player collides with the following entity
 			if (player->collidesWith(*entity, collisionVector)) {
 				switch (entity->getObjectType())
@@ -1213,15 +1188,12 @@ void Spacewar::collisions() {
 							printf("Destructor Explosion");
 							Explosion* explosion = new Explosion();
 							explosion->initialize(this, explosion->getWidth(), explosion->getHeight(), explosionNS::TEXTURE_COLS, &explosionTexture);
-							explosion->setX(pickup_->getX() + pickup_->getWidth() * pickup_->getScale() / 2 - (explosion->getWidth() / 2 * explosion->getScale()));
-							explosion->setY(pickup_->getY() + pickup_->getHeight() * pickup_->getScale() / 2 - (explosion->getHeight() / 2 * explosion->getScale()));
-							explosion->setFrameDelay(explosionNS::ANIMATION_DELAY);
-							explosion->setCollisionRadius(explosionNS::WIDTH / 2.0f);
+							explosion->spawn(pickup_);
 							tempVector.push_back(explosion);
 
 							// play sound async to the game to avoid 'lag'
 							PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
-
+							
 							pickup_->respawnPickup();
 						} break;
 						case PICKUP_DESTRUCTOR_FREEZE: {
@@ -1229,12 +1201,7 @@ void Spacewar::collisions() {
 							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 							Freeze* freeze = new Freeze();
 							freeze->initialize(this, freezeNS::WIDTH, freezeNS::HEIGHT, freezeNS::TEXTURE_COLS, &freezeTexture);
-							freeze->setFrames(freezeNS::START_FRAME, freezeNS::END_FRAME);
-							freeze->setCurrentFrame(freezeNS::START_FRAME);
-							freeze->setX(GAME_WIDTH / 2 - freezeNS::WIDTH / 2 * freezeNS::SCALING);
-							freeze->setY(GAME_HEIGHT / 2 - freezeNS::WIDTH / 2 * freezeNS::SCALING);
-							freeze->setFrameDelay(freezeNS::ANIMATION_DELAY);
-							freeze->setRect();
+							freeze->spawn();
 							tempVector.push_back(freeze);
 							pickup_->respawnPickup();
 							player->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
@@ -1311,8 +1278,7 @@ void Spacewar::collisions() {
 							printf("Obstructor Blackhole");
 							Blackhole* blackhole = new Blackhole();
 							blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
-							blackhole->setX(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
-							blackhole->setY(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
+							blackhole->setNewLocation();
 
 							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
@@ -1484,6 +1450,4 @@ bool isTargeted(std::vector<Missile*> missiles, Entity* entity) {
 	return false;
 }
 
-int minMaxRand(int min, int max) {
-	return rand() % (max - min + 1) + min;
-}
+

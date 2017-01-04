@@ -35,6 +35,7 @@ public:
 	void spawn();
 	void update(float deltaTime);
 	void damage(WEAPON);
+	void trackingPlayer(Entity *player);
 
 	ObjectType returnType();
 };
