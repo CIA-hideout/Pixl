@@ -10,7 +10,6 @@ Blackhole::Blackhole() : Entity() {
 	aliveTimer = 10.0f;
 	collisionType = entityNS::CIRCLE;
 	currentFrame = startFrame;
-	endFrame = blackholeNS::BLACKHOLE_END_FRAME;
 	mass = blackholeNS::MASS;
 	objectType = OBJECT_TYPE_BLACKHOLE;
 	radius = blackholeNS::WIDTH / 2;
@@ -22,6 +21,7 @@ Blackhole::Blackhole() : Entity() {
 	spriteData.x = blackholeNS::X;
 	spriteData.y = blackholeNS::Y;
 	startFrame = blackholeNS::BLACKHOLE_START_FRAME;
+	endFrame = blackholeNS::BLACKHOLE_END_FRAME;
 	setHealth(999);
 	velocity.x = 0;
 	velocity.y = 0;

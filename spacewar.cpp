@@ -56,7 +56,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	Game::initialize(hwnd);
 
-	//AllocConsole();		// Console for debugging
+	AllocConsole();		// Console for debugging
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
 	freopen("conout$", "w", stderr);
@@ -205,7 +205,7 @@ void Spacewar::update() {
 							  // Code to run in the main menu
 							  // Start the game state if the spacebar is pressed
 							  // Variables that may have be changed in the previous state(s) will be set to 0/original values again
-							  
+
 							  // reset instructions to page 1
 							  instructions->setFrames(INSTRUCTIONS_CONTROLS_START_FRAME, INSTRUCTIONS_CONTROLS_END_FRAME);
 							  instructions->setCurrentFrame(INSTRUCTIONS_CONTROLS_START_FRAME);
@@ -248,14 +248,13 @@ void Spacewar::update() {
 								  this->addEntity(player);
 
 								  // Health Pickup
-								  healthPickup = new Pickup();
+								  /*healthPickup = new Pickup();
 								  healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
 								  healthPickup->setPickUpType(PICKUP_HEALTH);
 								  healthPickup->setCurrentFrame(0);
-								  healthPickup->setX(minMaxRand(healthPickup->getWidth(), GAME_WIDTH - 2 * healthPickup->getWidth()));
-								  healthPickup->setY(minMaxRand(healthPickup->getHeight(), GAME_HEIGHT - 2 * healthPickup->getHeight()));
+								  healthPickup->setNewLocation();
 
-								  addEntity(healthPickup);
+								  addEntity(healthPickup);*/
 
 								  // Other Pickups (Obstructor/Destructors)
 								  for (int i = 0; i < 3; i++) {
@@ -266,8 +265,7 @@ void Spacewar::update() {
 										  pickup->setCurrentFrame(0);
 									  else
 										  pickup->setCurrentFrame(1);
-									  pickup->setX(minMaxRand(pickup->getWidth(), GAME_WIDTH - 2 * pickup->getWidth()));
-									  pickup->setY(minMaxRand(pickup->getHeight(), GAME_HEIGHT - 2 * pickup->getHeight()));
+									  pickup->setNewLocation();
 
 									  addEntity(pickup);
 								  }
@@ -621,8 +619,6 @@ void Spacewar::update() {
 										  inputMap.at(0x5A) = false;
 									  }
 
-									  printf("cursor pos: %d\n", cursorPos);
-
 									  selectBox->setX(kbdStartPosX + cursorPos % 8 * 128 * menuFont->getScale());
 									  selectBox->setY(kbdStartPosY + ((cursorPos - (cursorPos % 8)) / 8) % 4 * 128 * menuFont->getScale());
 	};
@@ -880,6 +876,7 @@ void Spacewar::resetAll() {
 // adds entity. static counter applies id
 void Spacewar::addEntity(Entity* entity) {
 	static int id_counter = 0;
+	printf("%d\n", id_counter);
 	entity->setObjectId(id_counter);
 	this->entities.push_back(entity);
 	id_counter++;
@@ -1127,6 +1124,7 @@ int Spacewar::genScore(int combo) {
 
 // a place where collision calculations takes place
 void Spacewar::collisions() {
+	//printf("%d\n", entities.size());
 	// temp vector created to store entries that will be appended to entities after the iteration
 	std::vector<Entity*> tempVector;
 	switch (this->getGameState()) {
@@ -1135,8 +1133,10 @@ void Spacewar::collisions() {
 	case GAME_STATE_GAME: {
 							  VECTOR2 collisionVector;
 
-							  for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
-								  Entity* entity = *iter;
+							  for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); ++iter) {
+							  	  Entity* entity = *iter;
+
+
 
 								  // run the following code when player collides with the following entity
 								  if (player->collidesWith(*entity, collisionVector)) {
@@ -1198,6 +1198,7 @@ void Spacewar::collisions() {
 
 																	   switch (pickup_->getPickupType()) {
 																	   case PICKUP_DESTRUCTOR_EXPLOSION: {
+																											 printf("Destructor Explosion");
 																											 Explosion* explosion = new Explosion();
 																											 explosion->initialize(this, explosion->getWidth(), explosion->getHeight(), explosionNS::TEXTURE_COLS, &explosionTexture);
 																											 explosion->setX(pickup_->getX() + pickup_->getWidth() * pickup_->getScale() / 2 - (explosion->getWidth() / 2 * explosion->getScale()));
@@ -1209,11 +1210,10 @@ void Spacewar::collisions() {
 																											 // play sound async to the game to avoid 'lag'
 																											 PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
 
-																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																											 pickup_->calculateObstructorDestructorType();
+																											 pickup_->respawnPickup();
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_FREEZE: {
+																										  printf("Destructor Freeze");
 																										  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 																										  Freeze* freeze = new Freeze();
 																										  freeze->initialize(this, freezeNS::WIDTH, freezeNS::HEIGHT, freezeNS::TEXTURE_COLS, &freezeTexture);
@@ -1224,22 +1224,20 @@ void Spacewar::collisions() {
 																										  freeze->setFrameDelay(freezeNS::ANIMATION_DELAY);
 																										  freeze->setRect();
 																										  tempVector.push_back(freeze);
-																										  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																										  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																										  pickup_->calculateObstructorDestructorType();
+																										  pickup_->respawnPickup();
 																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVINCIBILITY: {
-																												 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																											printf("Destructor Invincibility");
+																											PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																												 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																												 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																												 pickup_->calculateObstructorDestructorType();
-																												 player->getEffectTimers()->at(EFFECT_INVINCIBLE) = 10.0f;
+																											pickup_->respawnPickup();
+																											player->getEffectTimers()->at(EFFECT_INVINCIBLE) = 10.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_MISSLES: {
 																										   // get the enemies to target first
 																										   // discarded after this iteration
+																										   printf("Destructor Missiles");
 																										   std::vector<Entity*> tempVect;
 																										   for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
 																											   if (
@@ -1264,24 +1262,48 @@ void Spacewar::collisions() {
 
 																										   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																										   pickup_->calculateObstructorDestructorType();
-																										   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																										   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
+																										   pickup_->respawnPickup();
 																	   } break;
 																	   case PICKUP_HEALTH: {
 																							   // no need to reset heart type since there will always be one in a game
-																							   PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+																							   //PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+																							   printf("Health");
+																							   // create a new heart pickup
+																							   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																							   healthPickup = new Pickup();
+																							   healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
+																							   healthPickup->setPickUpType(PICKUP_HEART);
+																							   healthPickup->setCurrentFrame(0);
+																							   healthPickup->setX(minMaxRand(healthPickup->getWidth(), GAME_WIDTH - 2 * healthPickup->getWidth()));
+																							   healthPickup->setY(minMaxRand(healthPickup->getHeight(), GAME_HEIGHT - 2 * healthPickup->getHeight()));
 
-																							   player->setHealth(player->getHealth() + 1);
+																							   tempVector.push_back(healthPickup);
+																							   pickup_->respawnPickup();
+																							   /*player->setHealth(player->getHealth() + 1);
 																							   if (player->getHealth() > 10)
 																								   player->setHealth(10);
 																							   playerScore += genScore(++combo);
+																							   pickup_->respawnPickup();
 																							   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																							   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
+																							   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));*/
+																	   } break;
+																	   case PICKUP_HEART: {
+																		   printf("Heart");
+																		   PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+
+																		   // increase player health by 1
+																		   player->setHealth(player->getHealth() + 1);
+																		   if (player->getHealth() > 10)
+																			   player->setHealth(10);
+																		   //playerScore += genScore(++combo);
+
+																		   pickup_->damage(WEAPON_PLAYER);
+
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_BLACKHOLE: {
 																											 // blackhole is a environmental effect.
 																											 // blackhole that is stored in the entities vector will have effect on the gravity. will be killed when the timer reaches 0
+																											 printf("Obstructor Blackhole");
 																											 Blackhole* blackhole = new Blackhole();
 																											 blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
 																											 blackhole->setX(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
@@ -1289,44 +1311,35 @@ void Spacewar::collisions() {
 
 																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-
-																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																											 pickup_->calculateObstructorDestructorType();
-
-																											 addEntity(blackhole);
+																											 tempVector.push_back(blackhole);
+																											 pickup_->respawnPickup();
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
+																												  printf("Obstructor enlarge");
 																												  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-
-																												  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																												  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																												  pickup_->calculateObstructorDestructorType();
+																												  pickup_->respawnPickup();
 																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
+																												   printf("Obstructor invert");
 																												   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																												   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																												   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																												   pickup_->calculateObstructorDestructorType();
+																												   pickup_->respawnPickup();
 																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
+																											   printf("Obstructor slow");
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																											   pickup_->calculateObstructorDestructorType();
+																											   pickup_->respawnPickup();
 																											   player->getEffectTimers()->at(EFFECT_SLOW) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
+																											   printf("Obstructor stun");
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																											   pickup_->calculateObstructorDestructorType();
-																											   player->getEffectTimers()->at(EFFECT_STUN) = 5.0f;
+																											   pickup_->respawnPickup();
+																											   player->getEffectTimers()->at(EFFECT_STUN) = 10.0f;
 																	   } break;
 																	   }
 
