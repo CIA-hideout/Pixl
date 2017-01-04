@@ -218,7 +218,7 @@ void Spacewar::update() {
 								  entities.clear();
 
 								  beatenHighScore = false;
-								  playerHealth = 5;
+								  playerHealth = 3;
 								  playerMaxHealth = 10;
 								  playerIsDead = false;
 								  playerDefaultTexture = true;
@@ -1227,7 +1227,7 @@ void Spacewar::collisions() {
 																										  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																										  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																										  pickup_->calculateObstructorDestructorType();
-																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 10.0f;
+																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVINCIBILITY: {
 																												 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
@@ -1302,7 +1302,7 @@ void Spacewar::collisions() {
 																												  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																												  pickup_->calculateObstructorDestructorType();
-																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 5.0f;
+																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
 																												   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
@@ -1310,7 +1310,7 @@ void Spacewar::collisions() {
 																												   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																												   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																												   pickup_->calculateObstructorDestructorType();
-																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 5.0f;
+																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
@@ -1318,7 +1318,7 @@ void Spacewar::collisions() {
 																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
 																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
 																											   pickup_->calculateObstructorDestructorType();
-																											   player->getEffectTimers()->at(EFFECT_SLOW) = 5.0f;
+																											   player->getEffectTimers()->at(EFFECT_SLOW) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
