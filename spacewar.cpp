@@ -1131,9 +1131,10 @@ void Spacewar::collisions() {
 				{
 				case OBJECT_TYPE_BLACKHOLE: {
 					// Plays sound and kills player if blackhole is touched when player is not invulnerable or invincible
-					if (!player->hasEffect(EFFECT_INVULNERABLE) || !player->hasEffect((EFFECT_INVINCIBLE))){
+					if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect((EFFECT_INVINCIBLE))){
 						player->damage(WEAPON_BLACKHOLE);
 						PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+						
 						player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
 						combo = 0;
 					}
