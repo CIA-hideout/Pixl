@@ -43,3 +43,14 @@ void Explosion::update(float deltaTime) {
 		setHealth(0);
 	}
 }
+
+void Explosion::setNewLocation(Entity *pickup) {
+	setX(pickup->getX() + pickup->getWidth() * pickup->getScale() / 2 - (getWidth() / 2 * getScale()));
+	setY(pickup->getY() + pickup->getHeight() * pickup->getScale() / 2 - (getHeight() / 2 * getScale()));
+}
+
+void Explosion::spawn(Entity *pickup) {
+	setNewLocation(pickup);
+	setFrameDelay(explosionNS::ANIMATION_DELAY);
+	setCollisionRadius(explosionNS::WIDTH / 2.0f);
+}
