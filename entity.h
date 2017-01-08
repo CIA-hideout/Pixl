@@ -47,7 +47,8 @@ enum EffectType {
 	EFFECT_INVULNERABLE,
 	EFFECT_FROZEN,
 	EFFECT_ENLARGED,
-	EFFECT_CANNOT_PICKUP
+	EFFECT_CANNOT_PICKUP,
+	EFFECT_DEATH
 };
 
 class Entity : public Image {
@@ -217,6 +218,9 @@ public:
 
 	// returns effect true if timer for effect > 0.0f
 	bool hasEffect(EffectType effectType) { return this->effectTimers.at(effectType) > 0.0f; }
+
+	// start the effect for the entity specified
+	void triggerEffect(EffectType effect);
 };
 
 #endif

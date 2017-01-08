@@ -26,14 +26,12 @@ float	deathAngle;													// the angle in radians at the point in time of th
 float	waveBufferTime;												// a short peroid of time before the first wave and menu
 float	blackholeTimer;												// time where the blackhole is left in the entities vector
 
-int		playerMaxHealth, playerHealth;
 int		playerScore, highscore;										// highscore will be written in a file when it is greater than the current highscore
 int		combo, maxCombo;											// record combo
 int		currentWave;
 
 bool	waveOver;
 bool	playerIsDead, playerCanPickup;
-bool	playerDefaultTexture;										// true/false based on whether player has their starting texture or changed
 bool	beatenHighScore;
 bool	isKeyPressed;													// true/false based on whether player is on the how to play instructions page
 
@@ -66,9 +64,6 @@ void Spacewar::initialize(HWND hwnd) {
 	//=================================================
 	// Player
 	shipTextures.initialize(graphics, PLAYER_TEXTURE);
-	p_deathTextures.initialize(graphics, PLAYER_DEATH_TEXTURE);
-	p_invulTextures.initialize(graphics, PLAYER_INVUL_TEXTURE);
-	p_invinTextures.initialize(graphics, PLAYER_INVIN_TEXTURE);
 
 	// Enemy
 	triangleTextures.initialize(graphics, TRIANGLE_TEXTURE);
@@ -133,7 +128,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	// positioning of hearts
 	int dx = GAME_WIDTH - GAME_WIDTH / 100;
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < PLAYER_MAX_HEALTH; i++) {
 		Entity* heart = new Entity();
 		heart->initialize(this, 128, 128, 2, &heartTexture);
 		heart->setCurrentFrame(0);
@@ -218,10 +213,7 @@ void Spacewar::update() {
 								  entities.clear();
 
 								  beatenHighScore = false;
-								  playerHealth = 3;
-								  playerMaxHealth = 10;
 								  playerIsDead = false;
-								  playerDefaultTexture = true;
 								  combo = maxCombo = playerScore = 0;
 
 								  this->setGameState(GAME_STATE_GAME);
@@ -237,13 +229,15 @@ void Spacewar::update() {
 								  // Player
 								  player = new Ship();
 								  player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
-								  player->setCurrentFrame(shipNS::player_START_FRAME);
+								  player->setCurrentFrame(PLAYER_START_FRAME);
+								  player->setFrames(PLAYER_START_FRAME, PLAYER_END_FRAME);
 								  player->setObjectType(OBJECT_TYPE_PLAYER);
 								  player->setRadians(0);
 								  player->setVisible(true);
 								  player->setX(GAME_WIDTH / 2 - player->getWidth() / 2 * player->getScale());
 								  player->setY(GAME_HEIGHT / 2 - player->getHeight() / 2 * player->getScale());
-								  player->setHealth(playerHealth);
+								  player->setHealth(PLAYER_HEALTH);
+								  player->setScale(PLAYER_SCALING);
 
 								  this->addEntity(player);
 
@@ -266,7 +260,7 @@ void Spacewar::update() {
 									  else
 										  pickup->setCurrentFrame(1);
 									  pickup->setNewLocation();
-
+									  
 									  addEntity(pickup);
 								  }
 
@@ -825,7 +819,6 @@ void Spacewar::render() {
 void Spacewar::releaseAll() {
 	shipTextures.onResetDevice();
 	circleTextures.onResetDevice();
-	p_deathTextures.onResetDevice();
 	triangleTextures.onResetDevice();
 	circleTextures.onResetDevice();
 	blackHoleTexture.onResetDevice();
@@ -842,7 +835,6 @@ void Spacewar::resetAll() {
 	triangleTextures.onResetDevice();
 	shipTextures.onResetDevice();
 	circleTextures.onResetDevice();
-	p_deathTextures.onResetDevice();
 	triangleTextures.onResetDevice();
 	circleTextures.onResetDevice();
 	blackHoleTexture.onResetDevice();
@@ -909,9 +901,6 @@ void Spacewar::UpdateEntities() {
 										 (*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
 										 );
 
-									 if (playerDefaultTexture)			// Prevents the default texture from animating
-										 player->setCurrentFrame(player->getStartFrame());
-
 									 //					Player Effects
 									 //=================================================
 									 // iterate through the various effect that the players have
@@ -919,68 +908,9 @@ void Spacewar::UpdateEntities() {
 									 for (std::map<EffectType, float>::iterator iter_ = player->getEffectTimers()->begin(); iter_ != player->getEffectTimers()->end(); iter_++) {
 										 if (iter_->second > 0.0f) {
 											 iter_->second -= deltaTime;
-											 switch (iter_->first) {
-											 case EFFECT_ENLARGED:
-											 {
-																	 if (player->hasEffect(EFFECT_ENLARGED)) {
-																		 player->setScale(shipNS::SCALING * 2);
-																	 }
-																	 else {
-																		 player->setScale(shipNS::SCALING);
-																	 }
-											 }
-											 case EFFECT_STUN: {
-																   if ((*iter)->hasEffect(EFFECT_STUN))
-																	   (*iter)->setVelocity(0, 0);
-											 } break;
-											 case EFFECT_INVINCIBLE: {
-																		 if ((*iter)->hasEffect(EFFECT_INVINCIBLE) && (*iter)->getCurrentFrame() == (*iter)->getStartFrame())
-																		 {
-																			 playerDefaultTexture = false;
-																			 (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, P_INVIN_COLS, &p_invinTextures);
-																			 (*iter)->setFrames(P_INVIN_START_FRAME, P_INVIN_END_FRAME);
-																			 (*iter)->setCurrentFrame(P_INVIN_START_FRAME);
-																			 (*iter)->setFrameDelay(P_INVIN_ANIMATION_DELAY);
-																			 (*iter)->setLoop(P_INVIN_LOOP);
-																			 (*iter)->setScale(P_INVIN_SCALE);
-																			 (*iter)->setRect();
-																		 }
-																		 else if (!(*iter)->hasEffect(EFFECT_INVINCIBLE) && playerDefaultTexture != true)
-																		 {
-																			 playerDefaultTexture = true;
-																			 (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
-																			 (*iter)->setCurrentFrame(shipNS::player_START_FRAME);
-																		 }
-											 } break;
-											 case EFFECT_SLOW: {
-																   if ((*iter)->hasEffect(EFFECT_SLOW)) {
-																	   (*iter)->setVelocity((*iter)->getVelocity().x / 1.05, (*iter)->getVelocity().y / 1.05);
-																   }
-											 } break;
-											 case EFFECT_INVULNERABLE: {
-																		   if ((*iter)->hasEffect(EFFECT_INVULNERABLE) && (*iter)->getCurrentFrame() == (*iter)->getStartFrame())
-																		   {
-																			   playerDefaultTexture = false;
-																			   (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, P_INVUL_COLS, &p_invulTextures);
-																			   (*iter)->setFrames(P_INVUL_START_FRAME, P_INVUL_END_FRAME);
-																			   (*iter)->setCurrentFrame(P_INVUL_START_FRAME);
-																			   (*iter)->setFrameDelay(P_INVUL_ANIMATION_DELAY);
-																			   (*iter)->setLoop(P_INVUL_LOOP);
-																			   (*iter)->setScale(P_INVUL_SCALE);
-																			   (*iter)->setRect();
-																		   }
-																		   else if (!(*iter)->hasEffect(EFFECT_INVULNERABLE) && playerDefaultTexture != true)
-																		   {
-																			   playerDefaultTexture = true;
-																			   (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
-																			   (*iter)->setCurrentFrame(shipNS::player_START_FRAME);
-																		   }
-											 } break;
-											 }
+											 player->triggerEffect(iter_->first);			// function to handle effects in player class
 										 }
 									 }
-									 if (player->hasEffect(EFFECT_STUN))
-										 player->setVelocity(0, 0);
 		} break;
 		case OBJECT_TYPE_TRIANGLE: {
 									   double dx, dy;			// For tracking the player
@@ -1137,7 +1067,7 @@ void Spacewar::collisions() {
 									  {
 									  case OBJECT_TYPE_BLACKHOLE: {
 																	  // Plays sound and kills player if blackhole is touched when player is not invulnerable or invincible
-																	  if (!player->hasEffect(EFFECT_INVULNERABLE) || !player->hasEffect((EFFECT_INVINCIBLE))){
+																	  if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect((EFFECT_INVINCIBLE))){
 																		  player->damage(WEAPON_BLACKHOLE);
 																		  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 																		  player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
@@ -1266,7 +1196,7 @@ void Spacewar::collisions() {
 																							   healthPickup->setX(minMaxRand(healthPickup->getWidth(), GAME_WIDTH - 2 * healthPickup->getWidth()));
 																							   healthPickup->setY(minMaxRand(healthPickup->getHeight(), GAME_HEIGHT - 2 * healthPickup->getHeight()));
 
-																							   addEntity(healthPickup);
+																							   tempVector.push_back(healthPickup);
 
 																							   pickup_->calculateObstructorDestructorType();
 																							   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
@@ -1285,8 +1215,8 @@ void Spacewar::collisions() {
 
 																		   // increase player health by 1
 																		   player->setHealth(player->getHealth() + 1);
-																		   if (player->getHealth() > 10)
-																			   player->setHealth(10);
+																		   if (player->getHealth() > PLAYER_MAX_HEALTH)
+																			   player->setHealth(PLAYER_MAX_HEALTH);
 																		   //playerScore += genScore(++combo);
 																		   pickup_->setHealth(0);
 																		   pickup_->respawnPickup();
@@ -1304,7 +1234,7 @@ void Spacewar::collisions() {
 
 																											 pickup_->respawnPickup();
 
-																											 addEntity(blackhole);
+																											 tempVector.push_back(blackhole);
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
 																												  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);

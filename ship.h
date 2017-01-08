@@ -16,17 +16,14 @@
 
 namespace shipNS {
 
-	const int WIDTH = 128;						// image width
-	const int HEIGHT = 128;						// image height
+	const int WIDTH = 256;						// image width
+	const int HEIGHT = 256;						// image height
 	const int X = GAME_WIDTH / 2 - WIDTH / 2;   // location on screen
 	const int Y = GAME_HEIGHT / 2 - HEIGHT / 2;
 	const float ROTATION_RATE = 0;
 	const float SPEED = 100;					// 100 pixels per second
 	const float MASS = 300.0f;					// mass
-	const int   TEXTURE_COLS = 2;
-	const int   player_START_FRAME = 0;			// player starts at frame 0
-	const int   player_END_FRAME = 4;			// player animation frames 0,1,2,3
-	const float	SCALING = 0.5f;
+	const int   TEXTURE_COLS = 8;
 }
 
 // inherits from Entity class
@@ -41,6 +38,8 @@ public:
 	void update(float deltaTime);
 	void damage(WEAPON);
 	void effect(Pickup* pickUp);
+	void triggerEffect(EffectType effect);
+
 };
 #endif
 

@@ -450,3 +450,8 @@ void Entity::gravityForce(Entity *ent, float deltaTime)
     // Add gravity vector to moving velocity vector to change direction
     velocity += gravityV;
 }
+
+// start the effect for the entity specified
+void Entity::triggerEffect(EffectType effect)
+{
+}
