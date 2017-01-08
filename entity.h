@@ -1,3 +1,9 @@
+// Module:			Gameplay Programming
+// Assignment 1:	Pixl
+// Student Name:	Elcoms Khang	(S10157558A)
+//					Lin Lue			(S10158175E)
+//					Amos Tan		(S10158017D)
+
 // Programming 2D Games
 // Copyright (c) 2011 by: 
 // Charles Kelly
@@ -17,6 +23,7 @@ namespace entityNS {
 	const float GRAVITY = 6.67428e-11f;         // gravitational constant
 }
 
+// types of object
 enum ObjectType {
 	OBJECT_TYPE_PLAYER,
 	OBJECT_TYPE_TRIANGLE,
@@ -31,6 +38,7 @@ enum ObjectType {
 	OBJECT_TYPE_FREEZE
 };
 
+// types of effects that an object may have
 enum EffectType {
 	EFFECT_SLOW,
 	EFFECT_STUN,
@@ -70,8 +78,7 @@ protected:
 	std::string					name;
 	int							id;
 	ObjectType					objectType;
-
-	std::map<EffectType, float> effectTimers;
+	std::map<EffectType, float> effectTimers;								// effect timers of the effects that an entity might have
 
 
 	// --- The following functions are protected because they are not intended to be
@@ -208,6 +215,7 @@ public:
 
 	std::map<EffectType, float>* getEffectTimers() { return &this->effectTimers; };
 
+	// returns effect true if timer for effect > 0.0f
 	bool hasEffect(EffectType effectType) { return this->effectTimers.at(effectType) > 0.0f; }
 };
 

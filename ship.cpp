@@ -1,3 +1,9 @@
+// Module:			Gameplay Programming
+// Assignment 1:	Pixl
+// Student Name:	Elcoms Khang	(S10157558A)
+//					Lin Lue			(S10158175E)
+//					Amos Tan		(S10158017D)
+
 // Programming 2D Games
 // Copyright (c) 2011 by:
 // Charles Kelly
@@ -6,7 +12,7 @@
 #include "ship.h"
 
 //=============================================================================
-// default constructor
+// Default Constructor
 //=============================================================================
 Ship::Ship() : Entity() {
 	spriteData.width = shipNS::WIDTH;
@@ -25,6 +31,8 @@ Ship::Ship() : Entity() {
 	mass = shipNS::MASS;
 	collisionType = entityNS::CIRCLE;
 	health = 3;
+
+	// add the key and value pairs here
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_STUN, 0.0f));
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_SLOW, 0.0f));
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_INVINCIBLE, 0.0f));
@@ -46,12 +54,13 @@ void Ship::draw() {
 }
 
 //=============================================================================
-// update
+//									UPDATE
 // typically called once per frame
 // deltaTime is used to regulate the speed of movement and animation
 //=============================================================================
 void Ship::update(float deltaTime)
 {
+	// bouncing off the side of the screen
 	Entity::update(deltaTime);
 	spriteData.angle += deltaTime * shipNS::ROTATION_RATE;
 	spriteData.x += deltaTime * velocity.x;
@@ -79,18 +88,21 @@ void Ship::damage(WEAPON weapon) {
 
 	switch (weapon)
 	{
-		case WEAPON_CIRCLE: {
-								this->setHealth(this->getHealth() - 1);
-		} break;
-		case WEAPON_TRIANGLE: {
-								  this->setHealth(this->getHealth() - 1);
-		} break;
-		case WEAPON_BOSS: {
-							  this->setHealth(this->getHealth() - 2);
-		} break;
-		case WEAPON_BLACKHOLE: {
+	case WEAPON_CIRCLE: {
+							this->setHealth(this->getHealth() - 1);
+	} break;
+	case WEAPON_TRIANGLE: {
+							  this->setHealth(this->getHealth() - 1);
+	} break;
+	case WEAPON_BOSS: {
+						  this->setHealth(this->getHealth() - 2);
+	} break;
+	case WEAPON_BLACKHOLE: {
+							   if (this->health == 1)
 								   this->setHealth(0);
-		} break;
+							   else
+								   this->setHealth(1);
+	} break;
 	}
 
 	if (this->getHealth() < 0)

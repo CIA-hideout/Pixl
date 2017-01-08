@@ -1,3 +1,9 @@
+// Module:			Gameplay Programming
+// Assignment 1:	Pixl
+// Student Name:	Elcoms Khang	(S10157558A)
+//					Lin Lue			(S10158175E)
+//					Amos Tan		(S10158017D)
+
 #ifndef _MISSILE_H_
 #define _MISSILE_H_
 
@@ -28,8 +34,8 @@ public:
 	virtual bool initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
 	void update(float deltaTime);
 	
-	Entity* getTarget() { return this->target; }
-	void setTarget(Entity* target) { this->target = target; }
+	Entity* getTarget() { return this->target; }					// return the targeted object
+	void setTarget(Entity* target) { this->target = target; }		// set the target object to be followed by missile
 
 private:
 

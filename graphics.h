@@ -1,3 +1,11 @@
+// Module:			Gameplay Programming
+// Assignment 1:	Pixl
+// Student Name:	Elcoms Khang	(S10157558A)
+//					Lin Lue			(S10158175E)
+//					Amos Tan		(S10158017D)
+
+
+
 // Programming 2D Games
 // Copyright (c) 2011 by:
 // Charles Kelly
@@ -14,6 +22,12 @@
 #include <d3dx9.h>
 #include "constants.h"
 #include "gameError.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <timeapi.h>
+#include <sstream>
+#include <iomanip>
+#include <fstream>
 
 // DirectX pointer types
 #define LP_TEXTURE  LPDIRECT3DTEXTURE9

@@ -1,3 +1,9 @@
+// Module:			Gameplay Programming
+// Assignment 1:	Pixl
+// Student Name:	Elcoms Khang	(S10157558A)
+//					Lin Lue			(S10158175E)
+//					Amos Tan		(S10158017D)
+
 // Programming 2D Games
 // Copyright (c) 2011 by:
 // Charles Kelly
@@ -13,6 +19,8 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <mmsystem.h>
+#include <string>
+#include <vector>
 
 //-----------------------------------------------
 // Useful macros
@@ -48,6 +56,9 @@ const float MAX_FRAME_TIME = 1.0f / MIN_FRAME_RATE; // maximum time used in calc
 const float MASS_PLANET = 1.0e14f;
 const float MASS_SHIP = 5.0f;
 
+const std::vector<std::string> CREDITS = {"-TEAM-", "Amos Tan", "Elcoms Khang", "Lin Lue", "-IN CHARGE-", "Tan Teck Jin Andrew", "Lee Ching Yun"};
+const std::vector<std::string> MENU_OPTIONS = { "[S] tart", "[I] nstructions", "[H] ighscore", "[C] redits" };
+
 // player
 const int P_DEATH_WIDTH					= 256;						// player death width
 const int P_DEATH_HEIGHT				= 256;						// player death height
@@ -69,6 +80,18 @@ const int P_INVIN_END_FRAME				= 4;						// player invin end frame number
 const float P_INVIN_SCALE				= 0.5f;						// player invin starting scale
 const float P_INVIN_ANIMATION_DELAY		= 0.1f;						// player invin animation time between frames
 const bool P_INVIN_LOOP					= true;						// Player invin animation loop
+
+// GUI
+const int INSTRUCTIONS_WIDTH = 512;
+const int INSTRUCTIONS_HEIGHT = 512;
+const int INSTRUCTIONS_COLS = 4;
+const int INSTRUCTIONS_CONTROLS_START_FRAME = 0;
+const int INSTRUCTIONS_CONTROLS_END_FRAME = 0;
+const int INSTRUCTIONS_HOW_START_FRAME = 1;
+const int INSTRUCTIONS_HOW_END_FRAME = 1;
+const int INSTRUCTIONS_GOODLUCK_START_FRAME = 2;
+const int INSTRUCTIONS_GOODLUCK_END_FRAME = 3;
+const float INSTRUCTIONS_ANIMATION_DELAY = 0.2f;
 
 
 //=================================
@@ -96,6 +119,8 @@ const char FREEZE_TEXTURE[]					= "resources\\images\\freeze_animation_spriteshe
 const char FONT_TEXTURE[]					= "resources\\images\\font.png";
 const char FONT_TEXTURE_INFO[]				= "resources\\data\\font.dat";
 const char HEART_TEXTURE[] 					= "resources\\images\\sprite_hearts.png";
+const char INSTRUCTIONS_TEXTURE[]			= "resources\\images\\instructions_animation_spritesheet.png";
+const char SELECT_BOX_TEXTURE[]				= "resources\\images\\select_box.png";
 
 // Sound 
 const char PLAYER_PICKUP_SOUND[]			= "resources\\sounds\\pickup_good.wav";		// player pick up a pickup

@@ -1,54 +1,51 @@
-// Programming 2D Games
-// Copyright (c) 2011 by:
-// Charles Kelly
-// Draw animated spaceships with collision and shield
-// Chapter 6 spacewar.cpp v1.0
-// This class is the core of the game
+// Module:			Gameplay Programming
+// Assignment 1:	Pixl
+// Student Name:	Elcoms Khang	(S10157558A)
+//					Lin Lue			(S10158175E)
+//					Amos Tan		(S10158017D)
 
 #include "spaceWar.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <timeapi.h>
-#include <sstream>
-#include <iomanip>
-#include <fstream>
 
+// calculates the number of enemies
 #define TRIANGLE_COUNT(x) (x * 0.15 * 16)
 #define CIRCLE_COUNT(x) (x * 0.15 * 8)
 
 // just a few helper functions that does not deserve to be in a class
-double calculateF(Entity* e1, Entity* e2);
-void PrintEffect(Entity* entity, Font* effectFont);
-bool isWaveOver(std::vector<Entity*> entities);
-bool isTargeted(std::vector<Missile*> missiles, Entity* entity);
-int minMaxRand(int min, int max);
+void PrintEffect(Entity* entity, Font* effectFont);					// prints the effect that the player has
+bool isWaveOver(std::vector<Entity*> entities);						// function to check if the wave is over based on
+bool isTargeted(std::vector<Missile*> missiles, Entity* entity);	// checks if an entitiy is targeted by a missile
+int minMaxRand(int min, int max);									// generate a random integer based on minimum/maximum value
 
-float	playerAccelerationRate;
-float	playerDeccelerationRate;
-float	playerTurnMultiplier;
-float	slowedTime, slowRadians;			// Used for slowing down blackhole rotation
-float	deathAngle;							// the angle in radians at the point in time of the player's death
-float	waveBufferTime;
-float	blackholeTimer;
+// values that will be used constantly so a might as well make them global
+
+float	playerAccelerationRate;										// Used to speed up player's velocity
+float	playerDeccelerationRate;									// Used to slow down player's velocity
+float	playerTurnMultiplier;										// Controls how fast the player can rotate
+float	slowedTime, slowRadians;									// Used for slowing down blackhole rotation
+float	deathAngle;													// the angle in radians at the point in time of the player's death
+float	waveBufferTime;												// a short peroid of time before the first wave and menu
+float	blackholeTimer;												// time where the blackhole is left in the entities vector
 
 int		playerMaxHealth, playerHealth;
-int		playerScore, playerLevel;
-int		combo, maxCombo;
+int		playerScore, highscore;										// highscore will be written in a file when it is greater than the current highscore
+int		combo, maxCombo;											// record combo
 int		currentWave;
 
 bool	waveOver;
 bool	playerIsDead, playerCanPickup;
-bool	playerDefaultTexture;
+bool	playerDefaultTexture;										// true/false based on whether player has their starting texture or changed
 bool	beatenHighScore;
+bool	isKeyPressed;													// true/false based on whether player is on the how to play instructions page
 
-int highscore;
+int		cursorPos, cursorPosCount;									// a number from 0 - 31
+int		kbdStartPosX, kbdStartPosY = 50;
 
 DWORD	baseTime;
 
 std::stringstream ss;
+std::string scoreStr;
 
-Spacewar::Spacewar() {
-}
+Spacewar::Spacewar() {}
 
 Spacewar::~Spacewar() {
 	releaseAll();           // call onLostDevice() for every graphics item
@@ -59,13 +56,14 @@ void Spacewar::initialize(HWND hwnd) {
 
 	Game::initialize(hwnd);
 
-	AllocConsole();
-
+	AllocConsole();		// Console for debugging
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
 	freopen("conout$", "w", stderr);
 
-	// Texture Initialization
+	//=================================================
+	//				Texture Initialization
+	//=================================================
 	// Player
 	shipTextures.initialize(graphics, PLAYER_TEXTURE);
 	p_deathTextures.initialize(graphics, PLAYER_DEATH_TEXTURE);
@@ -86,11 +84,22 @@ void Spacewar::initialize(HWND hwnd) {
 	// GUI
 	heartTexture.initialize(graphics, HEART_TEXTURE);
 	fontTexture.initialize(graphics, FONT_TEXTURE);
+	instructionsTexture.initialize(graphics, INSTRUCTIONS_TEXTURE);
+
+	instructions = new Entity();
+	instructions->initialize(this, INSTRUCTIONS_WIDTH, INSTRUCTIONS_HEIGHT, INSTRUCTIONS_COLS, &instructionsTexture);
+	instructions->setLoop(false);
+	instructions->setFrames(INSTRUCTIONS_CONTROLS_START_FRAME, INSTRUCTIONS_CONTROLS_END_FRAME);
+	instructions->setCurrentFrame(INSTRUCTIONS_CONTROLS_START_FRAME);
+	instructions->setX(GAME_WIDTH / 2 - instructions->getScale() * instructions->getWidth() / 2);
+	instructions->setY(GAME_HEIGHT / 2 - instructions->getScale() * instructions->getHeight() / 2);
+	bool isKeyPressed = false;
 
 	this->setGameState(GAME_STATE_MENU);
 
-	// -----------------------------------------------
-	// everything here should just be initialized once
+	//=================================================
+	//				Font Initialization
+	//=================================================
 	timeFont = new Font();
 	timeFont->initialize(this, 2048, 2048, 16, &fontTexture);
 	timeFont->loadTextData(FONT_TEXTURE_INFO);
@@ -122,6 +131,7 @@ void Spacewar::initialize(HWND hwnd) {
 	effectFont->setWidth(128);
 	effectFont->setScale(0.3);
 
+	// positioning of hearts
 	int dx = GAME_WIDTH - GAME_WIDTH / 100;
 	for (int i = 0; i < 10; i++) {
 		Entity* heart = new Entity();
@@ -137,36 +147,94 @@ void Spacewar::initialize(HWND hwnd) {
 		hearts.push_back(heart);
 	}
 
-	FILE* file;
-	file = fopen(HIGHSCORE_FILE, "r");
-	fscanf(file, "%d", &highscore);
-	fclose(file);
+	ParseScore(HIGHSCORE_FILE);
+
+	for (std::map<int, std::string>::iterator iter = this->highscores.begin(); iter != this->highscores.end(); iter++) {
+		scoreVect.push_back(iter->first);
+	}
+	std::sort(scoreVect.begin(), scoreVect.end(), std::greater<int>());
+
+	inputMap.insert(std::pair<UCHAR, bool>(VK_LEFT, false));
+	inputMap.insert(std::pair<UCHAR, bool>(VK_RIGHT, false));
+	inputMap.insert(std::pair<UCHAR, bool>(VK_UP, false));
+	inputMap.insert(std::pair<UCHAR, bool>(VK_DOWN, false));
+	inputMap.insert(std::pair<UCHAR, bool>(VK_ESCAPE, false));
+	inputMap.insert(std::pair<UCHAR, bool>(VK_RETURN, false));
+	inputMap.insert(std::pair<UCHAR, bool>(0x5A, false));		// z
+	inputMap.insert(std::pair<UCHAR, bool>(0x48, false));		// h
+	inputMap.insert(std::pair<UCHAR, bool>(0x49, false));		// i
+	inputMap.insert(std::pair<UCHAR, bool>(0x43, false));		// c
+
+	kbdStartPosX = GAME_WIDTH / 2 - menuFont->getTotalWidth_("ABCDEFGH") / 2;
+	kbdStartPosY = GAME_HEIGHT / 2;
+
+	TextureManager* selectBoxTexture = new TextureManager();
+	selectBoxTexture->initialize(graphics, SELECT_BOX_TEXTURE);
+	selectBox = new Entity();
+	selectBox->initialize(this, 128, 128, 1, selectBoxTexture);
+	selectBox->setScale(0.5f);
+	selectBox->setX(kbdStartPosX);
+	selectBox->setY(kbdStartPosY);
+
+	alphaVect = std::vector<int>();
+
+	for (int i = 'A'; i <= '`'; i++) {
+		alphaVect.push_back(i);
+	}
+
+	textVect = std::vector<int>();
 
 	return;
 }
 
 void Spacewar::update() {
+	//for (std::map<UCHAR, bool>::iterator iter = inputMap.begin(); iter != inputMap.end(); iter++) {
+	//	if (input->isKeyDown(iter->first)) {
+	//		iter->second = true;
+	//	}
+	//	else {
+	//		iter->second = false;
+	//	}
+	//}
+
 	switch (this->getGameState()) {
 	case GAME_STATE_MENU: {
-							  if (input->isKeyDown(SPACEBAR)) {
+							  //=================================================
+							  //					   MENU
+							  //=================================================
+							  // Code to run in the main menu
+							  // Start the game state if the spacebar is pressed
+							  // Variables that may have be changed in the previous state(s) will be set to 0/original values again
+
+							  // reset instructions to page 1
+							  instructions->setFrames(INSTRUCTIONS_CONTROLS_START_FRAME, INSTRUCTIONS_CONTROLS_END_FRAME);
+							  instructions->setCurrentFrame(INSTRUCTIONS_CONTROLS_START_FRAME);
+							  instructions->setLoop(false);
+
+							  // s
+							  if (input->isKeyDown(0x53)) {
 								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
-								  printf("SELECT sound is played\n");
+
+								  entities.clear();
 
 								  beatenHighScore = false;
+								  playerHealth = 3;
+								  playerMaxHealth = 10;
+								  playerIsDead = false;
+								  playerDefaultTexture = true;
+								  combo = maxCombo = playerScore = 0;
 
 								  this->setGameState(GAME_STATE_GAME);
-								  this->setIsRunning(true);
 
 								  playerAccelerationRate = 3.5f;
 								  playerDeccelerationRate = 0.005f;
 								  playerTurnMultiplier = 3.5f;
 
-								  playerIsDead = false;
-								  playerDefaultTexture = true;
-
-								  playerHealth = 3;
-								  playerMaxHealth = 10;
-
+								  //=================================================
+								  //			 Entities Initialization
+								  //=================================================
+								  // initializes default values and add them into entites vector
+								  // Player
 								  player = new Ship();
 								  player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
 								  player->setCurrentFrame(shipNS::player_START_FRAME);
@@ -179,15 +247,16 @@ void Spacewar::update() {
 
 								  this->addEntity(player);
 
-								  healthPickup = new Pickup();
+								  // Health Pickup
+								  /*healthPickup = new Pickup();
 								  healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
 								  healthPickup->setPickUpType(PICKUP_HEALTH);
 								  healthPickup->setCurrentFrame(0);
-								  healthPickup->setX(minMaxRand(healthPickup->getWidth(), GAME_WIDTH - 2 * healthPickup->getWidth()));
-								  healthPickup->setY(minMaxRand(healthPickup->getHeight(), GAME_HEIGHT - 2 * healthPickup->getHeight()));
+								  healthPickup->setNewLocation();
 
-								  addEntity(healthPickup);
+								  addEntity(healthPickup);*/
 
+								  // Other Pickups (Obstructor/Destructors)
 								  for (int i = 0; i < 3; i++) {
 									  Pickup* pickup = new Pickup();
 									  pickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &destructorObstructorTexture);
@@ -196,14 +265,13 @@ void Spacewar::update() {
 										  pickup->setCurrentFrame(0);
 									  else
 										  pickup->setCurrentFrame(1);
-									  pickup->setX(minMaxRand(pickup->getWidth(), GAME_WIDTH - 2 * pickup->getWidth()));
-									  pickup->setY(minMaxRand(pickup->getHeight(), GAME_HEIGHT - 2 * pickup->getHeight()));
+									  pickup->setNewLocation();
 
 									  addEntity(pickup);
 								  }
 
+								  // Enemies (Initialize first wave)
 								  currentWave = 1;
-								  // wave is over if and only if all enemies are not active
 								  for (int i = 0; i < TRIANGLE_COUNT(currentWave); i++) {
 									  Triangle* triangle = new Triangle();
 									  triangle->initialize(this, TriangleNS::WIDTH, TriangleNS::HEIGHT, TriangleNS::TEXTURE_COLS, &triangleTextures);
@@ -221,27 +289,41 @@ void Spacewar::update() {
 									  circle->spawn();
 									  addEntity(circle);
 								  }
-
-								  combo = maxCombo = playerScore = 0;
-
-								  waveBufferTime = 1.5f;
+								  waveBufferTime = 1.5f;			// time pause in between new waves
 								  baseTime = timeGetTime();
+							  }
+
+							  // c
+							  else if (input->isKeyDown(0x43)) {
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+								  this->setGameState(GAME_STATE_CREDITS);
+							  }
+
+							  // i
+							  else if (input->isKeyDown(0x49)) {
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+								  this->setGameState(GAME_STATE_INSTRUCTIONS);
+							  }
+
+							  // h
+							  else if (input->isKeyDown(0x48)) {
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+								  this->setGameState(GAME_STATE_HIGHSCORE);
+								  cursorPos = 0;
 							  }
 	} break;
 	case GAME_STATE_GAME: {
-							  if (input->isKeyDown(ESC_KEY)) {
-								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
-								  printf("SELECT sound is played\n");
+							  //=================================================
+							  //					GAMEPLAY
+							  //=================================================
+							  // Code to run when gameplay is ongoing
 
-								  this->setGameState(GAME_STATE_MENU);
-								  this->setIsRunning(false);
-								  entities.clear();
-							  }
-
+							  // buffer time for the first wave
 							  if (waveBufferTime > 0.0f) {
 								  waveBufferTime -= deltaTime;
 							  }
 
+							  // update health bar based on player's current health (increment/decrement)
 							  for (int i = 0; i < hearts.size(); i++) {
 								  hearts[i]->setCurrentFrame(1);
 								  hearts[i]->update(deltaTime);
@@ -251,6 +333,7 @@ void Spacewar::update() {
 								  hearts[i]->update(deltaTime);
 							  }
 
+							  // check if the current wave is over; spawns new stuff if true
 							  if (isWaveOver(entities)) {
 								  currentWave++;
 								  waveBufferTime = 1.5f;
@@ -273,9 +356,11 @@ void Spacewar::update() {
 								  }
 							  }
 
+							  // checks the collision of missiles and entites here
 							  VECTOR2 collisionVector;
 							  for (std::vector<Missile*>::iterator iter = missiles.begin(); iter != missiles.end(); iter++) {
 								  (*iter)->update(deltaTime);
+								  // Re-targets a new enemy if the previous target dies before the missile collides with it
 								  if ((*iter)->getTarget()->getActive()) {
 									  if ((*iter)->getObjectType() == OBJECT_TYPE_MISSILE) {
 										  if ((*iter)->collidesWith(*(*iter)->getTarget(), collisionVector)) {
@@ -298,6 +383,7 @@ void Spacewar::update() {
 										  }
 									  }
 								  }
+								  // Find a new target here, target should not be targeted by another missile
 								  else {
 									  for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
 										  if (
@@ -310,13 +396,14 @@ void Spacewar::update() {
 											  (*iter)->setTarget(*iter_);
 										  }
 									  }
+									  // kills itself if no target is available
 									  if (!(*iter)->getTarget()->getActive()) {
 										  (*iter)->setActive(false);
 									  }
 								  }
 							  }
 
-							  // explosion collision detection
+							  // explosion detection
 							  for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
 								  if ((*iter)->getObjectType() == OBJECT_TYPE_EXPLOSION) {
 									  for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
@@ -343,60 +430,242 @@ void Spacewar::update() {
 								  }
 							  }
 
+							  // update combo as the game progresses
 							  if (combo > maxCombo)
 								  maxCombo = combo;
 
+							  // Pressing ESC Key returns player to Main Menu
+							  if (input->isKeyDown(ESC_KEY)) {
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+
+								  this->setGameState(GAME_STATE_MENU);
+							  }
+
+							  // cleanup entities with no health
 							  KillEntities();
 	} break;
 	case GAME_STATE_SETTING: {
 	} break;
 	case GAME_STATE_GAMEOVER: {
+								  //=================================================
+								  //					END SCREEN
+								  //=================================================
+								  // Code to run after the player dies and the score is shown
+								  // Press ESC Key to return to Main Menu
 								  if (input->isKeyDown(ESC_KEY)) {
 									  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
-									  printf("SELECT sound is played\n");
 
 									  this->setGameState(GAME_STATE_MENU);
-									  this->setIsRunning(false);
-									  entities.clear();
 								  }
+								  else if (input->isKeyDown(ENTER_KEY))
+								  {
+									  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+
+									  this->setGameState(GAME_STATE_HIGHSCORE);
+								  }
+								  
 	} break;
+	case GAME_STATE_CREDITS: {
+								 if (input->isKeyDown(VK_ESCAPE)) {
+									 PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+									 this->setGameState(GAME_STATE_MENU);
+								 }
+	} break;
+	case GAME_STATE_INSTRUCTIONS: {
+		if (input->isKeyDown(VK_ESCAPE)) {
+			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			this->setGameState(GAME_STATE_MENU);
+		}
+		else if (instructions->getCurrentFrame() == 0 && input->isKeyDown(VK_RIGHT) && !isKeyPressed)
+		{
+			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			instructions->setFrames(INSTRUCTIONS_HOW_START_FRAME, INSTRUCTIONS_HOW_END_FRAME);
+			instructions->setCurrentFrame(INSTRUCTIONS_HOW_START_FRAME);
+			instructions->setLoop(false);
+			isKeyPressed = true;
+		}
+		else if (instructions->getCurrentFrame() == 1 && input->isKeyDown(VK_LEFT) && !isKeyPressed)
+		{
+			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			instructions->setFrames(INSTRUCTIONS_CONTROLS_START_FRAME, INSTRUCTIONS_CONTROLS_END_FRAME);
+			instructions->setCurrentFrame(INSTRUCTIONS_CONTROLS_START_FRAME);
+			instructions->setLoop(false);
+			isKeyPressed = true;
+		}
+		else if (instructions->getCurrentFrame() == 1 && input->isKeyDown(VK_RIGHT) && !isKeyPressed)
+		{
+			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			instructions->setFrames(INSTRUCTIONS_GOODLUCK_START_FRAME, INSTRUCTIONS_GOODLUCK_END_FRAME);
+			instructions->setCurrentFrame(INSTRUCTIONS_GOODLUCK_START_FRAME);
+			instructions->setFrameDelay(INSTRUCTIONS_ANIMATION_DELAY);
+			instructions->setLoop(true);
+			isKeyPressed = true;
+		}
+		else if (instructions->getCurrentFrame() == 2 && input->isKeyDown(VK_LEFT) && !isKeyPressed)
+		{
+			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			instructions->setFrames(INSTRUCTIONS_HOW_START_FRAME, INSTRUCTIONS_HOW_END_FRAME);
+			instructions->setCurrentFrame(INSTRUCTIONS_HOW_START_FRAME);
+			instructions->setLoop(false);
+			isKeyPressed = true;
+		}
+
+		if (timeGetTime() % 1000 <= 50)
+		{
+			isKeyPressed = false;
+		}
+
+		instructions->update(deltaTime);
+	} break;
+	case GAME_STATE_HIGHSCORE: {
+								   if (input->isKeyDown(VK_ESCAPE)) {
+									   PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+									   this->setGameState(GAME_STATE_MENU);
+								   }
+	} break;
+	case GAME_STATE_NEW_HIGHSCORE:{
+									  // r
+									  if (input->isKeyDown(VK_RIGHT)) {
+										  if (inputMap.at(VK_RIGHT) == false) {
+											  cursorPos++;
+											  inputMap.at(VK_RIGHT) = true;
+										  }
+									  }
+									  else {
+										  inputMap.at(VK_RIGHT) = false;
+									  }
+
+									  // l
+									  if (input->isKeyDown(VK_LEFT)) {
+										  if (inputMap.at(VK_LEFT) == false) {
+											  cursorPos--;
+											  inputMap.at(VK_LEFT) = true;
+										  }
+									  }
+									  else {
+										  inputMap.at(VK_LEFT) = false;
+									  }
+
+									  // u
+									  if (input->isKeyDown(VK_UP)) {
+										  if (inputMap.at(VK_UP) == false) {
+											  cursorPos -= 8;
+											  inputMap.at(VK_UP) = true;
+										  }
+									  }
+									  else {
+										  inputMap.at(VK_UP) = false;
+									  }
+
+									  // d
+									  if (input->isKeyDown(VK_DOWN)) {
+										  if (inputMap.at(VK_DOWN) == false) {
+											  cursorPos += 8;
+											  inputMap.at(VK_DOWN) = true;
+										  }
+									  }
+									  else {
+										  inputMap.at(VK_DOWN) = false;
+									  }
+
+									  if (cursorPos < 0) {
+										  cursorPos = cursorPos + 32;
+									  }
+
+									  cursorPos %= 32;
+
+									  // select a character at the position of the cursor
+									  if (input->isKeyDown(0x5A)) {
+										  if (inputMap.at(0x5A) == false) {
+											  // the current selected item will be added
+											  // backspace
+											  if (alphaVect[cursorPos] == (int)'_') {
+												  if (!textVect.empty()) {
+													  textVect.pop_back();
+												  }
+											  }
+											  // return
+											  else if (alphaVect[cursorPos] == (int)'`') {
+												  if (textVect.size() == 3) {
+													  std::string scoreStr_(textVect.begin(), textVect.end());
+													  highscores.insert(std::pair<int, std::string>(playerScore, scoreStr_));
+
+													  highscores.insert(std::pair<int, std::string>(playerScore, scoreStr_));
+													  scoreVect.push_back(playerScore);
+
+													  std::ofstream ofile;
+													  ofile.open(HIGHSCORE_FILE, std::ios_base::app);
+													  ofile << "\n" << scoreStr_ << ";" << playerScore;
+													  ofile.close();
+
+													  textVect.clear();
+													  setGameState(GAME_STATE_HIGHSCORE);
+												  }
+											  }
+											  else {
+												  if (textVect.size() < 3)
+													  textVect.push_back(alphaVect[cursorPos]);
+											  }
+											  inputMap.at(0x5A) = true;
+										  }
+									  }
+									  else {
+										  inputMap.at(0x5A) = false;
+									  }
+
+									  selectBox->setX(kbdStartPosX + cursorPos % 8 * 128 * menuFont->getScale());
+									  selectBox->setY(kbdStartPosY + ((cursorPos - (cursorPos % 8)) / 8) % 4 * 128 * menuFont->getScale());
+	};
 	}
 }
 
-void Spacewar::ai() {
-	switch (this->getGameState()) {
-	case GAME_STATE_MENU: {
-	} break;
-	case GAME_STATE_GAME: {
-	} break;
-	case GAME_STATE_SETTING: {
-	} break;
-	case GAME_STATE_GAMEOVER: {
-	} break;
-	}
-}
+void Spacewar::ai() {}
 
 void Spacewar::render() {
 	graphics->spriteBegin();
 
 	switch (this->getGameState()) {
 	case GAME_STATE_MENU: {
+							  //=================================================
+							  //					  MENU
+							  //=================================================
+							  // displays GUI for the main menu
 							  menuFont->Print(
 								  GAME_WIDTH / 2 - menuFont->getTotalWidth("P i x l .") / 2,
 								  GAME_HEIGHT / 3,
-								  "P i x l ."
-								  );
-							  menuFont->Print(
-								  GAME_WIDTH / 2 - menuFont->getTotalWidth("Press space to start") / 2,
-								  GAME_HEIGHT / 2, "Press space to start");
+								  "P i x l .");
+							  //menuFont->Print(
+							  // GAME_WIDTH / 2 - menuFont->getTotalWidth("[S]tart") / 2,
+							  // GAME_HEIGHT / 2, "[S]tart");
+
+							  int offsetY = 0;
+							  for (int i = 0; i < MENU_OPTIONS.size(); i++) {
+								  menuFont->Print(GAME_WIDTH / 2 - menuFont->getTotalWidth(MENU_OPTIONS[i]) / 2, GAME_HEIGHT / 2 + offsetY, MENU_OPTIONS[i]);
+								  offsetY += menuFont->getHeight() * menuFont->getScale();
+							  }
+	} break;
+	case GAME_STATE_CREDITS: {
+								 int offsetY = 0;
+								 menuFont->Print(GAME_WIDTH / 2 - menuFont->getTotalWidth("CREDITS:") / 2, GAME_HEIGHT / 4, "Credits:");
+								 for (int i = 0; i < CREDITS.size(); i++) {
+									 menuFont->Print(GAME_WIDTH / 2 - menuFont->getTotalWidth(CREDITS[i]) / 2, GAME_HEIGHT / 3 + offsetY, CREDITS[i]);
+									 offsetY += menuFont->getHeight() * menuFont->getScale();
+								 }
+	} break;
+	case GAME_STATE_INSTRUCTIONS: {
+									 instructions->draw();
 	} break;
 	case GAME_STATE_GAME: {
+							  //=================================================
+							  //					GAMEPLAY
+							  //=================================================
+							  // Code to draw textures for entites and GUI during gameplay
 							  if (waveBufferTime > 0.0f) {
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth("wave" + std::to_string(currentWave)) / 2,
 									  GAME_HEIGHT / 3,
 									  "wave " + std::to_string(currentWave));
-								  // buffer will not display anything for the first wave
+								  // buffer will not display anything except for wave number for the first wave
 								  if (currentWave != 1) {
 									  DrawEntities();
 									  ss.str("");
@@ -437,7 +706,6 @@ void Spacewar::render() {
 	case GAME_STATE_SETTING: {
 	} break;
 	case GAME_STATE_GAMEOVER: {
-
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Game over") / 2,
 									  GAME_HEIGHT / 3,
@@ -452,34 +720,108 @@ void Spacewar::render() {
 									  GAME_HEIGHT / 2.5,
 									  ss.str()
 									  );
+
+								  menuFont->Print(
+									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Press enter see the top players") / 2,
+									  GAME_HEIGHT / 2, "Press enter to see the top players");
+
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Press esc to return to main menu") / 2,
-									  GAME_HEIGHT / 2, "Press esc to return to main menu");
+									  GAME_HEIGHT / 1.5, "Press esc to return to main menu");
 
-								  ss.str("");
+								  
+	} break;
+	case GAME_STATE_HIGHSCORE: {
+								   menuFont->Print(
+									   GAME_WIDTH / 2 - menuFont->getTotalWidth("Highscores") / 2,
+									   GAME_HEIGHT / 7,
+									   "Highscores"
+									   );
 
-								  if (beatenHighScore) {
-									  ss << "New highscore!";
-									  menuFont->Print(
-										  GAME_WIDTH / 2 - menuFont->getTotalWidth(ss.str()) / 2,
-										  GAME_HEIGHT / 4,
-										  ss.str()
-										  );
-								  }
-								  else {
-									  ss << "Highscore: " << highscore;
-									  menuFont->Print(
-										  GAME_WIDTH / 2 - menuFont->getTotalWidth(ss.str()) / 2,
-										  GAME_HEIGHT - GAME_HEIGHT / 4,
-										  ss.str()
-										  );
-								  }
+								   ss.str("");
+
+								   int offsetY = GAME_HEIGHT / 5;
+								   int colCount = GAME_WIDTH / 8;
+								   int colName = GAME_WIDTH / 5;
+								   int colScore = GAME_WIDTH - GAME_WIDTH / 8;
+
+								   std::sort(scoreVect.begin(), scoreVect.end(), std::greater<int>());
+
+								   for (int i = 0; i < scoreVect.size() && i < 10; i++) {
+									   ss << i + 1;
+									   menuFont->Print(colCount, offsetY, ss.str());
+									   ss.str("");
+
+									   menuFont->Print(colName, offsetY, highscores.at(scoreVect[i]));
+
+									   ss << scoreVect[i];
+									   menuFont->Print(colScore - menuFont->getTotalWidth(ss.str()), offsetY, ss.str());
+									   ss.str("");
+
+									   offsetY += menuFont->getScale() * menuFont->getHeight();
+								   }
+
+								   menuFont->Print(
+									   GAME_WIDTH / 2 - menuFont->getTotalWidth("Press ESC to return to main menu") / 2,
+									   GAME_HEIGHT - GAME_HEIGHT / 9,
+									   "Press ESC to return to main menu"
+									   );
+
+	} break;
+	case GAME_STATE_NEW_HIGHSCORE: {
+									   ss.str("");
+									   ss << "score: " << playerScore << " Highest combo: " << maxCombo << " wave: " << currentWave;
+
+									   menuFont->Print(
+										   GAME_WIDTH / 2 - menuFont->getTotalWidth(ss.str()) / 2,
+										   GAME_HEIGHT / 5,
+										   ss.str()
+										   );
+
+									   menuFont->Print_(
+										   GAME_WIDTH / 2 - menuFont->getTotalWidth_("New Highscore!") / 2,
+										   GAME_HEIGHT / 4,
+										   "New Highscore!");
+
+									   menuFont->Print(
+										   GAME_WIDTH / 2 - menuFont->getTotalWidth("Press the <z> key to select an alphabet") / 2,
+										   GAME_HEIGHT / 2.5,
+										   "Press the <z> key to select an alphabet");
+
+									   int alphaOffset = (int)'A';
+									   int offsetX = kbdStartPosX;
+									   int offsetY = kbdStartPosY;
+									   int count = 1;
+									   std::stringstream ss;
+									   std::string character;
+									   for (int i = alphaOffset; i <= (int)'`'; i++) {
+										   ss << (char)i;
+										   ss >> character;
+										   ss.clear();
+										   menuFont->Print_(offsetX, offsetY, character);
+										   offsetX += menuFont->getTotalWidth_(character);
+										   if (count % 8 == 0) {
+											   offsetY += menuFont->getHeight() * menuFont->getScale();
+											   offsetX = kbdStartPosX;
+										   }
+										   count++;
+									   }
+									   // make the last character the '>' key
+									   selectBox->draw();
+
+									   std::string scoreStr(textVect.begin(), textVect.end());
+									   menuFont->Print_(
+										   GAME_WIDTH / 2 - menuFont->getTotalWidth_(scoreStr) / 2,
+										   GAME_HEIGHT / 3,
+										   scoreStr
+										   );
 	} break;
 	}
 
 	graphics->spriteEnd();
 }
 
+// release resources
 void Spacewar::releaseAll() {
 	shipTextures.onResetDevice();
 	circleTextures.onResetDevice();
@@ -494,14 +836,24 @@ void Spacewar::releaseAll() {
 	return;
 }
 
-void Spacewar::resetAll()
-{
+// reset devices
+void Spacewar::resetAll() {
 	shipTextures.onResetDevice();
 	triangleTextures.onResetDevice();
+	shipTextures.onResetDevice();
+	circleTextures.onResetDevice();
+	p_deathTextures.onResetDevice();
+	triangleTextures.onResetDevice();
+	circleTextures.onResetDevice();
+	blackHoleTexture.onResetDevice();
+	fontTexture.onResetDevice();
+	heartTexture.onResetDevice();
 	Game::resetAll();
+	FreeConsole();
 	return;
 }
 
+// adds entity. static counter applies id
 void Spacewar::addEntity(Entity* entity) {
 	static int id_counter = 0;
 	entity->setObjectId(id_counter);
@@ -511,8 +863,11 @@ void Spacewar::addEntity(Entity* entity) {
 
 void Spacewar::UpdateEntities() {
 	for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
+		// Update each entity based on their object types
 		switch ((*iter)->getObjectType()) {
 		case OBJECT_TYPE_PLAYER: {
+									 //					Key Inputs
+									 //=================================================
 									 if (input->isKeyDown(VK_UP)) {
 										 (*iter)->setVelocity(
 											 (cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
@@ -541,12 +896,14 @@ void Spacewar::UpdateEntities() {
 											 (*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
 									 }
 
+									 // brakes
 									 if (input->isKeyDown(0x5A)) {
 										 (*iter)->setVelocity(
 											 (*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate * 3,
 											 (*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate * 3);
 									 }
 
+									 // natural decceleration
 									 (*iter)->setVelocity(
 										 (*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
 										 (*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
@@ -555,8 +912,10 @@ void Spacewar::UpdateEntities() {
 									 if (playerDefaultTexture)			// Prevents the default texture from animating
 										 player->setCurrentFrame(player->getStartFrame());
 
+									 //					Player Effects
+									 //=================================================
 									 // iterate through the various effect that the players have
-									 // effects should be applied here
+									 // player effects should be applied here. enviroment effects can be recorded here though it is not recommended
 									 for (std::map<EffectType, float>::iterator iter_ = player->getEffectTimers()->begin(); iter_ != player->getEffectTimers()->end(); iter_++) {
 										 if (iter_->second > 0.0f) {
 											 iter_->second -= deltaTime;
@@ -575,23 +934,23 @@ void Spacewar::UpdateEntities() {
 																	   (*iter)->setVelocity(0, 0);
 											 } break;
 											 case EFFECT_INVINCIBLE: {
-												 if ((*iter)->hasEffect(EFFECT_INVINCIBLE) && (*iter)->getCurrentFrame() == (*iter)->getStartFrame())
-												 {
-													 playerDefaultTexture = false;
-													 (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, P_INVIN_COLS, &p_invinTextures);
-													 (*iter)->setFrames(P_INVIN_START_FRAME, P_INVIN_END_FRAME);
-													 (*iter)->setCurrentFrame(P_INVIN_START_FRAME);
-													 (*iter)->setFrameDelay(P_INVIN_ANIMATION_DELAY);
-													 (*iter)->setLoop(P_INVIN_LOOP);
-													 (*iter)->setScale(P_INVIN_SCALE);
-													 (*iter)->setRect();
-												 }
-												 else if (!(*iter)->hasEffect(EFFECT_INVINCIBLE) && playerDefaultTexture != true)
-												 {
-													 playerDefaultTexture = true;
-													 (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
-													 (*iter)->setCurrentFrame(shipNS::player_START_FRAME);
-												 }
+																		 if ((*iter)->hasEffect(EFFECT_INVINCIBLE) && (*iter)->getCurrentFrame() == (*iter)->getStartFrame())
+																		 {
+																			 playerDefaultTexture = false;
+																			 (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, P_INVIN_COLS, &p_invinTextures);
+																			 (*iter)->setFrames(P_INVIN_START_FRAME, P_INVIN_END_FRAME);
+																			 (*iter)->setCurrentFrame(P_INVIN_START_FRAME);
+																			 (*iter)->setFrameDelay(P_INVIN_ANIMATION_DELAY);
+																			 (*iter)->setLoop(P_INVIN_LOOP);
+																			 (*iter)->setScale(P_INVIN_SCALE);
+																			 (*iter)->setRect();
+																		 }
+																		 else if (!(*iter)->hasEffect(EFFECT_INVINCIBLE) && playerDefaultTexture != true)
+																		 {
+																			 playerDefaultTexture = true;
+																			 (*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
+																			 (*iter)->setCurrentFrame(shipNS::player_START_FRAME);
+																		 }
 											 } break;
 											 case EFFECT_SLOW: {
 																   if ((*iter)->hasEffect(EFFECT_SLOW)) {
@@ -624,7 +983,7 @@ void Spacewar::UpdateEntities() {
 										 player->setVelocity(0, 0);
 		} break;
 		case OBJECT_TYPE_TRIANGLE: {
-									   double dx, dy;
+									   double dx, dy;			// For tracking the player
 
 									   dx = player->getX() - (*iter)->getX();
 									   dy = player->getY() - (*iter)->getY();
@@ -641,24 +1000,15 @@ void Spacewar::UpdateEntities() {
 										   sin((*iter)->getRadians()) * 50
 										   );
 
-									   /*if (!playerIsDead) {
-										   (*iter)->setVelocity(
-										   cos((*iter)->getRadians()) * 50,
-										   sin((*iter)->getRadians()) * 50
-										   );
-										   }
-										   else {
-										   (*iter)->setVelocity(0, 0);
-										   }*/
-
+									   // Freeze triangle if player has frozen effect
 									   if (player->hasEffect(EFFECT_FROZEN)) {
 										   (*iter)->setVelocity(0, 0);
 									   }
 		} break;
-		case OBJECT_TYPE_MISSILE: {
+		case OBJECT_TYPE_MISSILE: {		// Empty
 		} break;
 		case OBJECT_TYPE_BLACKHOLE: {
-										calculateF(*iter, player);
+										calculateF(*iter, player);			// calculates force between player and blackhole
 		} break;
 		}
 		(*iter)->update(deltaTime);
@@ -670,6 +1020,8 @@ void Spacewar::KillEntities() {
 	while (iter != entities.end()) {
 		if ((*iter)->getHealth() <= 0) {
 			// whatever happends on death of the entity goes here
+			// death only happens when health drops to 0
+			// will be kept simple to prevent modifying the iterator while deleting an item
 			switch ((*iter)->getObjectType()) {
 			case OBJECT_TYPE_BLACKHOLE: {
 											(*iter)->setActive(false);
@@ -693,40 +1045,30 @@ void Spacewar::KillEntities() {
 										 iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_PLAYER: {
-				if (playerIsDead && (*iter)->getCurrentFrame() == (*iter)->getEndFrame())
-				{
-					(*iter)->setActive(false);
-					(*iter)->setVisible(false);
-					iter = entities.erase(iter);
-					FILE* file;
+										 (*iter)->setActive(false);
+										 (*iter)->setVisible(false);
+										 iter = entities.erase(iter);
 
-					if (playerScore > highscore) {
-						beatenHighScore = true;
-						file = fopen(HIGHSCORE_FILE, "w");
-						highscore = playerScore;
-						fprintf(file, "%d", highscore);
-						fclose(file);
-					}
+										 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_ASYNC);
 
-					this->setGameState(GAME_STATE_GAMEOVER);
-				}
-				else if (!playerIsDead && (*iter)->getCurrentFrame() == (*iter)->getStartFrame())
-				{
-					playerIsDead = true;				// set to true for "player is already dead and animated, do not repeat."
-					(*iter)->initialize(this, P_DEATH_WIDTH, P_DEATH_HEIGHT, P_DEATH_COLS, &p_deathTextures);
-					(*iter)->setFrames(P_DEATH_START_FRAME, P_DEATH_END_FRAME);
-					(*iter)->setCurrentFrame(P_DEATH_START_FRAME);
-					(*iter)->setFrameDelay(P_DEATH_ANIMATION_DELAY);
-					(*iter)->setLoop(false);
-					(*iter)->setRadians(deathAngle);
-					(*iter)->setScale(0.5f);
-					(*iter)->setRect();
-					PlaySound(PLAYER_DEAD_SOUND, NULL, SND_FILENAME);
-					//printf("You DEAD son\n");
+										 // only compare with the top 10
 
-				}
-				(*iter)->update(deltaTime);
-				printf("%d\n", (*iter)->getCurrentFrame());
+										 if (scoreVect.size() < 10) {
+											 this->setGameState(GAME_STATE_NEW_HIGHSCORE);
+										 }
+										 else {
+											 for (int i = 0; i < 10; i++) {
+												 if (playerScore > scoreVect[i] && playerScore > 0) {
+													 this->setGameState(GAME_STATE_NEW_HIGHSCORE);
+													 printf("NEW HIGHSCORE!\n");
+												 }
+												 else if (playerScore < scoreVect[i])
+												 {
+													 this->setGameState(GAME_STATE_GAMEOVER);
+													 printf("gg\n");
+												 }
+											 }
+										 }
 			} break;
 			case OBJECT_TYPE_SQUARES: {
 										  (*iter)->setActive(false);
@@ -745,16 +1087,16 @@ void Spacewar::KillEntities() {
 											iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_FREEZE: {
-				(*iter)->setActive(false);
-				(*iter)->setVisible(false);
-				iter = entities.erase(iter);
+										 (*iter)->setActive(false);
+										 (*iter)->setVisible(false);
+										 iter = entities.erase(iter);
 			} break;
 			}
-
 		}
 		else iter++;
 	}
 
+	// remove missiles that are not targeting anything
 	std::vector<Missile*>::iterator iter_ = missiles.begin();
 	while (iter_ != missiles.end()) {
 		if (!(*iter_)->getActive()) {
@@ -764,21 +1106,23 @@ void Spacewar::KillEntities() {
 	}
 }
 
+// draw all entites
 void Spacewar::DrawEntities() {
-	for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++){
+	for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
 		(*iter)->draw();
 	}
 }
 
+// simple function to calculate what will be the score applied
 int Spacewar::genScore(int combo) {
 	return 2 + int(pow(combo, 1.5));
 }
 
+// a place where collision calculations takes place
 void Spacewar::collisions() {
+	// temp vector created to store entries that will be appended to entities after the iteration
 	std::vector<Entity*> tempVector;
-
-	switch (this->getGameState())
-	{
+	switch (this->getGameState()) {
 	case GAME_STATE_MENU: {
 	} break;
 	case GAME_STATE_GAME: {
@@ -786,27 +1130,32 @@ void Spacewar::collisions() {
 
 							  for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
 								  Entity* entity = *iter;
+
+								  // run the following code when player collides with the following entity
 								  if (player->collidesWith(*entity, collisionVector)) {
 									  switch (entity->getObjectType())
 									  {
 									  case OBJECT_TYPE_BLACKHOLE: {
+																	  // Plays sound and kills player if blackhole is touched when player is not invulnerable or invincible
 																	  if (!player->hasEffect(EFFECT_INVULNERABLE) || !player->hasEffect((EFFECT_INVINCIBLE))){
+																		  player->damage(WEAPON_BLACKHOLE);
 																		  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
-																		  printf("DAMAGE sound is played\n");
+																		  player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
+																		  combo = 0;
 																	  }
-																	  player->damage(WEAPON_BLACKHOLE);
-																	  combo = 0;
 									  }	break;
 
 									  case OBJECT_TYPE_CIRCLE: {
 																   Circle* circle = (Circle*)(*iter);
 
+																   // Damages circle if player is invincible
 																   if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																	   circle->damage(WEAPON_PLAYER);
 																   }
+
+																   // Plays sound and damages player if circle is touched when player is not invulnerable or invincible
 																   else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
 																	   PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
-																	   printf("DAMAGE sound is played\n");
 
 																	   player->damage(WEAPON_CIRCLE);
 																	   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
@@ -817,12 +1166,14 @@ void Spacewar::collisions() {
 									  case OBJECT_TYPE_TRIANGLE: {
 																	 Triangle* tri = (Triangle*)(*iter);
 
+																	 // Damages triangle if player is invincible
 																	 if (player->hasEffect(EFFECT_INVINCIBLE)) {
 																		 tri->damage(WEAPON_PLAYER);
 																	 }
+
+																	 // Plays sound and damages player if triangle is touched when player is not invulnerable or invincible
 																	 else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
 																		 PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
-																		 printf("DAMAGE sound is played\n");
 
 																		 player->damage(WEAPON_TRIANGLE);
 																		 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
@@ -830,11 +1181,16 @@ void Spacewar::collisions() {
 																	 }
 									  }	break;
 									  case OBJECT_TYPE_PICKUP: {
+																   //				  Pickup Effects
+																   //=================================================
+																   // run the following code when player touches a pickup
+
+																   // pickup cooldown
 																   if (!player->hasEffect(EFFECT_CANNOT_PICKUP)) {
 																	   Pickup* pickup_ = (Pickup*)entity;
 
 																	   switch (pickup_->getPickupType()) {
-																	   case PICKUP_DESTRUCTOR_EXPLOSION: {	
+																	   case PICKUP_DESTRUCTOR_EXPLOSION: {
 																											 Explosion* explosion = new Explosion();
 																											 explosion->initialize(this, explosion->getWidth(), explosion->getHeight(), explosionNS::TEXTURE_COLS, &explosionTexture);
 																											 explosion->setX(pickup_->getX() + pickup_->getWidth() * pickup_->getScale() / 2 - (explosion->getWidth() / 2 * explosion->getScale()));
@@ -845,11 +1201,8 @@ void Spacewar::collisions() {
 
 																											 // play sound async to the game to avoid 'lag'
 																											 PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
-																											 printf("Pickup EXPLODES!\n");
 
-																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																											 pickup_->calculateObstructorDestructorType();
+																											 pickup_->respawnPickup();
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_FREEZE: {
 																										  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
@@ -862,21 +1215,18 @@ void Spacewar::collisions() {
 																										  freeze->setFrameDelay(freezeNS::ANIMATION_DELAY);
 																										  freeze->setRect();
 																										  tempVector.push_back(freeze);
-																										  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																										  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																										  pickup_->calculateObstructorDestructorType();
-																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 10.0f;
+																										  pickup_->respawnPickup();
+																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_INVINCIBILITY: {
 																												 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																												 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																												 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																												 pickup_->calculateObstructorDestructorType();
+																												 pickup_->respawnPickup();
 																												 player->getEffectTimers()->at(EFFECT_INVINCIBLE) = 10.0f;
 																	   } break;
 																	   case PICKUP_DESTRUCTOR_MISSLES: {
 																										   // get the enemies to target first
+																										   // discarded after this iteration
 																										   std::vector<Entity*> tempVect;
 																										   for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
 																											   if (
@@ -889,15 +1239,10 @@ void Spacewar::collisions() {
 																											   }
 																										   }
 
+																										   // spawn 5 - 10 missiles
 																										   for (int i = 0; i <= minMaxRand(5, 10) && i < tempVect.size(); i++) {
 																											   Missile* m = new Missile();
-																											   m->initialize(this, missileNS::WIDTH, missileNS::HEIGHT, missileNS::TEXTURE_COLS, &missileTexture);
-																											   m->setFrames(missileNS::MISSILE_START_FRAME, missileNS::MISSILE_END_FRAME);
-																											   m->setCurrentFrame(missileNS::MISSILE_START_FRAME);
-																											   m->setFrameDelay(missileNS::ANIMATION_DELAY);
-																											   m->setLoop(missileNS::LOOP);
-																											   m->setScale(missileNS::SCALING);
-																											   m->setRect();
+																											   m->initialize(this, 128, 32, 1, &missileTexture);
 																											   m->setX(player->getX() + m->getWidth() / 2);
 																											   m->setY(player->getY() + m->getHeight() / 2);
 																											   m->setTarget(tempVect[i]);
@@ -906,67 +1251,88 @@ void Spacewar::collisions() {
 
 																										   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																										   pickup_->calculateObstructorDestructorType();
-																										   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																										   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
+																										   pickup_->respawnPickup();
 																	   } break;
 																	   case PICKUP_HEALTH: {
-																							   PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
-																							   printf("I play the HEART sound\n");
+																							   // no need to reset heart type since there will always be one in a game
+																							   //PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
 
-																							   player->setHealth(player->getHealth() + 1);
+																							   // create a new heart pickup
+																							   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+																							   healthPickup = new Pickup();
+																							   healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
+																							   healthPickup->setPickUpType(PICKUP_HEART);
+																							   healthPickup->setCurrentFrame(0);
+																							   healthPickup->setX(minMaxRand(healthPickup->getWidth(), GAME_WIDTH - 2 * healthPickup->getWidth()));
+																							   healthPickup->setY(minMaxRand(healthPickup->getHeight(), GAME_HEIGHT - 2 * healthPickup->getHeight()));
+
+																							   addEntity(healthPickup);
+
+																							   pickup_->calculateObstructorDestructorType();
+																							   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
+																							   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
+
+																							   /*player->setHealth(player->getHealth() + 1);
 																							   if (player->getHealth() > 10)
 																								   player->setHealth(10);
 																							   playerScore += genScore(++combo);
+<<<<<<< HEAD
 																							   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																							   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
+																							   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));*/
+																	   } break;
+																	   case PICKUP_HEART:{
+																		   PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+
+																		   // increase player health by 1
+																		   player->setHealth(player->getHealth() + 1);
+																		   if (player->getHealth() > 10)
+																			   player->setHealth(10);
+																		   //playerScore += genScore(++combo);
+																		   pickup_->setHealth(0);
+																		   pickup_->respawnPickup();
+
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_BLACKHOLE: {
+																											 // blackhole is a environmental effect.
+																											 // blackhole that is stored in the entities vector will have effect on the gravity. will be killed when the timer reaches 0
 																											 Blackhole* blackhole = new Blackhole();
 																											 blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
+																											 blackhole->setX(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
+																											 blackhole->setY(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
 
 																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																											 pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-
-																											 pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																											 pickup_->calculateObstructorDestructorType();
+																											 pickup_->respawnPickup();
 
 																											 addEntity(blackhole);
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
 																												  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																												  pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																												  pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																												  pickup_->calculateObstructorDestructorType();
-																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 5.0f;
+																												  pickup_->respawnPickup();
+																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
 																												   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																												   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																												   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																												   pickup_->calculateObstructorDestructorType();
-																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 5.0f;
+																												   pickup_->respawnPickup();
+																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																											   pickup_->calculateObstructorDestructorType();
-																											   player->getEffectTimers()->at(EFFECT_SLOW) = 5.0f;
+																											   pickup_->respawnPickup();
+																											   player->getEffectTimers()->at(EFFECT_SLOW) = 10.0f;
 																	   } break;
 																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
 																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																											   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																											   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));
-																											   pickup_->calculateObstructorDestructorType();
-																											   player->getEffectTimers()->at(EFFECT_STUN) = 5.0f;
+																											   pickup_->respawnPickup();
+																											   player->getEffectTimers()->at(EFFECT_STUN) = 10.0f;
 																	   } break;
 																	   }
+
+																	   // pickup cooldown value set here
 																	   player->getEffectTimers()->at(EFFECT_CANNOT_PICKUP) = 0.5f;
 																   }
 									  } break;
@@ -974,6 +1340,7 @@ void Spacewar::collisions() {
 								  }
 							  }
 
+							  // adds all entities stored in the temporary vector data structure
 							  for (std::vector<Entity*>::iterator iter = tempVector.begin(); iter != tempVector.end(); iter++) {
 								  addEntity(*iter);
 							  }
@@ -984,13 +1351,17 @@ void Spacewar::collisions() {
 }
 
 double Spacewar::calculateF(Entity* e1, Entity* e2) {
+	// based on the formula GM1M2/R^2
+	//================================
+
 	double deltaX = e1->getX() + e1->getWidth() / 2 * e1->getScale() - e2->getX() - e2->getWidth() * e2->getScale() / 2;
 	double deltaY = e1->getY() + e1->getHeight() / 2 * e1->getScale() - e2->getY() - e2->getHeight() * e2->getScale() / 2;
 	double distance = sqrt(pow(deltaX, 2) + pow(deltaY, 2));
+
 	// force
 	double force = G * e2->getMass() * e1->getMass() / pow(distance, 2);
-	// deltaV
 
+	// deltaV
 	double A1 = force / e1->getMass();
 	double A2 = force / e2->getMass();
 
@@ -1007,7 +1378,29 @@ double Spacewar::calculateF(Entity* e1, Entity* e2) {
 	return force;
 }
 
+void Spacewar::ParseScore(std::string fileName) {
+	std::string delimiter = ";";
+	std::ifstream infile(fileName);
+	for (std::string line; std::getline(infile, line);) {
+		std::string	name;
+		int			score;
+
+		std::string s;
+
+		std::istringstream str_(line);
+		while (std::getline(str_, s, ';')) {
+			name = s.c_str();
+			std::getline(str_, s, ';');
+			score = std::stoi(s);
+			this->highscores.insert(std::pair<int, std::string>(score, name));
+		}
+	}
+}
+
 void PrintEffect(Entity* entity, Font* effectFont) {
+	//	  Displays each pickup status on the GUI
+	// ============================================
+
 	float dy = 10;
 	for (std::map<EffectType, float>::iterator iter = entity->getEffectTimers()->begin(); iter != entity->getEffectTimers()->end(); iter++) {
 		if (entity->hasEffect((*iter).first)) {

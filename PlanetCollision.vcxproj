@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>PlanetCollision</ProjectName>
+    <ProjectName>Pixl</ProjectName>
     <ProjectGuid>{0259B800-2046-467E-94A2-D13B6F5210BC}</ProjectGuid>
     <RootNamespace>Destroyer</RootNamespace>
   </PropertyGroup>
@@ -95,7 +95,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Audio.cpp" />
     <ClCompile Include="Blackhole.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="entity.cpp" />
@@ -115,7 +114,6 @@
     <ClCompile Include="winmain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Audio.h" />
     <ClInclude Include="Blackhole.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="constants.h" />

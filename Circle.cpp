@@ -1,5 +1,13 @@
+// Module:			Gameplay Programming
+// Assignment 1:	Pixl
+// Student Name:	Elcoms Khang	(S10157558A)
+//					Lin Lue			(S10158175E)
+//					Amos Tan		(S10158017D)
+
 #include "Circle.h"
 
+// Create a Circle Object
+// child of entity class
 Circle::Circle() : Entity(){
 	spriteData.width = CircleNS::WIDTH;
 	spriteData.height = CircleNS::HEIGHT;
@@ -19,14 +27,17 @@ Circle::Circle() : Entity(){
 	this->setScale(CircleNS::SCALING);
 }
 
+// initialise circle, by initalising an entity
 bool Circle::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM){
 	return(Entity::initialize(gamePtr, width, height, ncols, textureM));
 }
 
+// draw the circle onto the screen
 void Circle::draw(){
 	Image::draw();
 }
 
+// Update Circle velocity, direction, bounce
 void Circle::update(float deltaTime){
 	Entity::update(deltaTime);
 	spriteData.angle += deltaTime * CircleNS::ROTATION_RATE;  // rotate the ship
@@ -55,6 +66,8 @@ void Circle::update(float deltaTime){
 		velocity.y = -velocity.y;                   // reverse Y direction
 	}
 }
+
+// Spawn circle around the border of the game
 void Circle::spawn(){
 
 	// Set CIRCLES settings
@@ -65,35 +78,12 @@ void Circle::spawn(){
 	setScale(0.2f);
 
 	// random spawn on border
-	int side = rand() % 4;
-
-	switch (side) {
-		// left
-	case 0: {
-				this->setX(0 - rand() % GAME_WIDTH);
-				this->setY(rand() % GAME_HEIGHT);
-	} break;
-		// top
-	case 1: {
-				this->setX(rand() % GAME_WIDTH);
-				this->setY(-(rand() % GAME_HEIGHT));
-	} break;
-		// right
-	case 2: {
-				this->setX(GAME_WIDTH + GAME_WIDTH - rand() % GAME_WIDTH);
-				this->setY(rand() % GAME_HEIGHT);
-	} break;
-		// bottom
-	case 3: {
-				this->setX(rand() % GAME_WIDTH);
-				this->setY(GAME_HEIGHT + GAME_HEIGHT - rand() % GAME_HEIGHT);
-	} break;
-	}
 
 	this->setX(rand() % GAME_WIDTH);
 	this->setY(rand() % GAME_HEIGHT);
 }
 
+// set the obejcts which can kill a circle entity
 void Circle::damage(WEAPON weapon){
 	switch (weapon) {
 	case WEAPON_MISSILE: {
