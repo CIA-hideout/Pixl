@@ -1103,214 +1103,208 @@ void Spacewar::collisions() {
 	case GAME_STATE_MENU: {
 	} break;
 	case GAME_STATE_GAME: {
-							  VECTOR2 collisionVector;
+		VECTOR2 collisionVector;
 
-							  for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); iter++) {
-								  Entity* entity = *iter;
+		for (std::vector<Entity*>::iterator iter = entities.begin(); iter != entities.end(); ++iter) {
+			Entity* entity = *iter;
 
-								  // run the following code when player collides with the following entity
-								  if (player->collidesWith(*entity, collisionVector)) {
-									  switch (entity->getObjectType())
-									  {
-									  case OBJECT_TYPE_BLACKHOLE: {
-																	  // Plays sound and kills player if blackhole is touched when player is not invulnerable or invincible
-																	  if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect((EFFECT_INVINCIBLE))){
-																		  player->damage(WEAPON_BLACKHOLE);
-																		  PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
-																		  player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
-																		  combo = 0;
-																	  }
-									  }	break;
+			// run the following code when player collides with the following entity
+			if (player->collidesWith(*entity, collisionVector)) {
+				switch (entity->getObjectType())
+				{
+				case OBJECT_TYPE_BLACKHOLE: {
+					// Plays sound and kills player if blackhole is touched when player is not invulnerable or invincible
+					if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect((EFFECT_INVINCIBLE))){
+						player->damage(WEAPON_BLACKHOLE);
+						PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 
-									  case OBJECT_TYPE_CIRCLE: {
-																   Circle* circle = (Circle*)(*iter);
+						player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
+						combo = 0;
+					}
+				}	break;
 
-																   // Damages circle if player is invincible
-																   if (player->hasEffect(EFFECT_INVINCIBLE)) {
-																	   circle->damage(WEAPON_PLAYER);
-																   }
+				case OBJECT_TYPE_CIRCLE: {
+					Circle* circle = (Circle*)(*iter);
 
-																   // Plays sound and damages player if circle is touched when player is not invulnerable or invincible
-																   else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
-																	   PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+					// Damages circle if player is invincible
+					if (player->hasEffect(EFFECT_INVINCIBLE)) {
+						circle->damage(WEAPON_PLAYER);
+					}
 
-																	   player->damage(WEAPON_CIRCLE);
-																	   player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
-																	   combo = 0;
-																   }
-									  }	break;
+					// Plays sound and damages player if circle is touched when player is not invulnerable or invincible
+					else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
+						PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 
-									  case OBJECT_TYPE_TRIANGLE: {
-																	 Triangle* tri = (Triangle*)(*iter);
+						player->damage(WEAPON_CIRCLE);
+						player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
+						combo = 0;
+					}
+				}	break;
 
-																	 // Damages triangle if player is invincible
-																	 if (player->hasEffect(EFFECT_INVINCIBLE)) {
-																		 tri->damage(WEAPON_PLAYER);
-																	 }
+				case OBJECT_TYPE_TRIANGLE: {
+					Triangle* tri = (Triangle*)(*iter);
 
-																	 // Plays sound and damages player if triangle is touched when player is not invulnerable or invincible
-																	 else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
-																		 PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+					// Damages triangle if player is invincible
+					if (player->hasEffect(EFFECT_INVINCIBLE)) {
+						tri->damage(WEAPON_PLAYER);
+					}
 
-																		 player->damage(WEAPON_TRIANGLE);
-																		 player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
-																		 combo = 0;
-																	 }
-									  }	break;
-									  case OBJECT_TYPE_PICKUP: {
-																   //				  Pickup Effects
-																   //=================================================
-																   // run the following code when player touches a pickup
+					// Plays sound and damages player if triangle is touched when player is not invulnerable or invincible
+					else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
+						PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
 
-																   // pickup cooldown
-																   if (!player->hasEffect(EFFECT_CANNOT_PICKUP)) {
-																	   Pickup* pickup_ = (Pickup*)entity;
+						player->damage(WEAPON_TRIANGLE);
+						player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
+						combo = 0;
+					}
+				}	break;
+				case OBJECT_TYPE_PICKUP: {
+											//				  Pickup Effects
+					//=================================================
+					// run the following code when player touches a pickup
 
-																	   switch (pickup_->getPickupType()) {
-																	   case PICKUP_DESTRUCTOR_EXPLOSION: {
-																											 Explosion* explosion = new Explosion();
-																											 explosion->initialize(this, explosion->getWidth(), explosion->getHeight(), explosionNS::TEXTURE_COLS, &explosionTexture);
-																											 explosion->setX(pickup_->getX() + pickup_->getWidth() * pickup_->getScale() / 2 - (explosion->getWidth() / 2 * explosion->getScale()));
-																											 explosion->setY(pickup_->getY() + pickup_->getHeight() * pickup_->getScale() / 2 - (explosion->getHeight() / 2 * explosion->getScale()));
-																											 explosion->setFrameDelay(explosionNS::ANIMATION_DELAY);
-																											 explosion->setCollisionRadius(explosionNS::WIDTH / 2.0f);
-																											 tempVector.push_back(explosion);
+					// pickup cooldown
+					if (!player->hasEffect(EFFECT_CANNOT_PICKUP)) {
+						Pickup* pickup_ = (Pickup*)entity;
 
-																											 // play sound async to the game to avoid 'lag'
-																											 PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
+						switch (pickup_->getPickupType()) {
+						case PICKUP_DESTRUCTOR_EXPLOSION: {
+							printf("Destructor Explosion");
+							Explosion* explosion = new Explosion();
+							explosion->initialize(this, explosion->getWidth(), explosion->getHeight(), explosionNS::TEXTURE_COLS, &explosionTexture);
+							explosion->spawn(pickup_);
+							tempVector.push_back(explosion);
 
-																											 pickup_->respawnPickup();
-																	   } break;
-																	   case PICKUP_DESTRUCTOR_FREEZE: {
-																										  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-																										  Freeze* freeze = new Freeze();
-																										  freeze->initialize(this, freezeNS::WIDTH, freezeNS::HEIGHT, freezeNS::TEXTURE_COLS, &freezeTexture);
-																										  freeze->setFrames(freezeNS::START_FRAME, freezeNS::END_FRAME);
-																										  freeze->setCurrentFrame(freezeNS::START_FRAME);
-																										  freeze->setX(GAME_WIDTH / 2 - freezeNS::WIDTH / 2 * freezeNS::SCALING);
-																										  freeze->setY(GAME_HEIGHT / 2 - freezeNS::WIDTH / 2 * freezeNS::SCALING);
-																										  freeze->setFrameDelay(freezeNS::ANIMATION_DELAY);
-																										  freeze->setRect();
-																										  tempVector.push_back(freeze);
-																										  pickup_->respawnPickup();
-																										  player->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
-																	   } break;
-																	   case PICKUP_DESTRUCTOR_INVINCIBILITY: {
-																												 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							// play sound async to the game to avoid 'lag'
+							PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
 
-																												 pickup_->respawnPickup();
-																												 player->getEffectTimers()->at(EFFECT_INVINCIBLE) = 10.0f;
-																	   } break;
-																	   case PICKUP_DESTRUCTOR_MISSLES: {
-																										   // get the enemies to target first
-																										   // discarded after this iteration
-																										   std::vector<Entity*> tempVect;
-																										   for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
-																											   if (
-																												   ((*iter_)->getObjectType() == OBJECT_TYPE_CIRCLE ||
-																												   (*iter_)->getObjectType() == OBJECT_TYPE_TRIANGLE ||
-																												   (*iter_)->getObjectType() == OBJECT_TYPE_BOSS) &&
-																												   (*iter_)->getActive() == true
-																												   ) {
-																												   tempVect.push_back(*iter_);
-																											   }
-																										   }
+							pickup_->respawnPickup();
+						} break;
+						case PICKUP_DESTRUCTOR_FREEZE: {
+							printf("Destructor Freeze");
+							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							Freeze* freeze = new Freeze();
+							freeze->initialize(this, freezeNS::WIDTH, freezeNS::HEIGHT, freezeNS::TEXTURE_COLS, &freezeTexture);
+							freeze->spawn();
+							tempVector.push_back(freeze);
+							pickup_->respawnPickup();
+							player->getEffectTimers()->at(EFFECT_FROZEN) = 5.0f;
+						} break;
+						case PICKUP_DESTRUCTOR_INVINCIBILITY: {
+							printf("Destructor Invincibility");
+							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																										   // spawn 5 - 10 missiles
-																										   for (int i = 0; i <= minMaxRand(5, 10) && i < tempVect.size(); i++) {
-																											   Missile* m = new Missile();
-																											   m->initialize(this, 128, 32, 1, &missileTexture);
-																											   m->setX(player->getX() + m->getWidth() / 2);
-																											   m->setY(player->getY() + m->getHeight() / 2);
-																											   m->setTarget(tempVect[i]);
-																											   missiles.push_back(m);
-																										   }
+							pickup_->respawnPickup();
+							player->getEffectTimers()->at(EFFECT_INVINCIBLE) = 10.0f;
+						} break;
+						case PICKUP_DESTRUCTOR_MISSLES: {
+							// get the enemies to target first
+							// discarded after this iteration
+							printf("Destructor Missiles");
+							std::vector<Entity*> tempVect;
+							for (std::vector<Entity*>::iterator iter_ = entities.begin(); iter_ != entities.end(); iter_++) {
+								if (
+									((*iter_)->getObjectType() == OBJECT_TYPE_CIRCLE ||
+									(*iter_)->getObjectType() == OBJECT_TYPE_TRIANGLE ||
+									(*iter_)->getObjectType() == OBJECT_TYPE_BOSS) &&
+									(*iter_)->getActive() == true
+									) {
+									tempVect.push_back(*iter_);
+								}
+							}
 
-																										   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							// spawn 5 - 10 missiles
+							for (int i = 0; i <= minMaxRand(5, 10) && i < tempVect.size(); i++) {
+								Missile* m = new Missile();
+								m->initialize(this, 128, 32, 1, &missileTexture);
+								m->setX(player->getX() + m->getWidth() / 2);
+								m->setY(player->getY() + m->getHeight() / 2);
+								m->setTarget(tempVect[i]);
+								missiles.push_back(m);
+							}
 
-																										   pickup_->respawnPickup();
-																	   } break;
-																	   case PICKUP_HEALTH: {
-																							   // no need to reset heart type since there will always be one in a game
-																							   //PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																							   // create a new heart pickup
-																							   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-																							   healthPickup = new Pickup();
-																							   healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
-																							   healthPickup->setPickUpType(PICKUP_HEART);
-																							   healthPickup->setCurrentFrame(0);
-																							   healthPickup->setX(minMaxRand(healthPickup->getWidth(), GAME_WIDTH - 2 * healthPickup->getWidth()));
-																							   healthPickup->setY(minMaxRand(healthPickup->getHeight(), GAME_HEIGHT - 2 * healthPickup->getHeight()));
+							pickup_->respawnPickup();
+						} break;
+						case PICKUP_HEALTH: {
+							// no need to reset heart type since there will always be one in a game
+							//PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+							printf("Health");
+							// create a new heart pickup
+							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							healthPickup = new Pickup();
+							healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
+							healthPickup->setPickUpType(PICKUP_HEART);
+							healthPickup->setCurrentFrame(0);
+							healthPickup->setX(minMaxRand(healthPickup->getWidth(), GAME_WIDTH - 2 * healthPickup->getWidth()));
+							healthPickup->setY(minMaxRand(healthPickup->getHeight(), GAME_HEIGHT - 2 * healthPickup->getHeight()));
 
-																							   tempVector.push_back(healthPickup);
+							tempVector.push_back(healthPickup);
+							pickup_->respawnPickup();
+						} break;
+						case PICKUP_HEART: {
+							printf("Heart");
+							PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
 
-																							   pickup_->respawnPickup();
-																							   /*player->setHealth(player->getHealth() + 1);
-																							   if (player->getHealth() > 10)
-																								   player->setHealth(10);
-																							   playerScore += genScore(++combo);
-																							   pickup_->setX(minMaxRand(pickup_->getWidth(), GAME_WIDTH - 2 * pickup_->getWidth()));
-																							   pickup_->setY(minMaxRand(pickup_->getHeight(), GAME_HEIGHT - 2 * pickup_->getHeight()));*/
-																	   } break;
-																	   case PICKUP_HEART:{
-																		   PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+							// increase player health by 1
+							player->setHealth(player->getHealth() + 1);
+							if (player->getHealth() > 10)
+								player->setHealth(10);
+							//playerScore += genScore(++combo);
 
-																		   // increase player health by 1
-																		   player->setHealth(player->getHealth() + 1);
-																		   if (player->getHealth() > PLAYER_MAX_HEALTH)
-																			   player->setHealth(PLAYER_MAX_HEALTH);
-																		   //playerScore += genScore(++combo);
-																		   pickup_->setHealth(0);
+							pickup_->damage(WEAPON_PLAYER);
 
-																	   } break;
-																	   case PICKUP_OBSTRUCTOR_BLACKHOLE: {
-																											 // blackhole is a environmental effect.
-																											 // blackhole that is stored in the entities vector will have effect on the gravity. will be killed when the timer reaches 0
-																											 Blackhole* blackhole = new Blackhole();
-																											 blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
-																											 blackhole->setX(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
-																											 blackhole->setY(minMaxRand(blackhole->getWidth(), GAME_WIDTH - 2 * blackhole->getWidth()));
+						} break;
+						case PICKUP_OBSTRUCTOR_BLACKHOLE: {
+							// blackhole is a environmental effect.
+							// blackhole that is stored in the entities vector will have effect on the gravity. will be killed when the timer reaches 0
+							printf("Obstructor Blackhole");
+							Blackhole* blackhole = new Blackhole();
+							blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
+							blackhole->setNewLocation();
 
-																											 PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																											 pickup_->respawnPickup();
+							tempVector.push_back(blackhole);
+							pickup_->respawnPickup();
+						} break;
+						case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
+							printf("Obstructor enlarge");
+							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							pickup_->respawnPickup();
+							player->getEffectTimers()->at(EFFECT_ENLARGED) = 10.0f;
+						} break;
+						case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
+							printf("Obstructor invert");
+							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																											 tempVector.push_back(blackhole);
-																	   } break;
-																	   case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
-																												  PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							pickup_->respawnPickup();
+							player->getEffectTimers()->at(EFFECT_INVERTED) = 10.0f;
+						} break;
+						case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
+							printf("Obstructor slow");
+							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																												  pickup_->respawnPickup();
-																												  player->getEffectTimers()->at(EFFECT_ENLARGED) = 10.0f;
-																	   } break;
-																	   case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
-																												   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							pickup_->respawnPickup();
+							player->getEffectTimers()->at(EFFECT_SLOW) = 10.0f;
+						} break;
+						case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
+							printf("Obstructor stun");
+							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
 
-																												   pickup_->respawnPickup();
-																												   player->getEffectTimers()->at(EFFECT_INVERTED) = 10.0f;
-																	   } break;
-																	   case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
-																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							pickup_->respawnPickup();
+							player->getEffectTimers()->at(EFFECT_STUN) = 5.0f;
+						} break;
+						}
 
-																											   pickup_->respawnPickup();
-																											   player->getEffectTimers()->at(EFFECT_SLOW) = 10.0f;
-																	   } break;
-																	   case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
-																											   PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
-
-																											   pickup_->respawnPickup();
-																											   player->getEffectTimers()->at(EFFECT_STUN) = 10.0f;
-																	   } break;
-																	   }
-
-																	   // pickup cooldown value set here
-																	   player->getEffectTimers()->at(EFFECT_CANNOT_PICKUP) = 0.5f;
-																   }
-									  } break;
-									  }
-								  }
-							  }
+						// pickup cooldown value set here
+						player->getEffectTimers()->at(EFFECT_CANNOT_PICKUP) = 0.5f;
+					}
+} break;
+				}
+			}
+		}
 
 		// adds all entities stored in the temporary vector data structure
 		for (std::vector<Entity*>::iterator iter = tempVector.begin(); iter != tempVector.end(); iter++) {
