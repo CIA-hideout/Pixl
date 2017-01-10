@@ -221,6 +221,17 @@ public:
 
 	// start the effect for the entity specified
 	void triggerEffect(EffectType effect);
+
+	// randomly set location of entity
+	void setNewLocation();
+
+	// freeze entity
+	void freeze(){ setVelocity(0, 0); }
+
+	// randomly setLocation;
+	int minMaxRand_Entity(int min, int max) {
+		return rand() % (max - min + 1) + min;
+	}
 };
 
 #endif

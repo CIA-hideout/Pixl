@@ -62,12 +62,11 @@ public:
 	void calculateObstructorDestructorType();					// calculate the type of pickup
 	void setNewLocation();										// set new x and y location to Pickup
 	void respawnPickup();										// respawn pickup after it is collected
-	int minMaxRand_Pickup(int min, int max);									// generate a random integer based on minimum/maximum value
-
+	int minMaxRand_Pickup(int min, int max);					// generate a random integer based on minimum/maximum value
 
 private:
 
-	PickupType type;
+	PickupType	type;
 	boolean		isDestructor;
 
 };

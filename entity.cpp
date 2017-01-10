@@ -455,3 +455,9 @@ void Entity::gravityForce(Entity *ent, float deltaTime)
 void Entity::triggerEffect(EffectType effect)
 {
 }
+
+void Entity::setNewLocation()
+{
+	setX(minMaxRand_Entity(getWidth(), GAME_WIDTH - 2 * getWidth()));
+	setY(minMaxRand_Entity(getHeight(), GAME_HEIGHT - 2 * getHeight()));
+}

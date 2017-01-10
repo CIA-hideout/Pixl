@@ -31,7 +31,7 @@ Pickup::Pickup() : Entity(){
  */
 
 bool Pickup::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM){
-	return(Entity::initialize(gamePtr, width, height, ncols, textureM));
+	return (Entity::initialize(gamePtr, width, height, ncols, textureM));
 }
 
 /*
@@ -42,7 +42,7 @@ void Pickup::draw(){
 }
 
 void Pickup::update(float deltaTime){
-
+	Entity::update(deltaTime);
 }
 
 /*
@@ -53,7 +53,7 @@ void Pickup::spawn(){
 	setFrames(startFrame, endFrame);
 	setCollisionRadius(getHeight() / 2);
 	setVelocity(0, 0);						// powerups don't move;
-	setObjectType(OBJECT_TYPE_CIRCLE);
+	setObjectType(OBJECT_TYPE_PICKUP);
 	setScale(0.2f);
 
 	//spawn randomly in window
@@ -94,8 +94,8 @@ void Pickup::spawn(){
 void Pickup::damage(WEAPON weapon){
 	switch (weapon)
 	{
-	case OBJECT_TYPE_PLAYER: {
-								 // this->setHealth(0);
+	case WEAPON_PLAYER: {
+								 this->setHealth(0);
 	}	break;
 	}
 }
@@ -162,18 +162,19 @@ void Pickup::calculateObstructorDestructorType(){
 		PICKUP_DESTRUCTOR_INVINCIBILITY,
 		PICKUP_DESTRUCTOR_INVINCIBILITY,
 
+		PICKUP_HEALTH,
 		PICKUP_HEALTH
 	};
 
 	//	Array containing types of Destructor
 
 	if (isDestructor) {
-		randNumber = rand() % 10; //Get a number from 0 - 9
+		randNumber = rand() % 11; //Get a number from 0 - 11
 		type = destructorArray[randNumber];
 	}
 	else // is an obstructor
 	{
-		randNumber = rand() % 9;	//Get a number from 0 - 8
+		randNumber = rand() % 9;	//Get a number from 0 - 9
 		type = obstructorArray[randNumber];
 	}
 
@@ -189,14 +190,12 @@ void Pickup::setNewLocation()
 	setY(minMaxRand_Pickup(getHeight(), GAME_HEIGHT - 2 * getHeight()));
 }
 
-void Pickup::respawnPickup()
-{
-	if (type != PICKUP_HEALTH)
-		calculateObstructorDestructorType();
-
-	setNewLocation();
-}
-
 int Pickup::minMaxRand_Pickup(int min, int max) {
 	return rand() % (max - min + 1) + min;
+}
+
+void Pickup::respawnPickup()
+{
+	calculateObstructorDestructorType();
+	setNewLocation();
 }

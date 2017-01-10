@@ -19,6 +19,8 @@ public:
 	bool initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
 	void update(float deltaTime);
 	void draw();
+	void spawn();
+	void setNewLocation();
 };
 
 #endif

@@ -76,6 +76,7 @@ void Circle::spawn(){
 	setVelocity(100, 200);
 	setObjectType(OBJECT_TYPE_CIRCLE);
 	setScale(0.2f);
+	setHealth(1);
 
 	// random spawn on border
 
@@ -100,3 +101,32 @@ void Circle::damage(WEAPON weapon){
 	if (this->getHealth() < 0)
 		this->setHealth(0);
 }
+
+// freeze a circle
+void Circle::freeze()
+{
+	// Only save before circle is frozen
+	// else it will be overriding the variables used to store the old velocity
+	if (!isFrozen)
+	{
+		velocity_x = velocity.x;
+		velocity_y = velocity.y;
+		isFrozen = true;
+
+		setVelocity(0, 0);
+	}
+}
+
+// unfreeze a circle
+void Circle::unfreeze()
+{
+	if (isFrozen)
+	{
+		velocity.x = velocity_x;
+		velocity.y = velocity_y;
+		isFrozen = false;
+
+		setVelocity(velocity.x, velocity.y);
+	}
+}
+

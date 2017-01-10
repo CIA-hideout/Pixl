@@ -42,6 +42,9 @@ void Triangle::update(float deltaTime) {
 // To spawn a triangle outside the border
 void Triangle::spawn() {
 	// Set Triangles Details
+	setActive(true);
+	setHealth(1);
+
 	setFrames(TriangleNS::TRIANGLE_START_FRAME, TriangleNS::TRIANGLE_END_FRAME);
 	setCurrentFrame(TriangleNS::TRIANGLE_START_FRAME);
 	setVelocity(10, 20);
@@ -89,4 +92,22 @@ void Triangle::damage(WEAPON weapon) {
 
 	if (this->getHealth() < 0)
 		this->setHealth(0);
+}
+
+void Triangle::trackingPlayer(Entity* player) {
+	// For tracking the player
+	double dx = player->getX() - getX();
+	double dy = player->getY() - getY();
+
+	// 1, 4 quad
+	if (dx > 0)
+		setRadians(atan(dy / dx));
+	// 2, 3 quad
+	else if (dx < 0)
+		setRadians(PI + atan(dy / dx));
+
+	setVelocity(
+		cos(getRadians()) * 50,
+		sin(getRadians()) * 50
+		);
 }
