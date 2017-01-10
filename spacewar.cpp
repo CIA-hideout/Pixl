@@ -994,7 +994,7 @@ void Spacewar::UpdateEntities() {
 void Spacewar::KillEntities() {
 	std::vector<Entity*>::iterator iter = entities.begin();
 	while (iter != entities.end()) {
-		if ((*iter)->getHealth() <= 0) {
+		if ((*iter)->getHealth() <= 0 && !player->hasEffect(EFFECT_DEATH)) {
 			// whatever happends on death of the entity goes here
 			// death only happens when health drops to 0
 			// will be kept simple to prevent modifying the iterator while deleting an item
@@ -1021,27 +1021,33 @@ void Spacewar::KillEntities() {
 										 iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_PLAYER: {
-										 (*iter)->setActive(false);
-										 (*iter)->setVisible(false);
-										 iter = entities.erase(iter);
+										 (*iter)->getEffectTimers()->at(EFFECT_DEATH) = 3.0f;
 
-										 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_ASYNC);
+										 // after death animation complete
+										 if ((*iter)->getCurrentFrame() == (*iter)->getEndFrame())
+										 {
+											 (*iter)->setActive(false);
+											 (*iter)->setVisible(false);
+											 iter = entities.erase(iter);
 
-										 // only compare with the top 10
+											 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_ASYNC);
 
-										 if (scoreVect.size() < 10) {
-											 this->setGameState(GAME_STATE_NEW_HIGHSCORE);
-										 }
-										 else {
-											 for (int i = 0; i < 10; i++) {
-												 if (playerScore > scoreVect[i] && playerScore > 0) {
-													 this->setGameState(GAME_STATE_NEW_HIGHSCORE);
-													 printf("NEW HIGHSCORE!\n");
-												 }
-												 else if (playerScore < scoreVect[i])
-												 {
-													 this->setGameState(GAME_STATE_GAMEOVER);
-													 printf("gg\n");
+											 // only compare with the top 10
+
+											 if (scoreVect.size() < 10) {
+												 this->setGameState(GAME_STATE_NEW_HIGHSCORE);
+											 }
+											 else {
+												 for (int i = 0; i < 10; i++) {
+													 if (playerScore > scoreVect[i] && playerScore > 0) {
+														 this->setGameState(GAME_STATE_NEW_HIGHSCORE);
+														 printf("NEW HIGHSCORE!\n");
+													 }
+													 else if (playerScore < scoreVect[i])
+													 {
+														 this->setGameState(GAME_STATE_GAMEOVER);
+														 printf("gg\n");
+													 }
 												 }
 											 }
 										 }

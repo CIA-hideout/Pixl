@@ -41,6 +41,7 @@ Ship::Ship() : Entity() {
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_FROZEN, 0.0f));
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_ENLARGED, 0.0f));
 	effectTimers.insert(std::pair<EffectType, float>(EFFECT_CANNOT_PICKUP, 0.0f));
+	effectTimers.insert(std::pair<EffectType, float>(EFFECT_DEATH, 0.0f));
 }
 
 bool Ship::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM) {
@@ -199,6 +200,8 @@ void Ship::triggerEffect(EffectType effect)
 		if (this->hasEffect(EFFECT_DEATH))
 		{
 			this->setVelocity(0, 0);
+			this->setX(this->getX() + this->getWidth() / 2 * this->getScale() - (this->getWidth() / 2 * P_DEATH_SCALING));
+			this->setY(this->getY() + this->getHeight() / 2 * this->getScale() - (this->getHeight() / 2 * P_DEATH_SCALING));
 
 			// death animation
 			if (this->currentFrame < P_DEATH_START_FRAME)
@@ -207,6 +210,7 @@ void Ship::triggerEffect(EffectType effect)
 				this->setCurrentFrame(P_DEATH_START_FRAME);
 				this->setFrameDelay(P_DEATH_ANIMATION_DELAY);
 				this->setLoop(P_DEATH_LOOP);
+				this->setScale(P_DEATH_SCALING);
 
 				PlaySound(PLAYER_DEAD_SOUND, NULL, SND_ASYNC);
 				printf("You DEAD son\n");
