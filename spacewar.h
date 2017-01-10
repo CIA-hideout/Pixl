@@ -45,9 +45,6 @@ private:
 	// game items
 	// Player
 	TextureManager				shipTextures;
-	TextureManager				p_deathTextures;
-	TextureManager				p_invulTextures;
-	TextureManager				p_invinTextures;
 
 	// Enemy
 	TextureManager				triangleTextures;

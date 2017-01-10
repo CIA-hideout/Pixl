@@ -25,14 +25,12 @@ float	deathAngle;													// the angle in radians at the point in time of th
 float	waveBufferTime;												// a short peroid of time before the first wave and menu
 float	blackholeTimer;												// time where the blackhole is left in the entities vector
 
-int		playerMaxHealth, playerHealth;
 int		playerScore, highscore;										// highscore will be written in a file when it is greater than the current highscore
 int		combo, maxCombo;											// record combo
 int		currentWave;
 
 bool	waveOver;
-bool	playerIsDead, playerCanPickup;
-bool	playerDefaultTexture;										// true/false based on whether player has their starting texture or changed
+bool	playerCanPickup;
 bool	beatenHighScore;
 bool	isKeyPressed;													// true/false based on whether player is on the how to play instructions page
 
@@ -65,9 +63,6 @@ void Spacewar::initialize(HWND hwnd) {
 	//=================================================
 	// Player
 	shipTextures.initialize(graphics, PLAYER_TEXTURE);
-	p_deathTextures.initialize(graphics, PLAYER_DEATH_TEXTURE);
-	p_invulTextures.initialize(graphics, PLAYER_INVUL_TEXTURE);
-	p_invinTextures.initialize(graphics, PLAYER_INVIN_TEXTURE);
 
 	// Enemy
 	triangleTextures.initialize(graphics, TRIANGLE_TEXTURE);
@@ -132,7 +127,7 @@ void Spacewar::initialize(HWND hwnd) {
 
 	// positioning of hearts
 	int dx = GAME_WIDTH - GAME_WIDTH / 100;
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < PLAYER_MAX_HEALTH; i++) {
 		Entity* heart = new Entity();
 		heart->initialize(this, 128, 128, 2, &heartTexture);
 		heart->setCurrentFrame(0);
@@ -198,29 +193,78 @@ void Spacewar::update() {
 
 	switch (this->getGameState()) {
 	case GAME_STATE_MENU: {
-		//=================================================
-		//					   MENU
-		//=================================================
-		// Code to run in the main menu
-		// Start the game state if the spacebar is pressed
-		// Variables that may have be changed in the previous state(s) will be set to 0/original values again
+							  //=================================================
+							  //					   MENU
+							  //=================================================
+							  // Code to run in the main menu
+							  // Start the game state if the spacebar is pressed
+							  // Variables that may have be changed in the previous state(s) will be set to 0/original values again
 
-		// reset instructions to page 1
-		instructions->setFrames(INSTRUCTIONS_CONTROLS_START_FRAME, INSTRUCTIONS_CONTROLS_END_FRAME);
-		instructions->setCurrentFrame(INSTRUCTIONS_CONTROLS_START_FRAME);
-		instructions->setLoop(false);
+							  // reset instructions to page 1
+							  instructions->setFrames(INSTRUCTIONS_CONTROLS_START_FRAME, INSTRUCTIONS_CONTROLS_END_FRAME);
+							  instructions->setCurrentFrame(INSTRUCTIONS_CONTROLS_START_FRAME);
+							  instructions->setLoop(false);
 
-		// s
-		if (input->isKeyDown(0x53)) {
-			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+							  // s
+							  if (input->isKeyDown(0x53)) {
+								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+
+								  entities.clear();
+
+								  beatenHighScore = false;
+								  combo = maxCombo = playerScore = 0;
+
+								  this->setGameState(GAME_STATE_GAME);
+
+								  playerAccelerationRate = 3.5f;
+								  playerDeccelerationRate = 0.005f;
+								  playerTurnMultiplier = 3.5f;
+
+								  //=================================================
+								  //			 Entities Initialization
+								  //=================================================
+								  // initializes default values and add them into entites vector
+								  // Player
+								  player = new Ship();
+								  player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
+								  player->setCurrentFrame(PLAYER_START_FRAME);
+								  player->setFrames(PLAYER_START_FRAME, PLAYER_END_FRAME);
+								  player->setObjectType(OBJECT_TYPE_PLAYER);
+								  player->setRadians(0);
+								  player->setVisible(true);
+								  player->setX(GAME_WIDTH / 2 - player->getWidth() / 2 * player->getScale());
+								  player->setY(GAME_HEIGHT / 2 - player->getHeight() / 2 * player->getScale());
+								  player->setHealth(PLAYER_HEALTH);
+								  player->setScale(PLAYER_SCALING);
+
+								  this->addEntity(player);
+
+								  // Health Pickup
+								  /*healthPickup = new Pickup();
+								  healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
+								  healthPickup->setPickUpType(PICKUP_HEALTH);
+								  healthPickup->setCurrentFrame(0);
+								  healthPickup->setNewLocation();
+
+								  addEntity(healthPickup);*/
+
+								  // Other Pickups (Obstructor/Destructors)
+								  for (int i = 0; i < 3; i++) {
+									  Pickup* pickup = new Pickup();
+									  pickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &destructorObstructorTexture);
+									  pickup->calculateObstructorDestructorType();
+									  if (pickup->getIsDestructor())
+										  pickup->setCurrentFrame(0);
+									  else
+										  pickup->setCurrentFrame(1);
+									  pickup->setNewLocation();
+
+									  addEntity(pickup);
+								  }
 
 			entities.clear();
 
 			beatenHighScore = false;
-			playerHealth = 3;
-			playerMaxHealth = 10;
-			playerIsDead = false;
-			playerDefaultTexture = true;
 			combo = maxCombo = playerScore = 0;
 
 			this->setGameState(GAME_STATE_GAME);
@@ -236,13 +280,13 @@ void Spacewar::update() {
 			// Player
 			player = new Ship();
 			player->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
-			player->setCurrentFrame(shipNS::player_START_FRAME);
+			player->setCurrentFrame(PLAYER_START_FRAME);
 			player->setObjectType(OBJECT_TYPE_PLAYER);
 			player->setRadians(0);
 			player->setVisible(true);
 			player->setX(GAME_WIDTH / 2 - player->getWidth() / 2 * player->getScale());
 			player->setY(GAME_HEIGHT / 2 - player->getHeight() / 2 * player->getScale());
-			player->setHealth(playerHealth);
+			player->setHealth(PLAYER_HEALTH);
 
 			this->addEntity(player);
 
@@ -717,30 +761,16 @@ void Spacewar::render() {
 									  GAME_HEIGHT / 2.5,
 									  ss.str()
 									  );
+
+								  menuFont->Print(
+									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Press enter see the top players") / 2,
+									  GAME_HEIGHT / 2, "Press enter to see the top players");
+
 								  menuFont->Print(
 									  GAME_WIDTH / 2 - menuFont->getTotalWidth("Press esc to return to main menu") / 2,
-									  GAME_HEIGHT / 2, "Press esc to return to main menu");
+									  GAME_HEIGHT / 1.5, "Press esc to return to main menu");
 
-								  ss.str("");
 
-								  // notifies the player if he has beaten the highscore
-								  if (beatenHighScore) {
-									  ss << "New highscore!";
-									  menuFont->Print(
-										  GAME_WIDTH / 2 - menuFont->getTotalWidth(ss.str()) / 2,
-										  GAME_HEIGHT / 4,
-										  ss.str()
-										  );
-								  }
-								  // Displays the highscore
-								  else {
-									  ss << "Highscore: " << highscore;
-									  menuFont->Print(
-										  GAME_WIDTH / 2 - menuFont->getTotalWidth(ss.str()) / 2,
-										  GAME_HEIGHT - GAME_HEIGHT / 4,
-										  ss.str()
-										  );
-								  }
 	} break;
 	case GAME_STATE_HIGHSCORE: {
 								   menuFont->Print(
@@ -836,7 +866,6 @@ void Spacewar::render() {
 void Spacewar::releaseAll() {
 	shipTextures.onResetDevice();
 	circleTextures.onResetDevice();
-	p_deathTextures.onResetDevice();
 	triangleTextures.onResetDevice();
 	circleTextures.onResetDevice();
 	blackHoleTexture.onResetDevice();
@@ -853,7 +882,6 @@ void Spacewar::resetAll() {
 	triangleTextures.onResetDevice();
 	shipTextures.onResetDevice();
 	circleTextures.onResetDevice();
-	p_deathTextures.onResetDevice();
 	triangleTextures.onResetDevice();
 	circleTextures.onResetDevice();
 	blackHoleTexture.onResetDevice();
@@ -878,121 +906,59 @@ void Spacewar::UpdateEntities() {
 		// Update each entity based on their object types
 		switch ((*iter)->getObjectType()) {
 		case OBJECT_TYPE_PLAYER: {
-			//					Key Inputs
-			//=================================================
-			if (input->isKeyDown(VK_UP)) {
-				(*iter)->setVelocity(
-					(cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
-					(sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y)
-					);
-			}
+									 //					Key Inputs
+									 //=================================================
+									 if (input->isKeyDown(VK_UP)) {
+										 (*iter)->setVelocity(
+											 (cos((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().x),
+											 (sin((*iter)->getRadians()) * playerAccelerationRate + (*iter)->getVelocity().y)
+											 );
+									 }
 
-			if (input->isKeyDown(VK_DOWN)) {
-				(*iter)->setVelocity(
-					(cos((*iter)->getRadians()) * -playerAccelerationRate + (*iter)->getVelocity().x),
-					(sin((*iter)->getRadians()) * -playerAccelerationRate + (*iter)->getVelocity().y)
-					);
-			}
+									 if (input->isKeyDown(VK_DOWN)) {
+										 (*iter)->setVelocity(
+											 (cos((*iter)->getRadians()) * -playerAccelerationRate + (*iter)->getVelocity().x),
+											 (sin((*iter)->getRadians()) * -playerAccelerationRate + (*iter)->getVelocity().y)
+											 );
+									 }
 
-			if (input->isKeyDown(VK_LEFT)) {
-				if (!(*iter)->hasEffect(EFFECT_INVERTED))
-					(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
-				else
-					(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
-			}
+									 if (input->isKeyDown(VK_LEFT)) {
+										 if (!(*iter)->hasEffect(EFFECT_INVERTED))
+											 (*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
+										 else
+											 (*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
+									 }
 
-			if (input->isKeyDown(VK_RIGHT)) {
-				if (!(*iter)->hasEffect(EFFECT_INVERTED))
-					(*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
-				else
-					(*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
-			}
+									 if (input->isKeyDown(VK_RIGHT)) {
+										 if (!(*iter)->hasEffect(EFFECT_INVERTED))
+											 (*iter)->setRadians((*iter)->getRadians() + deltaTime * playerTurnMultiplier);
+										 else
+											 (*iter)->setRadians((*iter)->getRadians() - deltaTime * playerTurnMultiplier);
+									 }
 
-			// brakes
-			if (input->isKeyDown(0x5A)) {
-				(*iter)->setVelocity(
-					(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate * 3,
-					(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate * 3);
-			}
+									 // brakes
+									 if (input->isKeyDown(0x5A)) {
+										 (*iter)->setVelocity(
+											 (*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate * 3,
+											 (*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate * 3);
+									 }
 
-			// natural decceleration
-			(*iter)->setVelocity(
-				(*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
-				(*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
-				);
+									 // natural decceleration
+									 (*iter)->setVelocity(
+										 (*iter)->getVelocity().x - (*iter)->getVelocity().x * playerDeccelerationRate,
+										 (*iter)->getVelocity().y - (*iter)->getVelocity().y * playerDeccelerationRate
+										 );
 
-			if (playerDefaultTexture)			// Prevents the default texture from animating
-				player->setCurrentFrame(player->getStartFrame());
-
-			//					Player Effects
-			//=================================================
-			// iterate through the various effect that the players have
-			// player effects should be applied here. enviroment effects can be recorded here though it is not recommended
-			for (std::map<EffectType, float>::iterator iter_ = player->getEffectTimers()->begin(); iter_ != player->getEffectTimers()->end(); iter_++) {
-				if (iter_->second > 0.0f) {
-					iter_->second -= deltaTime;
-					switch (iter_->first) {
-					case EFFECT_ENLARGED:
-					{
-											if (player->hasEffect(EFFECT_ENLARGED)) {
-												player->setScale(shipNS::SCALING * 2);
-											}
-											else {
-												player->setScale(shipNS::SCALING);
-											}
-					}
-					case EFFECT_STUN: {
-										if ((*iter)->hasEffect(EFFECT_STUN))
-											(*iter)->setVelocity(0, 0);
-					} break;
-					case EFFECT_INVINCIBLE: {
-												if ((*iter)->hasEffect(EFFECT_INVINCIBLE) && (*iter)->getCurrentFrame() == (*iter)->getStartFrame())
-												{
-													playerDefaultTexture = false;
-													(*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, P_INVIN_COLS, &p_invinTextures);
-													(*iter)->setFrames(P_INVIN_START_FRAME, P_INVIN_END_FRAME);
-													(*iter)->setCurrentFrame(P_INVIN_START_FRAME);
-													(*iter)->setFrameDelay(P_INVIN_ANIMATION_DELAY);
-													(*iter)->setLoop(P_INVIN_LOOP);
-													(*iter)->setScale(P_INVIN_SCALE);
-													(*iter)->setRect();
-												}
-												else if (!(*iter)->hasEffect(EFFECT_INVINCIBLE) && playerDefaultTexture != true)
-												{
-													playerDefaultTexture = true;
-													(*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
-													(*iter)->setCurrentFrame(shipNS::player_START_FRAME);
-												}
-					} break;
-					case EFFECT_SLOW: {
-										if ((*iter)->hasEffect(EFFECT_SLOW)) {
-											(*iter)->setVelocity((*iter)->getVelocity().x / 1.05, (*iter)->getVelocity().y / 1.05);
-										}
-					} break;
-					case EFFECT_INVULNERABLE: {
-						if ((*iter)->hasEffect(EFFECT_INVULNERABLE) && (*iter)->getCurrentFrame() == (*iter)->getStartFrame())
-						{
-							playerDefaultTexture = false;
-							(*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, P_INVUL_COLS, &p_invulTextures);
-							(*iter)->setFrames(P_INVUL_START_FRAME, P_INVUL_END_FRAME);
-							(*iter)->setCurrentFrame(P_INVUL_START_FRAME);
-							(*iter)->setFrameDelay(P_INVUL_ANIMATION_DELAY);
-							(*iter)->setLoop(P_INVUL_LOOP);
-							(*iter)->setScale(P_INVUL_SCALE);
-							(*iter)->setRect();
-						}
-						else if (!(*iter)->hasEffect(EFFECT_INVULNERABLE) && playerDefaultTexture != true)
-						{
-							playerDefaultTexture = true;
-							(*iter)->initialize(this, shipNS::WIDTH, shipNS::HEIGHT, shipNS::TEXTURE_COLS, &shipTextures);
-							(*iter)->setCurrentFrame(shipNS::player_START_FRAME);
-						}
-					} break;
-					}
-				}
-			}
-			if (player->hasEffect(EFFECT_STUN))
-				player->freeze();
+									 //					Player Effects
+									 //=================================================
+									 // iterate through the various effect that the players have
+									 // player effects should be applied here. enviroment effects can be recorded here though it is not recommended
+									 for (std::map<EffectType, float>::iterator iter_ = player->getEffectTimers()->begin(); iter_ != player->getEffectTimers()->end(); iter_++) {
+										 if (iter_->second > 0.0f) {
+											 iter_->second -= deltaTime;
+											 player->triggerEffect(iter_->first);			// function to handle effects in player class
+										 }
+									 }
 		} break;
 		case OBJECT_TYPE_TRIANGLE: {
 			Triangle *triangle = (Triangle*) *iter;
@@ -1028,7 +994,7 @@ void Spacewar::UpdateEntities() {
 void Spacewar::KillEntities() {
 	std::vector<Entity*>::iterator iter = entities.begin();
 	while (iter != entities.end()) {
-		if ((*iter)->getHealth() <= 0) {
+		if ((*iter)->getHealth() <= 0 && !player->hasEffect(EFFECT_DEATH)) {
 			// whatever happends on death of the entity goes here
 			// death only happens when health drops to 0
 			// will be kept simple to prevent modifying the iterator while deleting an item
@@ -1055,13 +1021,36 @@ void Spacewar::KillEntities() {
 										 iter = entities.erase(iter);
 			} break;
 			case OBJECT_TYPE_PLAYER: {
-										 (*iter)->setActive(false);
-										 (*iter)->setVisible(false);
-										 iter = entities.erase(iter);
+										 (*iter)->getEffectTimers()->at(EFFECT_DEATH) = 3.0f;
 
-										 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_ASYNC);
+										 // after death animation complete
+										 if ((*iter)->getCurrentFrame() == (*iter)->getEndFrame())
+										 {
+											 (*iter)->setActive(false);
+											 (*iter)->setVisible(false);
+											 iter = entities.erase(iter);
 
-										 this->setGameState(GAME_STATE_GAMEOVER);
+											 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_ASYNC);
+
+											 // only compare with the top 10
+
+											 if (scoreVect.size() < 10) {
+												 this->setGameState(GAME_STATE_NEW_HIGHSCORE);
+											 }
+											 else {
+												 for (int i = 0; i < 10; i++) {
+													 if (playerScore > scoreVect[i] && playerScore > 0) {
+														 this->setGameState(GAME_STATE_NEW_HIGHSCORE);
+														 printf("NEW HIGHSCORE!\n");
+													 }
+													 else if (playerScore < scoreVect[i])
+													 {
+														 this->setGameState(GAME_STATE_GAMEOVER);
+														 printf("gg\n");
+													 }
+												 }
+											 }
+										 }
 			} break;
 			case OBJECT_TYPE_SQUARES: {
 										  (*iter)->setActive(false);
@@ -1134,7 +1123,7 @@ void Spacewar::collisions() {
 					if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect((EFFECT_INVINCIBLE))){
 						player->damage(WEAPON_BLACKHOLE);
 						PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
-						
+
 						player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
 						combo = 0;
 					}
@@ -1194,7 +1183,7 @@ void Spacewar::collisions() {
 
 							// play sound async to the game to avoid 'lag'
 							PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
-							
+
 							pickup_->respawnPickup();
 						} break;
 						case PICKUP_DESTRUCTOR_FREEZE: {
@@ -1270,7 +1259,7 @@ void Spacewar::collisions() {
 								player->setHealth(10);
 							//playerScore += genScore(++combo);
 
-							pickup_->damage(WEAPON_PLAYER);					
+							pickup_->damage(WEAPON_PLAYER);
 
 						} break;
 						case PICKUP_OBSTRUCTOR_BLACKHOLE: {
@@ -1451,4 +1440,6 @@ bool isTargeted(std::vector<Missile*> missiles, Entity* entity) {
 	return false;
 }
 
-
+int minMaxRand(int min, int max) {
+	return rand() % (max - min + 1) + min;
+}
