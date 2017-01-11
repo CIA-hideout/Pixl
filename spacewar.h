@@ -1,12 +1,9 @@
 // Module:			Gameplay Programming
 // Assignment 1:	Pixl
-// Student Name:	Elcoms Khang	(S10157558A)
-//					Lin Lue			(S10158175E)
-//					Amos Tan		(S10158017D)
 
 // Programming 2D Games
 // Copyright (c) 2011 by: 
-// Charles Kelly Go And Fuck Yourself
+// Charles Kelly 
 // Chapter 6 spacewar.h v1.0
 
 #ifndef _SPACEWAR_H           
