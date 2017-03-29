@@ -24,6 +24,7 @@
 #include "Pickup.h"
 #include "Explosion.h"
 #include "Freeze.h"
+#include "audio.h"
 
 enum GameState {
 	GAME_STATE_MENU,
@@ -96,6 +97,8 @@ private:
 
 	std::map<UCHAR, bool>		inputMap;
 	std::vector<int>			textVect;
+
+	Audio* audio;
 
 public:
 	// Constructor

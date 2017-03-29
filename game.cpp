@@ -116,6 +116,21 @@ void Game::initialize(HWND hw)
 
 	QueryPerformanceCounter(&timeStart);        // get starting time
 
+	// Init sound system
+	audio = new Audio();
+	// If sound files defined
+	if (*WAVE_BANK != '\0' && *SOUND_BANK != '\0') {
+		if (FAILED(hr = audio->initialise())) {
+			if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
+				throw(GameError(gameErrorNS::FATAL_ERROR,
+				"Failed to initialize sound system" \
+				"because media file not found."));
+			else
+				throw(GameError(gameErrorNS::FATAL_ERROR,
+				"Failed to initialize sound system."));
+		}
+	}
+
 	initialized = true;
 }
 

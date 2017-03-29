@@ -95,6 +95,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="audio.cpp" />
     <ClCompile Include="Blackhole.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="entity.cpp" />
@@ -114,6 +115,7 @@
     <ClCompile Include="winmain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="audio.h" />
     <ClInclude Include="Blackhole.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="constants.h" />
