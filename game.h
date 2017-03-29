@@ -15,6 +15,7 @@
 #include <Mmsystem.h>
 #include "graphics.h"
 #include "input.h"
+#include "audio.h"
 #include <vector>
 #include "constants.h"
 #include "gameError.h"
@@ -100,6 +101,8 @@ public:
 
 	virtual	void UpdateEntities() = 0;
 	virtual void DrawEntities() = 0;
+	Audio* audio;				// pointer to audio system
+
 };
 
 #endif

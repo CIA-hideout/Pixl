@@ -50,6 +50,8 @@ void Spacewar::initialize(HWND hwnd) {
 
 	Game::initialize(hwnd);
 
+	audio =  Game::audio;
+
 	//AllocConsole();		// Console for debugging
 	freopen("conin$", "r", stdin);
 	freopen("conout$", "w", stdout);
@@ -204,7 +206,7 @@ void Spacewar::update() {
 
 							  // s
 							  if (input->isKeyDown(0x53)) {
-								  PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+								  audio->playCue(PLAYER_SELECT_SOUND);
 
 								  entities.clear();
 
@@ -330,19 +332,19 @@ void Spacewar::update() {
 
 		// c
 		else if (input->isKeyDown(0x43)) {
-			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			audio->playCue(PLAYER_SELECT_SOUND);
 			this->setGameState(GAME_STATE_CREDITS);
 		}
 
 		// i
 		else if (input->isKeyDown(0x49)) {
-			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			audio->playCue(PLAYER_SELECT_SOUND);
 			this->setGameState(GAME_STATE_INSTRUCTIONS);
 		}
 
 		// h
 		else if (input->isKeyDown(0x48)) {
-			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			audio->playCue(PLAYER_SELECT_SOUND);
 			this->setGameState(GAME_STATE_HIGHSCORE);
 			cursorPos = 0;
 		}
@@ -468,7 +470,7 @@ void Spacewar::update() {
 
 		// Pressing ESC Key returns player to Main Menu
 		if (input->isKeyDown(ESC_KEY)) {
-			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			audio->playCue(PLAYER_SELECT_SOUND);
 
 			this->setGameState(GAME_STATE_MENU);
 		}
@@ -485,7 +487,7 @@ void Spacewar::update() {
 		// Code to run after the player dies and the score is shown
 		// Press ESC Key to return to Main Menu
 		if (input->isKeyDown(ESC_KEY)) {
-			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			audio->playCue(PLAYER_SELECT_SOUND);
 
 			this->setGameState(GAME_STATE_MENU);
 		}
@@ -505,18 +507,18 @@ void Spacewar::update() {
 	} break;
 	case GAME_STATE_CREDITS: {
 								 if (input->isKeyDown(VK_ESCAPE)) {
-									 PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+									 audio->playCue(PLAYER_SELECT_SOUND);
 									 this->setGameState(GAME_STATE_MENU);
 								 }
 	} break;
 	case GAME_STATE_INSTRUCTIONS: {
 		if (input->isKeyDown(VK_ESCAPE)) {
-			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			audio->playCue(PLAYER_SELECT_SOUND);
 			this->setGameState(GAME_STATE_MENU);
 		}
 		else if (instructions->getCurrentFrame() == 0 && input->isKeyDown(VK_RIGHT) && !isKeyPressed)
 		{
-			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			audio->playCue(PLAYER_SELECT_SOUND);
 			instructions->setFrames(INSTRUCTIONS_HOW_START_FRAME, INSTRUCTIONS_HOW_END_FRAME);
 			instructions->setCurrentFrame(INSTRUCTIONS_HOW_START_FRAME);
 			instructions->setLoop(false);
@@ -524,7 +526,7 @@ void Spacewar::update() {
 		}
 		else if (instructions->getCurrentFrame() == 1 && input->isKeyDown(VK_LEFT) && !isKeyPressed)
 		{
-			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			audio->playCue(PLAYER_SELECT_SOUND);
 			instructions->setFrames(INSTRUCTIONS_CONTROLS_START_FRAME, INSTRUCTIONS_CONTROLS_END_FRAME);
 			instructions->setCurrentFrame(INSTRUCTIONS_CONTROLS_START_FRAME);
 			instructions->setLoop(false);
@@ -532,7 +534,7 @@ void Spacewar::update() {
 		}
 		else if (instructions->getCurrentFrame() == 1 && input->isKeyDown(VK_RIGHT) && !isKeyPressed)
 		{
-			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			audio->playCue(PLAYER_SELECT_SOUND);
 			instructions->setFrames(INSTRUCTIONS_GOODLUCK_START_FRAME, INSTRUCTIONS_GOODLUCK_END_FRAME);
 			instructions->setCurrentFrame(INSTRUCTIONS_GOODLUCK_START_FRAME);
 			instructions->setFrameDelay(INSTRUCTIONS_ANIMATION_DELAY);
@@ -541,7 +543,7 @@ void Spacewar::update() {
 		}
 		else if (instructions->getCurrentFrame() == 2 && input->isKeyDown(VK_LEFT) && !isKeyPressed)
 		{
-			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			audio->playCue(PLAYER_SELECT_SOUND);
 			instructions->setFrames(INSTRUCTIONS_HOW_START_FRAME, INSTRUCTIONS_HOW_END_FRAME);
 			instructions->setCurrentFrame(INSTRUCTIONS_HOW_START_FRAME);
 			instructions->setLoop(false);
@@ -557,7 +559,7 @@ void Spacewar::update() {
 	} break;
 	case GAME_STATE_HIGHSCORE: {
 		if (input->isKeyDown(VK_ESCAPE)) {
-			PlaySound(PLAYER_SELECT_SOUND, NULL, SND_ASYNC);
+			audio->playCue(PLAYER_SELECT_SOUND);
 			this->setGameState(GAME_STATE_MENU);
 		}
 	} break;
@@ -1027,7 +1029,7 @@ void Spacewar::KillEntities() {
 											 (*iter)->setVisible(false);
 											 iter = entities.erase(iter);
 
-											 PlaySound(PLAYER_DEAD_SOUND, NULL, SND_ASYNC);
+											 audio->playCue(PLAYER_DEAD_SOUND);
 
 											 // only compare with the top 10
 
@@ -1119,7 +1121,7 @@ void Spacewar::collisions() {
 					// Plays sound and kills player if blackhole is touched when player is not invulnerable or invincible
 					if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect((EFFECT_INVINCIBLE))){
 						player->damage(WEAPON_BLACKHOLE);
-						PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+						audio->playCue(PLAYER_DAMAGE_SOUND);
 
 						player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
 						combo = 0;
@@ -1136,7 +1138,7 @@ void Spacewar::collisions() {
 
 					// Plays sound and damages player if circle is touched when player is not invulnerable or invincible
 					else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
-						PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+						audio->playCue(PLAYER_DAMAGE_SOUND);
 
 						player->damage(WEAPON_CIRCLE);
 						player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
@@ -1154,7 +1156,7 @@ void Spacewar::collisions() {
 
 					// Plays sound and damages player if triangle is touched when player is not invulnerable or invincible
 					else if (!player->hasEffect(EFFECT_INVULNERABLE) && !player->hasEffect(EFFECT_INVINCIBLE)) {
-						PlaySound(PLAYER_DAMAGE_SOUND, NULL, SND_ASYNC);
+						audio->playCue(PLAYER_DAMAGE_SOUND);
 
 						player->damage(WEAPON_TRIANGLE);
 						player->getEffectTimers()->at(EFFECT_INVULNERABLE) = 2.4f;
@@ -1179,13 +1181,13 @@ void Spacewar::collisions() {
 							tempVector.push_back(explosion);
 
 							// play sound async to the game to avoid 'lag'
-							PlaySound(PICKUP_EXPLODE_SOUND, NULL, SND_ASYNC);
+							audio->playCue(PICKUP_EXPLODE_SOUND);
 
 							pickup_->respawnPickup();
 						} break;
 						case PICKUP_DESTRUCTOR_FREEZE: {
 							printf("Destructor Freeze");
-							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							audio->playCue(PLAYER_PICKUP_SOUND);
 							Freeze* freeze = new Freeze();
 							freeze->initialize(this, freezeNS::WIDTH, freezeNS::HEIGHT, freezeNS::TEXTURE_COLS, &freezeTexture);
 							freeze->spawn();
@@ -1195,7 +1197,7 @@ void Spacewar::collisions() {
 						} break;
 						case PICKUP_DESTRUCTOR_INVINCIBILITY: {
 							printf("Destructor Invincibility");
-							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							audio->playCue(PLAYER_PICKUP_SOUND);
 
 							pickup_->respawnPickup();
 							player->getEffectTimers()->at(EFFECT_INVINCIBLE) = 10.0f;
@@ -1226,16 +1228,16 @@ void Spacewar::collisions() {
 								missiles.push_back(m);
 							}
 
-							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							audio->playCue(PLAYER_PICKUP_SOUND);
 
 							pickup_->respawnPickup();
 						} break;
 						case PICKUP_HEALTH: {
 							// no need to reset heart type since there will always be one in a game
-							//PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+							//audio->playCue(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
 							printf("Health");
 							// create a new heart pickup
-							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							audio->playCue(PLAYER_PICKUP_SOUND);
 							healthPickup = new Pickup();
 							healthPickup->initialize(this, PickupNS::WIDTH, PickupNS::HEIGHT, PickupNS::TEXTURE_COLS, &heartTexture);
 							healthPickup->setPickUpType(PICKUP_HEART);
@@ -1248,7 +1250,7 @@ void Spacewar::collisions() {
 						} break;
 						case PICKUP_HEART: {
 							printf("Heart");
-							PlaySound(PLAYER_PICKUP_HEART_SOUND, NULL, SND_ASYNC);
+							audio->playCue(PLAYER_PICKUP_HEART_SOUND);
 
 							// increase player health by 1
 							player->setHealth(player->getHealth() + 1);
@@ -1267,34 +1269,34 @@ void Spacewar::collisions() {
 							blackhole->initialize(this, blackholeNS::WIDTH, blackholeNS::HEIGHT, blackholeNS::TEXTURE_COLS, &blackHoleTexture);
 							blackhole->setNewLocation();
 
-							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							audio->playCue(PLAYER_PICKUP_SOUND);
 
 							tempVector.push_back(blackhole);
 							pickup_->respawnPickup();
 						} break;
 						case PICKUP_OBSTRUCTOR_ENLARGE_PLAYER: {
 							printf("Obstructor enlarge");
-							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							audio->playCue(PLAYER_PICKUP_SOUND);
 							pickup_->respawnPickup();
 							player->getEffectTimers()->at(EFFECT_ENLARGED) = 10.0f;
 						} break;
 						case PICKUP_OBSTRUCTOR_INVERT_CONTROLS: {
 							printf("Obstructor invert");
-							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							audio->playCue(PLAYER_PICKUP_SOUND);
 
 							pickup_->respawnPickup();
 							player->getEffectTimers()->at(EFFECT_INVERTED) = 10.0f;
 						} break;
 						case PICKUP_OBSTRUCTOR_SLOW_PLAYER: {
 							printf("Obstructor slow");
-							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							audio->playCue(PLAYER_PICKUP_SOUND);
 
 							pickup_->respawnPickup();
 							player->getEffectTimers()->at(EFFECT_SLOW) = 10.0f;
 						} break;
 						case PICKUP_OBSTRUCTOR_STUN_PLAYER: {
 							printf("Obstructor stun");
-							PlaySound(PLAYER_PICKUP_SOUND, NULL, SND_ASYNC);
+							audio->playCue(PLAYER_PICKUP_SOUND);
 
 							pickup_->respawnPickup();
 							player->getEffectTimers()->at(EFFECT_STUN) = 5.0f;
